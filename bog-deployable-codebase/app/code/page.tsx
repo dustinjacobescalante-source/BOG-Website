@@ -1,0 +1,3 @@
+import { Section } from '@/components/section';
+import { Card } from '@/components/cards';
+export default function Page() { return <Section label="Code" title="Code of the Buffalo Dogs" description="Broken men are welcome. Undisciplined men are corrected. Unwilling men are removed."><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Loyalty to the Pack","Discipline Before Comfort","Strength With Control","Accountability Without Ego","Family First","Truth Over Approval","Service Over Status","Faith and Humility"].map((item)=><Card key={item}><div className="text-base font-semibold text-white">{item}</div></Card>)}</div></Section>; }

@@ -1,0 +1,3 @@
+import { Section } from '@/components/section';
+import { Card } from '@/components/cards';
+export default function Page() { return <Section label="Ranks" title="Rank Structure" description="Rank can be lost. Titles mean nothing without behavior."><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{[["Lone Wolf","Allowed proximity, not belonging."],["Omega","Learner and builder."],["Beta","Contributor and engine of the pack."],["Delta","Protects culture and keeps order."],["Alpha","Chosen, never self-appointed."],["Council","Wisdom and stewardship."]].map(([name,text])=><Card key={name}><div className="text-2xl font-black text-white">{name}</div><p className="mt-3 text-sm text-zinc-400">{text}</p></Card>)}</div></Section>; }
