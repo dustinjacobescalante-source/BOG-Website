@@ -25,8 +25,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (mode === 'sign-in') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push('/portal');
-        router.refresh();
+       window.location.href = '/portal';
+return;
       }
 
       if (mode === 'sign-up') {
