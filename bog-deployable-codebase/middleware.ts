@@ -33,33 +33,7 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-
-  if (!user) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, is_active")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-  }
-
-  if (!profile.is_active) {
-    return NextResponse.redirect(new URL("/portal/pending", request.url));
-  }
-
-  if (pathname.startsWith("/admin") && profile.role !== "admin") {
-    return NextResponse.redirect(new URL("/portal", request.url));
-  }
+  await supabase.auth.getUser();
 
   return response;
 }
