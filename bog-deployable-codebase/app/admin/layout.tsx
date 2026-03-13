@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
       <aside className="card h-fit p-5">
-        <div className="text-sm font-bold text-white">Admin Panel</div>
+        <div className="text-sm font-bold text-white">ADMIN TEST PANEL 123</div>
         <div className="mt-1 text-sm text-zinc-400">{profile.full_name}</div>
         <div className="mt-1 text-xs text-zinc-500">
           role: {profile.role} • rank: {profile.rank}
