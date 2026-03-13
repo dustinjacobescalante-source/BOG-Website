@@ -39,7 +39,6 @@ export default async function Page() {
   title="ADMIN MEMBERS TEST PAGE"
   description="If you can see this page the admin route is working."
 >
-    >
       <div className="space-y-4">
         {data?.map((member) => (
           <Card key={member.id}>
