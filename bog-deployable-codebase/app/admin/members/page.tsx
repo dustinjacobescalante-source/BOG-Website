@@ -34,11 +34,11 @@ export default async function Page() {
     .order('created_at', { ascending: false });
 
   return (
-   <Section
-  label="Admin"
-  title="ADMIN MEMBERS TEST PAGE"
-  description="If you can see this page the admin route is working."
->
+  <Section
+    label="Admin"
+    title="Manage Members"
+    description="Assign roles, ranks, and active status."
+  >
       <div className="space-y-4">
         {data?.map((member) => (
           <Card key={member.id}>
