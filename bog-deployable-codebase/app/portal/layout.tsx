@@ -18,7 +18,7 @@ export default async function PortalLayout({ children }: { children: React.React
   if (!profile) redirect('/auth/sign-in');
 
   if (!profile.is_active) {
-    redirect('/portal/pending');
+   redirect('/pending');
   }
 
   return (
