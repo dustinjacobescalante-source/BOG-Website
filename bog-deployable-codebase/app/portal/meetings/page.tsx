@@ -2,31 +2,52 @@ import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function Page() {
+export default async function MeetingsPage() {
   const supabase = await createClient();
+
   const { data: meetings } = await supabase
     .from('meetings')
-    .select('id, title, meeting_date, status, monthly_scripture, monthly_priorities')
-    .in('status', ['published', 'archived'])
-    .order('meeting_date', { ascending: false })
-    .limit(12);
+    .select('*')
+    .eq('status', 'published')
+    .order('meeting_date', { ascending: true });
 
   return (
-    <Section label="Portal" title="Meetings Center" description="Publish agendas in advance and archive prior meetings.">
+    <Section
+      label="Portal"
+      title="Meetings"
+      description="View published brotherhood meetings, agendas, and locations."
+    >
       <div className="space-y-4">
-        {meetings?.length ? meetings.map((meeting) => (
+        {meetings?.map((meeting) => (
           <Card key={meeting.id}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-lg font-bold text-white">{meeting.title}</div>
-                <div className="mt-1 text-sm text-zinc-500">{new Date(meeting.meeting_date).toLocaleString()}</div>
-                <div className="mt-3 text-sm text-zinc-400">Scripture: {meeting.monthly_scripture || '—'}</div>
-                <div className="text-sm text-zinc-400">Priorities: {meeting.monthly_priorities || '—'}</div>
+            <div className="space-y-2">
+              <div className="text-lg font-bold text-white">{meeting.title}</div>
+
+              <div className="text-sm text-zinc-400">
+                {meeting.meeting_date
+                  ? new Date(meeting.meeting_date).toLocaleString()
+                  : 'No date set'}
               </div>
-              <div className="rounded-full bg-red-600/15 px-3 py-1 text-xs font-bold text-red-400">{meeting.status}</div>
+
+              <div className="text-sm text-zinc-500">
+                {meeting.location || 'No location set'}
+              </div>
+
+              {meeting.description && (
+                <p className="pt-2 text-sm text-zinc-300">{meeting.description}</p>
+              )}
             </div>
           </Card>
-        )) : <Card><div className="text-sm text-zinc-300">No meetings yet.</div></Card>}
+        ))}
+
+        {!meetings?.length && (
+          <Card>
+            <div className="text-white font-semibold">No published meetings yet</div>
+            <p className="mt-2 text-sm text-zinc-400">
+              Once leadership publishes meetings, they will appear here.
+            </p>
+          </Card>
+        )}
       </div>
     </Section>
   );
