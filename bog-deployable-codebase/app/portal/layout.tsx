@@ -39,6 +39,14 @@ export default async function PortalLayout({ children }: { children: React.React
             </Link>
           ))}
         </nav>
+        <form action="/auth/sign-out" method="post" className="mt-6">
+  <button
+    type="submit"
+    className="w-full rounded-xl px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/5 text-left"
+  >
+    Sign Out
+  </button>
+</form>
       </aside>
       <div>{children}</div>
     </div>
