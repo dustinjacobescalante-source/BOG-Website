@@ -23,7 +23,7 @@ export default function HomePage() {
             src="/assets/Buffalo.png"
             alt="Buffalo background"
             fill
-            className="object-cover opacity-15"
+            className="object-contain scale-125 opacity-15"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/-5 via-black/-55 to-black" />
         </div>
