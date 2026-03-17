@@ -35,11 +35,12 @@ export default function HomePage() {
             </div>
 
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Are you built for the pack?
+  Built for Men Who Refuse Average.
+</h1>
             </h1>
 
             <p className="mt-5 max-w-2xl text-xl leading-relaxed text-zinc-300">
-              <p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl leading-relaxed text-zinc-300">
+             <p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl leading-relaxed text-zinc-300">
   Give men a purpose.
 
   <br /><br />
@@ -62,8 +63,8 @@ export default function HomePage() {
   <br /><br />
 
   <span className="font-bold text-red-500 text-xl tracking-widest">
-  RUN AT THE STORM.
-</span>
+    RUN AT THE STORM.
+  </span>
 </p>
             </p>
 
@@ -74,13 +75,19 @@ export default function HomePage() {
                 href="/about"
                 className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
               >
-                Explore BOG
-              </Link>
+               <Link
+  href="/about"
+  className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
+>
+  Learn What We Stand For
+</Link>
 
-              <Link
-                href="/portal"
-                className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-white/5"
-              >
+<Link
+  href="/portal"
+  className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-white/5"
+>
+  Enter the Brotherhood
+</Link>
                 View Member Portal
               </Link>
             </div>
