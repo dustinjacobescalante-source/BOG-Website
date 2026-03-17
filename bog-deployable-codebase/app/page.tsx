@@ -25,7 +25,7 @@ export default function HomePage() {
             fill
             className="object-contain scale-125 opacity-15"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/-5 via-black/-90 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/90 to-black" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
