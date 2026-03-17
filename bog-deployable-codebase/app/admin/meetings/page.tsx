@@ -27,6 +27,21 @@ async function saveMeeting(formData: FormData) {
   revalidatePath('/portal/meetings');
 }
 
+async function deleteMeeting(formData: FormData) {
+  'use server';
+
+  const supabase = await createClient();
+  const id = String(formData.get('id') ?? '');
+
+  if (!id) return;
+
+  await supabase.from('meetings').delete().eq('id', id);
+
+  revalidatePath('/admin/meetings');
+  revalidatePath('/portal');
+  revalidatePath('/portal/meetings');
+}
+
 export default async function AdminMeetingsPage() {
   const supabase = await createClient();
 
@@ -121,6 +136,16 @@ export default async function AdminMeetingsPage() {
                 {meeting.description && (
                   <p className="mt-3 text-sm text-zinc-300">{meeting.description}</p>
                 )}
+
+                <form action={deleteMeeting} className="mt-4">
+                  <input type="hidden" name="id" value={meeting.id} />
+                  <button
+                    type="submit"
+                    className="rounded-xl border border-red-500/40 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                  >
+                    Delete Meeting
+                  </button>
+                </form>
               </div>
             ))}
 
