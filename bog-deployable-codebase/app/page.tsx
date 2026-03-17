@@ -38,7 +38,7 @@ export default function HomePage() {
               Are you built for the pack?
             </h1>
 
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-300">
+            <p className="mt-5 max-w-2xl text-xl leading-relaxed text-zinc-300">
               Give men a purpose! BOG Members create a culture where standards matter more than personalities. 
               Our pack has a shared expectation of health, discipline, and what is required to be successful. 
               We believe weak bodies erode discipline everywhere else. We are looking for men who can respond, not react. 
