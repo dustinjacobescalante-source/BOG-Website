@@ -23,25 +23,28 @@ export default function HomePage() {
             src="/assets/Buffalo.png"
             alt="Buffalo background"
             fill
-            className="object-contain scale-125 opacity-15"
+            className="object-contain scale-125 opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="flex max-w-3xl flex-col justify-center">
             <div className="mb-5 inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300">
-              Public Website + Member Platform
+              BOG Website + Member Platform
             </div>
 
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              A deployable platform built for the pack.
+              Are you built for the pack?
             </h1>
 
             <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-300">
-              {site.name} combines a public-facing brand presence with private member tools
-              for accountability, meetings, scholarship management, merch, and brotherhood
-              communication.
+              Give men a purpose! BOG Members create a culture where standards matter more than personalities. 
+              Our pack has a shared expectation of health, discipline, and what is required to be successful. 
+              We believe weak bodies erode discipline everywhere else. We are looking for men who can respond, not react. 
+              Uncontrolled men are destructive. We prioritize serving our communities and fellow man. 
+              Bog uses our faith as a compass and not a weapon because without a spiritual anchor, strength turns to arrogance.
+              We will serve, create healthy relationships, and RUN AT THE STORM!
             </p>
 
             <p className="mt-4 max-w-2xl text-base text-zinc-400">{site.quote}</p>
