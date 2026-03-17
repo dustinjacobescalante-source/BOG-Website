@@ -42,19 +42,80 @@ async function deleteMeeting(formData: FormData) {
   revalidatePath('/portal/meetings');
 }
 
+async function saveAttendance(formData: FormData) {
+  'use server';
+
+  const supabase = await createClient();
+  const meeting_id = String(formData.get('meeting_id') ?? '');
+
+  if (!meeting_id) return;
+
+  const { data: members } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('is_active', true);
+
+  for (const member of members ?? []) {
+    const attended = formData.get(`attended_${member.id}`) === 'on';
+
+    const { data: existing } = await supabase
+      .from('meeting_attendance')
+      .select('id')
+      .eq('meeting_id', meeting_id)
+      .eq('user_id', member.id)
+      .maybeSingle();
+
+    if (existing?.id) {
+      await supabase
+        .from('meeting_attendance')
+        .update({
+          attended,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existing.id);
+    } else {
+      await supabase
+        .from('meeting_attendance')
+        .insert({
+          meeting_id,
+          user_id: member.id,
+          attended,
+        });
+    }
+  }
+
+  revalidatePath('/admin/meetings');
+}
+
 export default async function AdminMeetingsPage() {
   const supabase = await createClient();
 
-  const { data: meetings } = await supabase
-    .from('meetings')
-    .select('*')
-    .order('meeting_date', { ascending: true });
+  const [{ data: meetings }, { data: members }] = await Promise.all([
+    supabase.from('meetings').select('*').order('meeting_date', { ascending: true }),
+    supabase
+      .from('profiles')
+      .select('id, full_name, email, rank, role')
+      .eq('is_active', true)
+      .order('full_name', { ascending: true }),
+  ]);
+
+  const attendanceRows = meetings?.length
+    ? await supabase
+        .from('meeting_attendance')
+        .select('id, meeting_id, user_id, attended')
+        .in('meeting_id', meetings.map((m) => m.id))
+    : { data: [] as any[] };
+
+  const attendanceMap = new Map<string, boolean>();
+  for (const row of attendanceRows.data ?? []) {
+    attendanceMap.set(`${row.meeting_id}:${row.user_id}`, row.attended);
+  }
 
   return (
     <Section
       label="Admin"
       title="Manage Meetings"
-      description="Create and publish meetings for members."
+      description="Create, publish, and track attendance for meetings."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <Card>
@@ -85,7 +146,7 @@ export default async function AdminMeetingsPage() {
               <label className="mb-2 block text-sm font-medium text-white">Location</label>
               <input
                 name="location"
-                placeholder="TBD"
+                placeholder="Aransas Pass High School"
                 className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
               />
             </div>
@@ -136,6 +197,34 @@ export default async function AdminMeetingsPage() {
                 {meeting.description && (
                   <p className="mt-3 text-sm text-zinc-300">{meeting.description}</p>
                 )}
+
+                <form action={saveAttendance} className="mt-4 space-y-3">
+                  <input type="hidden" name="meeting_id" value={meeting.id} />
+                  <div className="text-sm font-semibold text-white">Attendance</div>
+
+                  {(members ?? []).map((member) => {
+                    const checked = attendanceMap.get(`${meeting.id}:${member.id}`) ?? false;
+                    return (
+                      <label key={member.id} className="flex items-center gap-3 text-sm text-zinc-300">
+                        <input
+                          type="checkbox"
+                          name={`attended_${member.id}`}
+                          defaultChecked={checked}
+                        />
+                        <span>
+                          {member.full_name} ({member.rank || 'omega'})
+                        </span>
+                      </label>
+                    );
+                  })}
+
+                  <button
+                    type="submit"
+                    className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/5"
+                  >
+                    Save Attendance
+                  </button>
+                </form>
 
                 <form action={deleteMeeting} className="mt-4">
                   <input type="hidden" name="id" value={meeting.id} />
