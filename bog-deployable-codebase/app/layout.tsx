@@ -14,12 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="relative bg-black text-white">
         <div
-          className="fixed inset-0 -z-30 opacity-10"
+          className="fixed inset-0 -z-30 opacity-50"
           style={{
             backgroundImage: "url('/assets/buffalo.png')",
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
-            backgroundSize: '700px',
+            backgroundSize: '1000px',
           }}
         />
         <div className="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.14),transparent_20%),linear-gradient(180deg,#090909_0%,#000_100%)]" />
