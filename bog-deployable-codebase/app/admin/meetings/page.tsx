@@ -70,7 +70,7 @@ export default async function AdminMeetingsPage() {
               <label className="mb-2 block text-sm font-medium text-white">Location</label>
               <input
                 name="location"
-                placeholder="Aransas Pass High School"
+                placeholder="TBD"
                 className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
               />
             </div>
