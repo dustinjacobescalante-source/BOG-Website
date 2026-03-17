@@ -5,7 +5,7 @@ const links = [
   ["/admin", "Overview"],
   ["/admin/members", "Members"],
   ["/admin/meetings", "Meetings"],
-  <a href="/admin/attendance">Attendance</a>
+  ["/admin/attendance", "Attendance"],
   ["/admin/documents", "Documents"],
   ["/admin/scholarship", "Scholarship"],
   ["/admin/merch", "Merch"],
