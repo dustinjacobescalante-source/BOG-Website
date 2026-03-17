@@ -39,12 +39,32 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-5 max-w-2xl text-xl leading-relaxed text-zinc-300">
-              Give men a purpose! BOG Members create a culture where standards matter more than personalities. 
-              Our pack has a shared expectation of health, discipline, and what is required to be successful. 
-              We believe weak bodies erode discipline everywhere else. We are looking for men who can respond, not react. 
-              Uncontrolled men are destructive. We prioritize serving our communities and fellow man. 
-              Bog uses our faith as a compass and not a weapon because without a spiritual anchor, strength turns to arrogance.
-              We will serve, create healthy relationships, and RUN AT THE STORM!
+              <p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl leading-relaxed text-zinc-300">
+  Give men a purpose.
+
+  <br /><br />
+
+  BOG is built on standards — not personalities.  
+  We create a culture where discipline, health, and accountability are expected.
+
+  <br /><br />
+
+  Weak bodies erode strength everywhere else.  
+  Uncontrolled men are destructive.  
+  We train ourselves to respond — not react.
+
+  <br /><br />
+
+  We serve our communities.  
+  We build strong relationships.  
+  We use faith as a compass — not a weapon.
+
+  <br /><br />
+
+  <span className="font-bold text-red-500 text-xl tracking-widest">
+  RUN AT THE STORM.
+</span>
+</p>
             </p>
 
             <p className="mt-4 max-w-2xl text-base text-zinc-400">{site.quote}</p>
