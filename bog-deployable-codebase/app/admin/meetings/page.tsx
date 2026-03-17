@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
@@ -84,11 +85,11 @@ async function saveAttendance(formData: FormData) {
     }
   }
 
- revalidatePath('/admin/meetings');
+revalidatePath('/admin/meetings');
 revalidatePath('/portal');
 revalidatePath('/portal/meetings');
 
-return { success: true };
+redirect('/admin/meetings');
 }
 
 export default async function AdminMeetingsPage() {
