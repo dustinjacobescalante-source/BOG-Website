@@ -23,9 +23,9 @@ export default function HomePage() {
             src="/assets/Buffalo.png"
             alt="Buffalo background"
             fill
-            className="object-contain opacity-15"
+            className="object-cover opacity-15"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/-5 via-black/-10 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/-5 via-black/-55 to-black" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
