@@ -226,11 +226,6 @@ export default async function AdminMeetingsPage() {
                  <button
   type="submit"
   className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/5"
-  onClick={() => {
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
-  }}
 >
   Save Attendance
 </button>
