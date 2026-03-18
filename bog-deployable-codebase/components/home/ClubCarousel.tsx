@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const slides = [
   { src: "/images/slide-1.jpg", alt: "Buffalo Dog Brotherhood of Growth intro" },
@@ -17,6 +17,8 @@ const slides = [
 export default function ClubCarousel() {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   useEffect(() => {
     if (paused) return;
@@ -36,6 +38,31 @@ export default function ClubCarousel() {
     setCurrent((prev) => (prev + 1) % slides.length);
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (distance > minSwipeDistance) {
+      goToNext();
+    } else if (distance < -minSwipeDistance) {
+      goToPrevious();
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   return (
     <section className="border-t border-white/10 bg-black px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
       <div className="mx-auto max-w-7xl">
@@ -46,6 +73,9 @@ export default function ClubCarousel() {
           <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
             What Buffalo Dog Stands For
           </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
+            A visual walkthrough of the standards, mission, structure, and path into BOG.
+          </p>
         </div>
 
         <div
@@ -53,31 +83,50 @@ export default function ClubCarousel() {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-[0_0_50px_rgba(0,0,0,0.45)]">
-            <div className="relative aspect-[16/9] w-full">
-              <Image
-                key={slides[current].src}
-                src={slides[current].src}
-                alt={slides[current].alt}
-                fill
-                priority={current === 0}
-                className="object-contain bg-black"
-              />
+          <div
+            className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 shadow-[0_0_50px_rgba(0,0,0,0.45)]"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="relative aspect-[16/9] w-full bg-black">
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.src}
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                    current === index
+                      ? "opacity-100 scale-100 z-10"
+                      : "opacity-0 scale-[1.02] z-0 pointer-events-none"
+                  }`}
+                >
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    fill
+                    priority={index === 0}
+                    className="object-contain bg-black transition-transform duration-[6000ms] ease-out"
+                  />
+                </div>
+              ))}
+
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
+
+              <button
+                onClick={goToPrevious}
+                aria-label="Previous slide"
+                className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/60 px-3 py-2 text-white backdrop-blur transition hover:bg-black/80"
+              >
+                ‹
+              </button>
+
+              <button
+                onClick={goToNext}
+                aria-label="Next slide"
+                className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/60 px-3 py-2 text-white backdrop-blur transition hover:bg-black/80"
+              >
+                ›
+              </button>
             </div>
-
-            <button
-              onClick={goToPrevious}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-3 py-2 text-white hover:bg-black/80"
-            >
-              ‹
-            </button>
-
-            <button
-              onClick={goToNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-3 py-2 text-white hover:bg-black/80"
-            >
-              ›
-            </button>
           </div>
 
           <div className="mt-5 flex justify-center gap-2">
@@ -85,19 +134,22 @@ export default function ClubCarousel() {
               <button
                 key={index}
                 onClick={() => setCurrent(index)}
-                className={`h-2.5 rounded-full ${
-                  current === index
-                    ? "w-8 bg-[#c49a6c]"
-                    : "w-2.5 bg-white/25"
+                aria-label={`Go to slide ${index + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  current === index ? "w-8 bg-[#c49a6c]" : "w-2.5 bg-white/25 hover:bg-white/50"
                 }`}
               />
             ))}
           </div>
 
+          <div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
+            Swipe on mobile • Hover to pause
+          </div>
+
           <div className="mt-8 flex justify-center">
             <Link
               href="/about"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-white/5"
+              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
             >
               View Full About Page
             </Link>
