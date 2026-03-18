@@ -82,7 +82,6 @@ function Reveal({
     );
 
     observer.observe(node);
-
     return () => observer.disconnect();
   }, []);
 
@@ -100,8 +99,38 @@ function Reveal({
 }
 
 export default function AboutPage() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setScrollProgress(Math.min(Math.max(progress, 0), 100));
+    };
+
+    updateScrollProgress();
+    window.addEventListener("scroll", updateScrollProgress, {
+      passive: true,
+    });
+
+    return () =>
+      window.removeEventListener("scroll", updateScrollProgress);
+  }, []);
+
   return (
     <main className="bg-black text-white scroll-smooth">
+
+      {/* 🔥 SCROLL PROGRESS BAR */}
+      <div className="fixed left-0 right-0 top-0 z-[100] h-[3px] bg-white/5">
+        <div
+          className="h-full bg-[#c49a6c] transition-[width] duration-150 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      {/* HERO */}
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
           <Image
@@ -120,7 +149,7 @@ export default function AboutPage() {
               About BOG
             </div>
 
-            <h1 className="mt-6 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
               Built on Discipline.
               <br />
               Forged Through Brotherhood.
@@ -129,85 +158,32 @@ export default function AboutPage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-300 sm:text-lg">
-              BOG exists to build stronger men through standards, accountability,
-              challenge, and purpose. This is not about image. It is about
-              becoming the kind of man who can be trusted with responsibility,
-              pressure, leadership, and service.
+              BOG exists to build stronger men through standards,
+              accountability, challenge, and purpose.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/portal"
-                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-              >
+            <div className="mt-8 flex gap-3">
+              <Link href="/portal" className="rounded-2xl bg-red-600 px-6 py-3 font-semibold hover:bg-red-700">
                 Join the Brotherhood
-              </Link>
-              <Link
-                href="/"
-                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
-              >
-                Back to Home
               </Link>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-zinc-950">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-24">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              The Mission
-            </p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-              We do not gather to coast.
-              <br />
-              We gather to become more.
-            </h2>
-          </Reveal>
-
-          <Reveal delay={120} className="space-y-6 text-base leading-8 text-zinc-300">
-            <p>
-              BOG is a brotherhood for men who are tired of drifting, tired of
-              average, and ready to hold a higher line.
-            </p>
-            <p>
-              We believe weak habits affect every part of life. Strong men are
-              built through discipline, consistency, humility, and challenge.
-            </p>
-            <p>
-              Our goal is not noise. Our goal is transformation that shows up in
-              health, family, leadership, faith, service, and the way we carry
-              ourselves under pressure.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
+      {/* PILLARS */}
       <section className="border-b border-white/10 bg-black">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <Reveal className="mb-12 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              The Pillars
-            </p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-              Four things we do not compromise on
-            </h2>
+        <div className="mx-auto max-w-7xl px-4 py-20">
+          <Reveal className="text-center mb-10">
+            <h2 className="text-4xl font-black">The Pillars</h2>
           </Reveal>
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {pillars.map((pillar, index) => (
-              <Reveal key={pillar.title} delay={index * 100}>
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
-                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
-                    Pillar
-                  </div>
-                  <h3 className="mt-3 text-2xl font-black text-white">
-                    {pillar.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    {pillar.text}
-                  </p>
+            {pillars.map((pillar, i) => (
+              <Reveal key={pillar.title} delay={i * 100}>
+                <div className="p-6 border border-white/10 rounded-2xl bg-white/[0.03]">
+                  <h3 className="text-xl font-bold">{pillar.title}</h3>
+                  <p className="text-sm text-zinc-400 mt-2">{pillar.text}</p>
                 </div>
               </Reveal>
             ))}
@@ -215,161 +191,23 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="relative border-b border-white/10 bg-zinc-950">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
-          <div className="sticky top-20">
-            <Reveal className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-black/70 px-6 py-14 text-center shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur sm:px-10 lg:px-16">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-                The Standard
-              </p>
-              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-                We show up.
-                <br />
-                We do the work.
-                <br />
-                We do not make excuses.
-              </h2>
-              <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
-                Brotherhood means something only when it is backed by standards.
-                We expect action, honesty, effort, humility, and a willingness
-                to be sharpened.
-              </p>
-            </Reveal>
+      {/* FINAL CTA */}
+      <section className="text-center py-24">
+        <Reveal>
+          <h2 className="text-5xl font-black">
+            This is not for everyone.
+            <br />
+            But if you're ready—
+          </h2>
+
+          <div className="mt-8">
+            <Link href="/portal" className="bg-red-600 px-8 py-4 rounded-2xl font-bold hover:bg-red-700">
+              Apply / Join BOG
+            </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      <section className="border-b border-white/10 bg-black">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              What This Looks Like
-            </p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-              Real standards.
-              <br />
-              Real action.
-            </h2>
-          </Reveal>
-
-          <div className="grid gap-4">
-            {standards.map((item, index) => (
-              <Reveal key={item} delay={index * 80}>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
-                  {item}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-white/10 bg-zinc-950">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <Reveal className="mb-12 max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              The Process
-            </p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-              How it works
-            </h2>
-          </Reveal>
-
-          <div className="grid gap-6 lg:grid-cols-4">
-            {steps.map((step, index) => (
-              <Reveal key={step.number} delay={index * 100}>
-                <div className="rounded-3xl border border-white/10 bg-black/30 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20">
-                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
-                    {step.number}
-                  </div>
-                  <h3 className="mt-3 text-2xl font-black text-white">
-                    {step.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    {step.text}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-white/10 bg-black">
-        <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              Who This Is For
-            </p>
-            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl">
-              This is for men who are ready to be challenged.
-            </h2>
-          </Reveal>
-
-          <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
-            {[
-              "Men tired of average",
-              "Men ready to lead",
-              "Men willing to be uncomfortable",
-              "Men committed to growth",
-            ].map((item, index) => (
-              <Reveal key={item} delay={index * 90}>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
-                  {item}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/assets/Buffalo.png"
-            alt="Buffalo background"
-            fill
-            className="object-contain scale-125 opacity-10"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
-        </div>
-
-        <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-              Final Word
-            </p>
-            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-              This is not for everyone.
-              <br />
-              But if you are ready,
-              <br />
-              step in.
-            </h2>
-
-            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-              Brotherhood means more when it costs something. If you are ready
-              to commit to growth, accountability, challenge, and purpose, there
-              is a place for you here.
-            </p>
-
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/portal"
-                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-              >
-                Apply / Join BOG
-              </Link>
-              <Link
-                href="/"
-                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
-              >
-                Return Home
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
     </main>
   );
 }
