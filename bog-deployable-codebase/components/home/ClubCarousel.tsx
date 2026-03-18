@@ -93,24 +93,38 @@ export default function ClubCarousel() {
             onTouchEnd={handleTouchEnd}
           >
             <div className="relative aspect-[16/9] w-full bg-black">
-              {slides.map((slide, index) => (
-                <div
-                  key={slide.src}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                    current === index
-                      ? "opacity-100 scale-100 z-10"
-                      : "opacity-0 scale-[1.02] z-0 pointer-events-none"
-                  }`}
-                >
-                  <Image
-                    src={slide.src}
-                    alt={slide.alt}
-                    fill
-                    priority={index === 0}
-                    className="object-contain bg-black transition-transform duration-[6000ms] ease-out scale-105"
-                  />
-                </div>
-              ))}
+              {slides.map((slide, index) => {
+  const isLast = index === slides.length - 1;
+
+  const slideContent = (
+    <div
+      key={slide.src}
+      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+        current === index
+          ? "opacity-100 scale-100 z-10"
+          : "opacity-0 scale-[1.02] z-0 pointer-events-none"
+      }`}
+    >
+      <Image
+        src={slide.src}
+        alt={slide.alt}
+        fill
+        priority={index === 0}
+        className="object-contain bg-black transition-transform duration-[6000ms] ease-out scale-105"
+      />
+    </div>
+  );
+
+  if (isLast) {
+    return (
+      <Link href="/about" key={slide.src} className="absolute inset-0 z-20">
+        {slideContent}
+      </Link>
+    );
+  }
+
+  return slideContent;
+})}
 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
 
