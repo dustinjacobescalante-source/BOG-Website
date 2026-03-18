@@ -126,10 +126,10 @@ export default function AboutPage() {
               alt="Buffalo background"
               fill
               priority
-              className="object-contain opacity-30"
+              className="object-contain opacity-20"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/25 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black" />
         </div>
 
         <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
