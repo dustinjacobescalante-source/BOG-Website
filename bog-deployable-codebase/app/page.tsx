@@ -1,18 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Card } from '@/components/cards';
-import { Section } from '@/components/section';
-import { site, codeItems, rankItems } from '@/lib/site';
-
-const portalCards = [
-  'Accountability Dashboard',
-  'Meetings Center',
-  'Document Library',
-  'Member Directory',
-  'Private Discussion Board',
-  'Scholarship Review',
-  'Merch Management',
-];
+import Image from "next/image";
+import Link from "next/link";
+import ClubCarousel from "@/components/home/ClubCarousel";
+import { site } from "@/lib/site";
 
 export default function HomePage() {
   return (
@@ -24,6 +13,7 @@ export default function HomePage() {
             alt="Buffalo background"
             fill
             className="object-contain scale-125 opacity-20"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black" />
         </div>
@@ -35,102 +25,57 @@ export default function HomePage() {
             </div>
 
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-  Built for Men Who Refuse Average.
-</h1>
+              Built for Men Who Refuse Average.
+            </h1>
 
-<p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl leading-relaxed text-zinc-300">
-  Give men a purpose.
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg lg:text-xl">
+              Give men a purpose.
+              <br />
+              <br />
+              BOG is built on standards — not personalities.
+              We create a culture where discipline, health, and accountability
+              are expected.
+              <br />
+              <br />
+              Weak bodies erode strength everywhere else.
+              Uncontrolled men are destructive.
+              We train ourselves to respond — not react.
+              <br />
+              <br />
+              We serve our communities.
+              We build strong relationships.
+              We use faith as a compass — not a weapon.
+              <br />
+              <br />
+              <span className="text-xl font-bold tracking-widest text-red-500">
+                RUN AT THE STORM.
+              </span>
+            </p>
 
-  <br /><br />
+            <p className="mt-4 max-w-2xl text-base text-zinc-400">
+              {site.quote}
+            </p>
 
-  BOG is built on standards — not personalities.  
-  We create a culture where discipline, health, and accountability are expected.
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/about"
+                className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Learn What We Stand For
+              </Link>
 
-  <br /><br />
-
-  Weak bodies erode strength everywhere else.  
-  Uncontrolled men are destructive.  
-  We train ourselves to respond — not react.
-
-  <br /><br />
-
-  We serve our communities.  
-  We build strong relationships.  
-  We use faith as a compass — not a weapon.
-
-  <br /><br />
-
-  <span className="font-bold text-red-500 text-xl tracking-widest">
-    RUN AT THE STORM.
-  </span>
-</p>
-
-<p className="mt-4 max-w-2xl text-base text-zinc-400">
-  {site.quote}
-</p>
-
-<div className="mt-8 flex flex-wrap gap-3">
-  <Link
-    href="/about"
-    className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
-  >
-    Learn What We Stand For
-  </Link>
-
-  <Link
-    href="/portal"
-    className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-white/5"
-  >
-    Enter the Brotherhood
-  </Link>
-</div>
+              <Link
+                href="/portal"
+                className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+              >
+                Enter the Brotherhood
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <Section
-        label="Platform"
-        title="Everything the pack needs in one system"
-        description="A public website backed by private member tools and admin workflows."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {portalCards.map((item) => (
-            <Card key={item}>
-              <div className="text-base font-semibold text-white">{item}</div>
-            </Card>
-          ))}
-        </div>
-      </Section>
-
-      <Section
-        label="The Code"
-        title="Simple. Memorable. Non-negotiable."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {codeItems.map((item) => (
-            <Card key={item}>
-              <div className="text-base font-semibold text-white">{item}</div>
-            </Card>
-          ))}
-        </div>
-      </Section>
-
-      <Section
-        label="Ranks"
-        title="You do not ask for rank. You earn it through behavior."
-      >
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {rankItems.map(([name, text]) => (
-            <Card key={name}>
-              <div className="text-sm font-bold uppercase tracking-[0.22em] text-red-500">
-                Rank
-              </div>
-              <div className="mt-2 text-2xl font-black text-white">{name}</div>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{text}</p>
-            </Card>
-          ))}
-        </div>
-      </Section>
+      <ClubCarousel />
     </>
   );
 }
