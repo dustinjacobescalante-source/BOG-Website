@@ -46,10 +46,6 @@ export default function ClubCarousel() {
           <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
             What Buffalo Dog Stands For
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-            A visual walkthrough of the standards, mission, structure, and path
-            into BOG.
-          </p>
         </div>
 
         <div
@@ -71,31 +67,28 @@ export default function ClubCarousel() {
 
             <button
               onClick={goToPrevious}
-              aria-label="Previous slide"
-              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/65 px-3 py-2 text-xl text-white backdrop-blur transition hover:bg-black/85"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-3 py-2 text-white hover:bg-black/80"
             >
               ‹
             </button>
 
             <button
               onClick={goToNext}
-              aria-label="Next slide"
-              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/65 px-3 py-2 text-xl text-white backdrop-blur transition hover:bg-black/85"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 px-3 py-2 text-white hover:bg-black/80"
             >
               ›
             </button>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2">
+          <div className="mt-5 flex justify-center gap-2">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrent(index)}
-                aria-label={`Go to slide ${index + 1}`}
-                className={`h-2.5 rounded-full transition-all ${
+                className={`h-2.5 rounded-full ${
                   current === index
                     ? "w-8 bg-[#c49a6c]"
-                    : "w-2.5 bg-white/25 hover:bg-white/50"
+                    : "w-2.5 bg-white/25"
                 }`}
               />
             ))}
@@ -104,7 +97,7 @@ export default function ClubCarousel() {
           <div className="mt-8 flex justify-center">
             <Link
               href="/about"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-zinc-100 hover:bg-white/5"
             >
               View Full About Page
             </Link>
