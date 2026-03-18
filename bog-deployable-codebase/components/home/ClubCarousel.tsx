@@ -160,7 +160,7 @@ export default function ClubCarousel() {
           </div>
 
           <div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
-            Swipe on mobile • Hover to pause • Final slide takes you to join
+            Swipe on mobile • Hover to pause 
           </div>
 
           <div className="mt-8 flex justify-center">
