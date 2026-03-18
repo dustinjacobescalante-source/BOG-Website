@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const pillars = [
   {
@@ -52,9 +55,53 @@ const steps = [
   },
 ];
 
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(node);
+        }
+      },
+      { threshold: 0.18 }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${className} ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function AboutPage() {
   return (
-    <main className="bg-black text-white">
+    <main className="bg-black text-white scroll-smooth">
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
           <Image
@@ -64,11 +111,11 @@ export default function AboutPage() {
             priority
             className="object-contain scale-125 opacity-15"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-black" />
         </div>
 
-        <div className="relative mx-auto flex min-h-[90vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
-          <div className="max-w-4xl">
+        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
+          <Reveal className="max-w-4xl">
             <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300">
               About BOG
             </div>
@@ -102,13 +149,13 @@ export default function AboutPage() {
                 Back to Home
               </Link>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="border-b border-white/10 bg-zinc-950">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-24">
-          <div>
+          <Reveal>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
               The Mission
             </p>
@@ -117,9 +164,9 @@ export default function AboutPage() {
               <br />
               We gather to become more.
             </h2>
-          </div>
+          </Reveal>
 
-          <div className="space-y-6 text-base leading-8 text-zinc-300">
+          <Reveal delay={120} className="space-y-6 text-base leading-8 text-zinc-300">
             <p>
               BOG is a brotherhood for men who are tired of drifting, tired of
               average, and ready to hold a higher line.
@@ -133,65 +180,68 @@ export default function AboutPage() {
               health, family, leadership, faith, service, and the way we carry
               ourselves under pressure.
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="border-b border-white/10 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mb-12 text-center">
+          <Reveal className="mb-12 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
               The Pillars
             </p>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
               Four things we do not compromise on
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {pillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05]"
-              >
-                <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
-                  Pillar
+            {pillars.map((pillar, index) => (
+              <Reveal key={pillar.title} delay={index * 100}>
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
+                    Pillar
+                  </div>
+                  <h3 className="mt-3 text-2xl font-black text-white">
+                    {pillar.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-zinc-400">
+                    {pillar.text}
+                  </p>
                 </div>
-                <h3 className="mt-3 text-2xl font-black text-white">
-                  {pillar.title}
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-zinc-400">
-                  {pillar.text}
-                </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-zinc-950">
-        <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-            The Standard
-          </p>
-          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-            We show up.
-            <br />
-            We do the work.
-            <br />
-            We do not make excuses.
-          </h2>
-          <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
-            Brotherhood means something only when it is backed by standards. We
-            expect action, honesty, effort, humility, and a willingness to be
-            sharpened.
-          </p>
+      <section className="relative border-b border-white/10 bg-zinc-950">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+          <div className="sticky top-20">
+            <Reveal className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-black/70 px-6 py-14 text-center shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur sm:px-10 lg:px-16">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+                The Standard
+              </p>
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+                We show up.
+                <br />
+                We do the work.
+                <br />
+                We do not make excuses.
+              </h2>
+              <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
+                Brotherhood means something only when it is backed by standards.
+                We expect action, honesty, effort, humility, and a willingness
+                to be sharpened.
+              </p>
+            </Reveal>
+          </div>
         </div>
       </section>
 
       <section className="border-b border-white/10 bg-black">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
-          <div>
+          <Reveal>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
               What This Looks Like
             </p>
@@ -200,16 +250,15 @@ export default function AboutPage() {
               <br />
               Real action.
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid gap-4">
-            {standards.map((item) => (
-              <div
-                key={item}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200"
-              >
-                {item}
-              </div>
+            {standards.map((item, index) => (
+              <Reveal key={item} delay={index * 80}>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
+                  {item}
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -217,31 +266,30 @@ export default function AboutPage() {
 
       <section className="border-b border-white/10 bg-zinc-950">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mb-12 max-w-3xl">
+          <Reveal className="mb-12 max-w-3xl">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
               The Process
             </p>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
               How it works
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid gap-6 lg:grid-cols-4">
-            {steps.map((step) => (
-              <div
-                key={step.number}
-                className="rounded-3xl border border-white/10 bg-black/30 p-6"
-              >
-                <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
-                  {step.number}
+            {steps.map((step, index) => (
+              <Reveal key={step.number} delay={index * 100}>
+                <div className="rounded-3xl border border-white/10 bg-black/30 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20">
+                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
+                    {step.number}
+                  </div>
+                  <h3 className="mt-3 text-2xl font-black text-white">
+                    {step.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-zinc-400">
+                    {step.text}
+                  </p>
                 </div>
-                <h3 className="mt-3 text-2xl font-black text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-zinc-400">
-                  {step.text}
-                </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -249,25 +297,27 @@ export default function AboutPage() {
 
       <section className="border-b border-white/10 bg-black">
         <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-            Who This Is For
-          </p>
-          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl">
-            This is for men who are ready to be challenged.
-          </h2>
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              Who This Is For
+            </p>
+            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl">
+              This is for men who are ready to be challenged.
+            </h2>
+          </Reveal>
+
           <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
             {[
               "Men tired of average",
               "Men ready to lead",
               "Men willing to be uncomfortable",
               "Men committed to growth",
-            ].map((item) => (
-              <div
-                key={item}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200"
-              >
-                {item}
-              </div>
+            ].map((item, index) => (
+              <Reveal key={item} delay={index * 90}>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
+                  {item}
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -285,37 +335,39 @@ export default function AboutPage() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
-            Final Word
-          </p>
-          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-            This is not for everyone.
-            <br />
-            But if you are ready,
-            <br />
-            step in.
-          </h2>
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              Final Word
+            </p>
+            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+              This is not for everyone.
+              <br />
+              But if you are ready,
+              <br />
+              step in.
+            </h2>
 
-          <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-            Brotherhood means more when it costs something. If you are ready to
-            commit to growth, accountability, challenge, and purpose, there is a
-            place for you here.
-          </p>
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+              Brotherhood means more when it costs something. If you are ready
+              to commit to growth, accountability, challenge, and purpose, there
+              is a place for you here.
+            </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/portal"
-              className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-            >
-              Apply / Join BOG
-            </Link>
-            <Link
-              href="/"
-              className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
-            >
-              Return Home
-            </Link>
-          </div>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/portal"
+                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Apply / Join BOG
+              </Link>
+              <Link
+                href="/"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+              >
+                Return Home
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </section>
     </main>
