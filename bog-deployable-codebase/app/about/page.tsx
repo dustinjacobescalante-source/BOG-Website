@@ -99,36 +99,8 @@ function Reveal({
 }
 
 export default function AboutPage() {
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    const updateScrollProgress = () => {
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setScrollProgress(Math.min(Math.max(progress, 0), 100));
-    };
-
-    updateScrollProgress();
-    window.addEventListener("scroll", updateScrollProgress, {
-      passive: true,
-    });
-
-    return () =>
-      window.removeEventListener("scroll", updateScrollProgress);
-  }, []);
-
   return (
     <main className="bg-black text-white scroll-smooth">
-
-      {/* 🔥 SCROLL PROGRESS BAR */}
-      <div className="fixed left-0 right-0 top-0 z-[100] h-[3px] bg-white/5">
-        <div
-          className="h-full bg-[#c49a6c] transition-[width] duration-150 ease-out"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
 
       {/* HERO */}
       <section className="relative isolate overflow-hidden border-b border-white/10">
