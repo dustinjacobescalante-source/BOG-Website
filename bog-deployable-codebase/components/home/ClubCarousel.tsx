@@ -24,7 +24,10 @@ export default function ClubCarousel() {
     if (paused) return;
 
     const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
+      setCurrent((prev) => {
+  if (prev === slides.length - 1) return prev;
+  return prev + 1;
+});
     }, 5000);
 
     return () => clearInterval(interval);
@@ -104,7 +107,7 @@ export default function ClubCarousel() {
                     alt={slide.alt}
                     fill
                     priority={index === 0}
-                    className="object-contain bg-black transition-transform duration-[6000ms] ease-out"
+                    className="object-contain bg-black transition-transform duration-[6000ms] ease-out scale-105"
                   />
                 </div>
               ))}
@@ -129,42 +132,31 @@ export default function ClubCarousel() {
             </div>
           </div>
 
-          <div className="mt-5 flex justify-center gap-2">
-            {slides.map((slide, index) => {
-  const isLast = index === slides.length - 1;
-
-  const content = (
-    <div
-      key={slide.src}
-      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-        current === index
-          ? "opacity-100 scale-100 z-10"
-          : "opacity-0 scale-[1.02] z-0 pointer-events-none"
+     <div className="mt-5 flex justify-center gap-2">
+  {slides.map((_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrent(index)}
+      aria-label={`Go to slide ${index + 1}`}
+      className={`h-2.5 rounded-full transition-all duration-300 ${
+        current === index ? "w-8 bg-[#c49a6c]" : "w-2.5 bg-white/25 hover:bg-white/50"
       }`}
-    >
-      <Image
-        src={slide.src}
-        alt={slide.alt}
-        fill
-        priority={index === 0}
-        className="object-contain bg-black"
-      />
-    </div>
-  );
+    />
+  ))}
+</div>
 
-  return isLast ? (
-    <Link href="/about" key={slide.src} className="absolute inset-0 z-20">
-      {content}
-    </Link>
-  ) : (
-    content
-  );
-})}
-          </div>
+<div className="mt-4 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
+  <div
+    className="h-full bg-[#c49a6c] transition-all duration-500"
+    style={{
+      width: `${((current + 1) / slides.length) * 100}%`,
+    }}
+  />
+</div>
 
-          <div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
-            Swipe on mobile • Hover to pause
-          </div>
+<div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
+  Swipe on mobile • Hover to pause
+</div>
 
           <div className="mt-8 flex justify-center">
             <Link
