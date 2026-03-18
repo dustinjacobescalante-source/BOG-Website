@@ -71,7 +71,7 @@ export default function ClubCarousel() {
             Inside the Brotherhood
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            What Buffalo Dog Stands For
+            What BOG Stands For
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
             A visual walkthrough of the standards, mission, structure, and path into BOG.
