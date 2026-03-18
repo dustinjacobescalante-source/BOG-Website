@@ -78,19 +78,18 @@ function Reveal({
           observer.unobserve(node);
         }
       },
-      { threshold: 0.18 }
+      { threshold: 0.14 }
     );
 
     observer.observe(node);
-
     return () => observer.disconnect();
   }, []);
 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${className} ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      className={`transform-gpu transition-all duration-500 ease-out ${className} ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
@@ -100,23 +99,42 @@ function Reveal({
 }
 
 export default function AboutPage() {
+  const [parallaxY, setParallaxY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = Math.min(window.scrollY * 0.12, 80);
+      setParallaxY(y);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <main className="bg-black text-white scroll-smooth">
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
-          <Image
-            src="/assets/Buffalo.png"
-            alt="Buffalo background"
-            fill
-            priority
-            className="object-contain scale-125 opacity-15"
-          />
+          <div
+            className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
+            style={{ transform: `translateY(${parallaxY}px) scale(1.08)` }}
+          >
+            <Image
+              src="/assets/Buffalo.png"
+              alt="Buffalo background"
+              fill
+              priority
+              className="object-contain opacity-15"
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-black" />
         </div>
 
         <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
           <Reveal className="max-w-4xl">
-            <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300">
+            <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300 backdrop-blur-sm">
               About BOG
             </div>
 
@@ -138,13 +156,13 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/portal"
-                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_0_rgba(220,38,38,0)] transition duration-300 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_0_25px_rgba(220,38,38,0.45)]"
               >
                 Join the Brotherhood
               </Link>
               <Link
                 href="/"
-                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 shadow-[0_0_0_rgba(255,255,255,0)] transition duration-300 hover:-translate-y-0.5 hover:bg-white/5 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]"
               >
                 Back to Home
               </Link>
@@ -166,7 +184,10 @@ export default function AboutPage() {
             </h2>
           </Reveal>
 
-          <Reveal delay={120} className="space-y-6 text-base leading-8 text-zinc-300">
+          <Reveal
+            delay={100}
+            className="space-y-6 text-base leading-8 text-zinc-300"
+          >
             <p>
               BOG is a brotherhood for men who are tired of drifting, tired of
               average, and ready to hold a higher line.
@@ -197,7 +218,7 @@ export default function AboutPage() {
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {pillars.map((pillar, index) => (
-              <Reveal key={pillar.title} delay={index * 100}>
+              <Reveal key={pillar.title} delay={index * 80}>
                 <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
                   <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
                     Pillar
@@ -254,7 +275,7 @@ export default function AboutPage() {
 
           <div className="grid gap-4">
             {standards.map((item, index) => (
-              <Reveal key={item} delay={index * 80}>
+              <Reveal key={item} delay={index * 70}>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
                   {item}
                 </div>
@@ -277,7 +298,7 @@ export default function AboutPage() {
 
           <div className="grid gap-6 lg:grid-cols-4">
             {steps.map((step, index) => (
-              <Reveal key={step.number} delay={index * 100}>
+              <Reveal key={step.number} delay={index * 80}>
                 <div className="rounded-3xl border border-white/10 bg-black/30 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20">
                   <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
                     {step.number}
@@ -313,7 +334,7 @@ export default function AboutPage() {
               "Men willing to be uncomfortable",
               "Men committed to growth",
             ].map((item, index) => (
-              <Reveal key={item} delay={index * 90}>
+              <Reveal key={item} delay={index * 80}>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
                   {item}
                 </div>
@@ -325,12 +346,17 @@ export default function AboutPage() {
 
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0">
-          <Image
-            src="/assets/Buffalo.png"
-            alt="Buffalo background"
-            fill
-            className="object-contain scale-125 opacity-10"
-          />
+          <div
+            className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
+            style={{ transform: `translateY(${parallaxY * 0.35}px) scale(1.06)` }}
+          >
+            <Image
+              src="/assets/Buffalo.png"
+              alt="Buffalo background"
+              fill
+              className="object-contain opacity-10"
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
         </div>
 
