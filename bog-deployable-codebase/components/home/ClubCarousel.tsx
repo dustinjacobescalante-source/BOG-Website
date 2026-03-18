@@ -25,9 +25,9 @@ export default function ClubCarousel() {
 
     const interval = setInterval(() => {
       setCurrent((prev) => {
-  if (prev === slides.length - 1) return prev;
-  return prev + 1;
-});
+        if (prev === slides.length - 1) return prev;
+        return prev + 1;
+      });
     }, 5000);
 
     return () => clearInterval(interval);
@@ -94,83 +94,74 @@ export default function ClubCarousel() {
           >
             <div className="relative aspect-[16/9] w-full bg-black">
               {slides.map((slide, index) => {
-  const isLast = index === slides.length - 1;
+                const isLast = index === slides.length - 1;
+                const isActive = current === index;
 
-  const slideContent = (
-    <div
-      key={slide.src}
-      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-        current === index
-          ? "opacity-100 scale-100 z-10"
-          : "opacity-0 scale-[1.02] z-0 pointer-events-none"
-      }`}
-    >
-      <Image
-        src={slide.src}
-        alt={slide.alt}
-        fill
-        priority={index === 0}
-        className="object-contain bg-black transition-transform duration-[6000ms] ease-out scale-105"
-      />
-    </div>
-  );
+                const slideContent = (
+                  <div
+                    className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                      isActive
+                        ? "opacity-100 scale-100 z-10"
+                        : "opacity-0 scale-[1.02] z-0 pointer-events-none"
+                    }`}
+                  >
+                    <Image
+                      src={slide.src}
+                      alt={slide.alt}
+                      fill
+                      priority={index === 0}
+                      className="object-contain bg-black transition-transform duration-[6000ms] ease-out scale-105"
+                    />
+                  </div>
+                );
 
-  if (isLast) {
-    return (
-      <Link href="/about" key={slide.src} className="absolute inset-0 z-20">
-        {slideContent}
-      </Link>
-    );
-  }
+                if (isLast && isActive) {
+                  return (
+                    <Link
+                      href="/portal"
+                      key={slide.src}
+                      className="absolute inset-0 z-20 block"
+                      aria-label="Go to join page"
+                    >
+                      {slideContent}
+                    </Link>
+                  );
+                }
 
-  return slideContent;
-})}
+                return <div key={slide.src}>{slideContent}</div>;
+              })}
 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
-
-              <button
-                onClick={goToPrevious}
-                aria-label="Previous slide"
-                className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/60 px-3 py-2 text-white backdrop-blur transition hover:bg-black/80"
-              >
-                ‹
-              </button>
-
-              <button
-                onClick={goToNext}
-                aria-label="Next slide"
-                className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/10 bg-black/60 px-3 py-2 text-white backdrop-blur transition hover:bg-black/80"
-              >
-                ›
-              </button>
             </div>
           </div>
 
-     <div className="mt-5 flex justify-center gap-2">
-  {slides.map((_, index) => (
-    <button
-      key={index}
-      onClick={() => setCurrent(index)}
-      aria-label={`Go to slide ${index + 1}`}
-      className={`h-2.5 rounded-full transition-all duration-300 ${
-        current === index ? "w-8 bg-[#c49a6c]" : "w-2.5 bg-white/25 hover:bg-white/50"
-      }`}
-    />
-  ))}
-</div>
+          <div className="mt-5 flex justify-center gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrent(index)}
+                aria-label={`Go to slide ${index + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  current === index
+                    ? "w-8 bg-[#c49a6c]"
+                    : "w-2.5 bg-white/25 hover:bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
 
-<div className="mt-4 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
-  <div
-    className="h-full bg-[#c49a6c] transition-all duration-500"
-    style={{
-      width: `${((current + 1) / slides.length) * 100}%`,
-    }}
-  />
-</div>
+          <div className="mt-4 h-[2px] w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full bg-[#c49a6c] transition-all duration-500"
+              style={{
+                width: `${((current + 1) / slides.length) * 100}%`,
+              }}
+            />
+          </div>
 
-<div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
-  Swipe on mobile • Hover to pause
-</div>
+          <div className="mt-4 text-center text-xs uppercase tracking-[0.25em] text-zinc-500">
+            Swipe on mobile • Hover to pause • Final slide takes you to join
+          </div>
 
           <div className="mt-8 flex justify-center">
             <Link
