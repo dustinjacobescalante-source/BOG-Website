@@ -5,34 +5,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const slides = [
-  {
-    src: "/images/club/slide-1.jpg",
-    alt: "Buffalo Dog Brotherhood of Growth intro",
-  },
-  {
-    src: "/images/club/slide-2.jpg",
-    alt: "What We Are",
-  },
-  {
-    src: "/images/club/slide-3.jpg",
-    alt: "What We Do",
-  },
-  {
-    src: "/images/club/slide-4.jpg",
-    alt: "Who This Is For",
-  },
-  {
-    src: "/images/club/slide-5.jpg",
-    alt: "How It Works",
-  },
-  {
-    src: "/images/club/slide-6.jpg",
-    alt: "Our Mission",
-  },
-  {
-    src: "/images/club/slide-7.jpg",
-    alt: "Apply to Join",
-  },
+  { src: "/images/slide-1.jpg", alt: "Buffalo Dog Brotherhood of Growth intro" },
+  { src: "/images/slide-2.jpg", alt: "What We Are" },
+  { src: "/images/slide-3.jpg", alt: "What We Do" },
+  { src: "/images/slide-4.jpg", alt: "Who This Is For" },
+  { src: "/images/slide-5.jpg", alt: "How It Works" },
+  { src: "/images/slide-6.jpg", alt: "Our Mission" },
+  { src: "/images/slide-7.jpg", alt: "Apply to Join" },
 ];
 
 export default function ClubCarousel() {
