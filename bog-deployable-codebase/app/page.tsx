@@ -48,10 +48,10 @@ export default function HomePage() {
               style={{
                 width: "min(420px, 38vw)",
                 height: "min(220px, 20vw)",
-                transform: "translateY(126px)",
+                transform: "translateY(156px)",
                 background: `
-                  radial-gradient(circle at 38% 64%, rgba(220, 38, 38, 0.48), transparent 8%),
-                  radial-gradient(circle at 62% 64%, rgba(220, 38, 38, 0.48), transparent 8%)
+                  radial-gradient(circle at 36% 64%, rgba(220, 38, 38, 0.48), transparent 8%),
+                  radial-gradient(circle at 70% 64%, rgba(220, 38, 38, 0.48), transparent 8%)
                 `,
                 filter: "blur(5px)",
                 opacity: 0.85,
