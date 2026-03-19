@@ -2,19 +2,108 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import ClubCarousel from "@/components/home/ClubCarousel";
-import { site } from "@/lib/site";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-export default function HomePage() {
-  const [parallaxY, setParallaxY] = useState(0);
+const pillars = [
+  {
+    title: "Discipline",
+    text: "We do what needs to be done, especially when we do not feel like it. Standards come before mood.",
+  },
+  {
+    title: "Brotherhood",
+    text: "No man grows alone. We challenge, sharpen, and support each other through every season.",
+  },
+  {
+    title: "Growth",
+    text: "Physical, mental, spiritual, and professional growth are all part of the mission.",
+  },
+  {
+    title: "Accountability",
+    text: "We do not let each other drift. We expect effort, ownership, and follow-through.",
+  },
+];
+
+const standards = [
+  "Show up when it is hard",
+  "Tell the truth",
+  "Take responsibility",
+  "Train your body and mind",
+  "Lead at home and in public",
+  "Choose discipline over excuses",
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "Step In",
+    text: "Make the decision to stop living on autopilot and pursue something higher.",
+  },
+  {
+    number: "02",
+    title: "Commit",
+    text: "Accept the standard. Growth requires discomfort, consistency, and ownership.",
+  },
+  {
+    number: "03",
+    title: "Train",
+    text: "Develop through structure, accountability, brotherhood, and shared challenge.",
+  },
+  {
+    number: "04",
+    title: "Lead",
+    text: "Become the kind of man who brings strength, steadiness, and purpose to others.",
+  },
+];
+
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
+    const node = ref.current;
+    if (!node) return;
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(node);
+        }
+      },
+      { threshold: 0.14 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transform-gpu transition-all duration-500 ease-out ${className} ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+      }`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export default function AboutPage() {
+  const [parallaxY, setParallaxY] = useState(0);
+
+  useEffect(() => {
     const handleScroll = () => {
-      const y = Math.min(window.scrollY * 0.16, 100);
+      const y = Math.min(window.scrollY * 0.12, 80);
       setParallaxY(y);
     };
 
@@ -25,297 +114,288 @@ export default function HomePage() {
   }, []);
 
   return (
-    <>
-      <section className="relative overflow-hidden border-b border-white/10 bg-black">
+    <main className="bg-black text-white scroll-smooth">
+      <section className="relative isolate overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
-          {/* BUFFALO BACKGROUND */}
           <div
-            className="absolute inset-0 will-change-transform transition-transform duration-200 ease-out"
-            style={{ transform: `translateY(${parallaxY}px) scale(1.14)` }}
+            className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
+            style={{ transform: `translateY(${parallaxY}px) scale(1.08)` }}
           >
-            <div className="absolute inset-0 animate-[heroDrift_14s_ease-in-out_infinite]">
-              <Image
-                src="/assets/Buffalo.png"
-                alt="Buffalo background"
-                fill
-                className="object-contain opacity-30"
-                priority
-              />
-            </div>
+            <Image
+              src="/assets/Buffalo.png"
+              alt="Buffalo background"
+              fill
+              priority
+              className="object-contain opacity-20"
+            />
           </div>
-
-          {/* STORM FOG / WIND */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="fog-layer fog-one" />
-            <div className="fog-layer fog-two" />
-            <div className="wind-streak wind-one" />
-            <div className="wind-streak wind-two" />
-            <div className="wind-streak wind-three" />
-          </div>
-
-          {/* CENTER SPOTLIGHT */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_44%)]" />
-
-          {/* TOP / BOTTOM ATMOSPHERIC SHADING */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/65" />
-
-          {/* STRONGER EDGE VIGNETTE */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_36%,rgba(0,0,0,0.7)_100%)]" />
-
-          {/* FINAL DARKENING */}
-          <div className="absolute inset-0 bg-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div
-            className={`flex max-w-3xl flex-col justify-center transform-gpu transition-all duration-900 ease-out ${
-              visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-            }`}
-          >
-            <div
-              className={`mb-5 inline-flex w-fit rounded-full border border-white/10 bg-white/8 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-200 backdrop-blur-md transition-all duration-900 delay-75 ${
-                visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-            >
-              BOG Website + Member Platform
+        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
+          <Reveal className="max-w-4xl">
+            <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300 backdrop-blur-sm">
+              About BOG
             </div>
 
-            <h1
-              className={`max-w-4xl text-4xl font-black tracking-tight text-white transition-all duration-900 delay-150 sm:text-5xl lg:text-6xl ${
-                visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-            >
-              Built for Men Who Refuse Average.
+            <h1 className="mt-6 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Built on Discipline.
+              <br />
+              Forged Through Brotherhood.
+              <br />
+              Driven by Growth.
             </h1>
 
-            <p
-              className={`mt-5 max-w-2xl text-base leading-relaxed text-zinc-200 transition-all duration-900 delay-300 sm:text-lg lg:text-xl ${
-                visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-            >
-              Give men a purpose.
-              <br />
-              <br />
-              BOG is built on standards — not personalities.
-              We create a culture where discipline, health, and accountability
-              are expected.
-              <br />
-              <br />
-              Weak bodies erode strength everywhere else.
-              Uncontrolled men are destructive.
-              We train ourselves to respond — not react.
-              <br />
-              <br />
-              We serve our communities.
-              We build strong relationships.
-              We use faith as a compass — not a weapon.
-              <br />
-              <br />
-              <span className="text-xl font-bold tracking-widest text-red-500">
-                RUN AT THE STORM.
-              </span>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-300 sm:text-lg">
+              BOG exists to build stronger men through standards, accountability,
+              challenge, and purpose. This is not about image. It is about
+              becoming the kind of man who can be trusted with responsibility,
+              pressure, leadership, and service.
             </p>
 
-            <p
-              className={`mt-4 max-w-2xl text-base text-zinc-400 transition-all duration-900 delay-[450ms] ${
-                visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-            >
-              {site.quote}
-            </p>
-
-            <div
-              className={`mt-8 flex flex-wrap gap-3 transition-all duration-900 delay-[600ms] ${
-                visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-            >
-              <Link
-                href="/about"
-                className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_0_0_rgba(220,38,38,0)] transition duration-300 hover:-translate-y-1 hover:bg-red-700 hover:shadow-[0_0_28px_rgba(220,38,38,0.45)]"
-              >
-                Learn What We Stand For
-              </Link>
-
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/portal"
-                className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 shadow-[0_0_0_rgba(255,255,255,0)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
+                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_0_rgba(220,38,38,0)] transition duration-300 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_0_25px_rgba(220,38,38,0.45)]"
               >
-                Enter the Brotherhood
+                Join the Brotherhood
+              </Link>
+              <Link
+                href="/"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 shadow-[0_0_0_rgba(255,255,255,0)] transition duration-300 hover:-translate-y-0.5 hover:bg-white/5 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)]"
+              >
+                Back to Home
               </Link>
             </div>
-          </div>
+          </Reveal>
         </div>
-
-        <style jsx>{`
-          @keyframes heroDrift {
-            0%,
-            100% {
-              transform: scale(1) translate3d(0, 0, 0);
-            }
-            50% {
-              transform: scale(1.04) translate3d(0, -10px, 0);
-            }
-          }
-
-          .fog-layer {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background-repeat: no-repeat;
-            background-size: cover;
-            pointer-events: none;
-            mix-blend-mode: screen;
-          }
-
-          .fog-one {
-            background:
-              radial-gradient(circle at 22% 32%, rgba(255, 255, 255, 0.18), transparent 20%),
-              radial-gradient(circle at 68% 24%, rgba(255, 255, 255, 0.12), transparent 18%),
-              radial-gradient(circle at 52% 68%, rgba(255, 255, 255, 0.1), transparent 22%);
-            animation: fogMove1 18s linear infinite;
-            filter: blur(42px);
-            opacity: 0.95;
-          }
-
-          .fog-two {
-            background:
-              radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.12), transparent 18%),
-              radial-gradient(circle at 75% 58%, rgba(255, 255, 255, 0.1), transparent 16%),
-              radial-gradient(circle at 48% 34%, rgba(255, 255, 255, 0.08), transparent 20%);
-            animation: fogMove2 24s linear infinite;
-            filter: blur(56px);
-            opacity: 0.75;
-          }
-
-          .wind-streak {
-            position: absolute;
-            height: 2px;
-            border-radius: 999px;
-            pointer-events: none;
-            background: linear-gradient(
-              90deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.18) 35%,
-              rgba(255, 255, 255, 0.05) 70%,
-              transparent 100%
-            );
-            filter: blur(1.2px);
-            mix-blend-mode: screen;
-          }
-
-          .wind-one {
-            width: 26%;
-            top: 28%;
-            left: -30%;
-            animation: windSweep1 10s linear infinite;
-            opacity: 0.55;
-          }
-
-          .wind-two {
-            width: 32%;
-            top: 52%;
-            left: -38%;
-            animation: windSweep2 14s linear infinite;
-            opacity: 0.4;
-          }
-
-          .wind-three {
-            width: 22%;
-            top: 70%;
-            left: -28%;
-            animation: windSweep3 12s linear infinite;
-            opacity: 0.32;
-          }
-
-          @keyframes fogMove1 {
-            0% {
-              transform: translate3d(0, 0, 0) scale(1);
-            }
-            50% {
-              transform: translate3d(-70px, -45px, 0) scale(1.08);
-            }
-            100% {
-              transform: translate3d(0, 0, 0) scale(1);
-            }
-          }
-
-          @keyframes fogMove2 {
-            0% {
-              transform: translate3d(0, 0, 0) scale(1);
-            }
-            50% {
-              transform: translate3d(90px, 55px, 0) scale(1.06);
-            }
-            100% {
-              transform: translate3d(0, 0, 0) scale(1);
-            }
-          }
-
-          @keyframes windSweep1 {
-            0% {
-              transform: translateX(0) translateY(0) rotate(-7deg);
-              opacity: 0;
-            }
-            10% {
-              opacity: 0.5;
-            }
-            50% {
-              opacity: 0.75;
-            }
-            90% {
-              opacity: 0.18;
-            }
-            100% {
-              transform: translateX(165vw) translateY(-14px) rotate(-7deg);
-              opacity: 0;
-            }
-          }
-
-          @keyframes windSweep2 {
-            0% {
-              transform: translateX(0) translateY(0) rotate(-5deg);
-              opacity: 0;
-            }
-            12% {
-              opacity: 0.35;
-            }
-            55% {
-              opacity: 0.55;
-            }
-            88% {
-              opacity: 0.12;
-            }
-            100% {
-              transform: translateX(170vw) translateY(-10px) rotate(-5deg);
-              opacity: 0;
-            }
-          }
-
-          @keyframes windSweep3 {
-            0% {
-              transform: translateX(0) translateY(0) rotate(-4deg);
-              opacity: 0;
-            }
-            10% {
-              opacity: 0.24;
-            }
-            48% {
-              opacity: 0.4;
-            }
-            88% {
-              opacity: 0.1;
-            }
-            100% {
-              transform: translateX(168vw) translateY(-8px) rotate(-4deg);
-              opacity: 0;
-            }
-          }
-        `}</style>
       </section>
 
-      <ClubCarousel />
-    </>
+      <section className="border-b border-white/10 bg-zinc-950">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-24">
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              The Mission
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
+              We do not gather to coast.
+              <br />
+              We gather to become more.
+            </h2>
+          </Reveal>
+
+          <Reveal
+            delay={100}
+            className="space-y-6 text-base leading-8 text-zinc-300"
+          >
+            <p>
+              BOG is a brotherhood for men who are tired of drifting, tired of
+              average, and ready to hold a higher line.
+            </p>
+            <p>
+              We believe weak habits affect every part of life. Strong men are
+              built through discipline, consistency, humility, and challenge.
+            </p>
+            <p>
+              Our goal is not noise. Our goal is transformation that shows up in
+              health, family, leadership, faith, service, and the way we carry
+              ourselves under pressure.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-black">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+          <Reveal className="mb-12 text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              The Pillars
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
+              Four things we do not compromise on
+            </h2>
+          </Reveal>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {pillars.map((pillar, index) => (
+              <Reveal key={pillar.title} delay={index * 80}>
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
+                    Pillar
+                  </div>
+                  <h3 className="mt-3 text-2xl font-black text-white">
+                    {pillar.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-zinc-400">
+                    {pillar.text}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative border-b border-white/10 bg-zinc-950">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+          <div className="sticky top-20">
+            <Reveal className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-black/70 px-6 py-14 text-center shadow-[0_20px_80px_rgba(0,0,0,0.35)] backdrop-blur sm:px-10 lg:px-16">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+                The Standard
+              </p>
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+                We show up.
+                <br />
+                We do the work.
+                <br />
+                We do not make excuses.
+              </h2>
+              <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
+                Brotherhood means something only when it is backed by standards.
+                We expect action, honesty, effort, humility, and a willingness
+                to be sharpened.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-black">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              What This Looks Like
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
+              Real standards.
+              <br />
+              Real action.
+            </h2>
+          </Reveal>
+
+          <div className="grid gap-4">
+            {standards.map((item, index) => (
+              <Reveal key={item} delay={index * 70}>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
+                  {item}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-zinc-950">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+          <Reveal className="mb-12 max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              The Process
+            </p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
+              How it works
+            </h2>
+          </Reveal>
+
+          <div className="grid gap-6 lg:grid-cols-4">
+            {steps.map((step, index) => (
+              <Reveal key={step.number} delay={index * 80}>
+                <div className="rounded-3xl border border-white/10 bg-black/30 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20">
+                  <div className="text-sm font-bold uppercase tracking-[0.24em] text-red-500">
+                    {step.number}
+                  </div>
+                  <h3 className="mt-3 text-2xl font-black text-white">
+                    {step.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-zinc-400">
+                    {step.text}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-black">
+        <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8">
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              Who This Is For
+            </p>
+            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl">
+              This is for men who are ready to be challenged.
+            </h2>
+          </Reveal>
+
+          <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
+            {[
+              "Men tired of average",
+              "Men ready to lead",
+              "Men willing to be uncomfortable",
+              "Men committed to growth",
+            ].map((item, index) => (
+              <Reveal key={item} delay={index * 80}>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
+                  {item}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative isolate overflow-hidden">
+        <div className="absolute inset-0">
+          <div
+            className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
+            style={{ transform: `translateY(${parallaxY * 0.35}px) scale(1.06)` }}
+          >
+            <Image
+              src="/assets/Buffalo.png"
+              alt="Buffalo background"
+              fill
+              className="object-contain opacity-10"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+        </div>
+
+        <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
+          <Reveal>
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#c49a6c]">
+              Final Word
+            </p>
+            <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+              This is not for everyone.
+              <br />
+              But if you are ready,
+              <br />
+              step in.
+            </h2>
+
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
+              Brotherhood means more when it costs something. If you are ready
+              to commit to growth, accountability, challenge, and purpose, there
+              is a place for you here.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/portal"
+                className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Apply / Join BOG
+              </Link>
+              <Link
+                href="/"
+                className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/5"
+              >
+                Return Home
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </main>
   );
 }
