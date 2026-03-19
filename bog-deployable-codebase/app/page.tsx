@@ -89,7 +89,7 @@ export default function HomePage() {
               src="/assets/Buffalo.png"
               alt="Buffalo background"
               fill
-              className="object-contain opacity-20"
+              className="object-contain opacity-15"
               priority
             />
           </div>
