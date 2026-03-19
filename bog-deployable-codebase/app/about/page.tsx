@@ -28,7 +28,7 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden border-b border-white/10 bg-black">
         <div className="absolute inset-0">
-          {/* BACKGROUND BUFFALO */}
+          {/* BUFFALO BACKGROUND */}
           <div
             className="absolute inset-0 will-change-transform transition-transform duration-200 ease-out"
             style={{ transform: `translateY(${parallaxY}px) scale(1.14)` }}
@@ -44,39 +44,23 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* STRONGER MOVING FOG LAYER */}
-          <div
-            className="absolute inset-0 pointer-events-none animate-[fogMoveA_16s_ease-in-out_infinite]"
-            style={{
-              background: `
-                radial-gradient(circle at 18% 28%, rgba(255,255,255,0.09), transparent 18%),
-                radial-gradient(circle at 78% 22%, rgba(255,255,255,0.08), transparent 16%),
-                radial-gradient(circle at 52% 70%, rgba(255,255,255,0.06), transparent 22%)
-              `,
-              filter: "blur(22px)",
-            }}
-          />
+          {/* STORM FOG / WIND */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="fog-layer fog-one" />
+            <div className="fog-layer fog-two" />
+            <div className="wind-streak wind-one" />
+            <div className="wind-streak wind-two" />
+            <div className="wind-streak wind-three" />
+          </div>
 
-          <div
-            className="absolute inset-0 pointer-events-none animate-[fogMoveB_22s_ease-in-out_infinite]"
-            style={{
-              background: `
-                radial-gradient(circle at 28% 62%, rgba(255,255,255,0.05), transparent 20%),
-                radial-gradient(circle at 68% 58%, rgba(255,255,255,0.05), transparent 18%),
-                radial-gradient(circle at 50% 32%, rgba(255,255,255,0.04), transparent 20%)
-              `,
-              filter: "blur(28px)",
-            }}
-          />
+          {/* CENTER SPOTLIGHT */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_44%)]" />
 
-          {/* STRONGER CENTER SPOTLIGHT */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),transparent_46%)]" />
+          {/* TOP / BOTTOM ATMOSPHERIC SHADING */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/65" />
 
-          {/* TOP FADE */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/20 to-black/60" />
-
-          {/* STRONGER VIGNETTE */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_36%,rgba(0,0,0,0.62)_100%)]" />
+          {/* STRONGER EDGE VIGNETTE */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_36%,rgba(0,0,0,0.7)_100%)]" />
 
           {/* FINAL DARKENING */}
           <div className="absolute inset-0 bg-black/15" />
@@ -173,27 +157,159 @@ export default function HomePage() {
             }
           }
 
-          @keyframes fogMoveA {
-            0%,
-            100% {
+          .fog-layer {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background-repeat: no-repeat;
+            background-size: cover;
+            pointer-events: none;
+            mix-blend-mode: screen;
+          }
+
+          .fog-one {
+            background:
+              radial-gradient(circle at 22% 32%, rgba(255, 255, 255, 0.18), transparent 20%),
+              radial-gradient(circle at 68% 24%, rgba(255, 255, 255, 0.12), transparent 18%),
+              radial-gradient(circle at 52% 68%, rgba(255, 255, 255, 0.1), transparent 22%);
+            animation: fogMove1 18s linear infinite;
+            filter: blur(42px);
+            opacity: 0.95;
+          }
+
+          .fog-two {
+            background:
+              radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.12), transparent 18%),
+              radial-gradient(circle at 75% 58%, rgba(255, 255, 255, 0.1), transparent 16%),
+              radial-gradient(circle at 48% 34%, rgba(255, 255, 255, 0.08), transparent 20%);
+            animation: fogMove2 24s linear infinite;
+            filter: blur(56px);
+            opacity: 0.75;
+          }
+
+          .wind-streak {
+            position: absolute;
+            height: 2px;
+            border-radius: 999px;
+            pointer-events: none;
+            background: linear-gradient(
+              90deg,
+              transparent 0%,
+              rgba(255, 255, 255, 0.18) 35%,
+              rgba(255, 255, 255, 0.05) 70%,
+              transparent 100%
+            );
+            filter: blur(1.2px);
+            mix-blend-mode: screen;
+          }
+
+          .wind-one {
+            width: 26%;
+            top: 28%;
+            left: -30%;
+            animation: windSweep1 10s linear infinite;
+            opacity: 0.55;
+          }
+
+          .wind-two {
+            width: 32%;
+            top: 52%;
+            left: -38%;
+            animation: windSweep2 14s linear infinite;
+            opacity: 0.4;
+          }
+
+          .wind-three {
+            width: 22%;
+            top: 70%;
+            left: -28%;
+            animation: windSweep3 12s linear infinite;
+            opacity: 0.32;
+          }
+
+          @keyframes fogMove1 {
+            0% {
               transform: translate3d(0, 0, 0) scale(1);
-              opacity: 0.75;
             }
             50% {
-              transform: translate3d(18px, -12px, 0) scale(1.08);
-              opacity: 1;
+              transform: translate3d(-70px, -45px, 0) scale(1.08);
+            }
+            100% {
+              transform: translate3d(0, 0, 0) scale(1);
             }
           }
 
-          @keyframes fogMoveB {
-            0%,
-            100% {
+          @keyframes fogMove2 {
+            0% {
               transform: translate3d(0, 0, 0) scale(1);
-              opacity: 0.55;
             }
             50% {
-              transform: translate3d(-14px, 10px, 0) scale(1.06);
-              opacity: 0.9;
+              transform: translate3d(90px, 55px, 0) scale(1.06);
+            }
+            100% {
+              transform: translate3d(0, 0, 0) scale(1);
+            }
+          }
+
+          @keyframes windSweep1 {
+            0% {
+              transform: translateX(0) translateY(0) rotate(-7deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 0.5;
+            }
+            50% {
+              opacity: 0.75;
+            }
+            90% {
+              opacity: 0.18;
+            }
+            100% {
+              transform: translateX(165vw) translateY(-14px) rotate(-7deg);
+              opacity: 0;
+            }
+          }
+
+          @keyframes windSweep2 {
+            0% {
+              transform: translateX(0) translateY(0) rotate(-5deg);
+              opacity: 0;
+            }
+            12% {
+              opacity: 0.35;
+            }
+            55% {
+              opacity: 0.55;
+            }
+            88% {
+              opacity: 0.12;
+            }
+            100% {
+              transform: translateX(170vw) translateY(-10px) rotate(-5deg);
+              opacity: 0;
+            }
+          }
+
+          @keyframes windSweep3 {
+            0% {
+              transform: translateX(0) translateY(0) rotate(-4deg);
+              opacity: 0;
+            }
+            10% {
+              opacity: 0.24;
+            }
+            48% {
+              opacity: 0.4;
+            }
+            88% {
+              opacity: 0.1;
+            }
+            100% {
+              transform: translateX(168vw) translateY(-8px) rotate(-4deg);
+              opacity: 0;
             }
           }
         `}</style>
