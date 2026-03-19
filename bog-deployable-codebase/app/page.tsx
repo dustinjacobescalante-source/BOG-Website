@@ -28,37 +28,42 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden border-b border-white/10 bg-black">
         <div className="absolute inset-0">
+          {/* BUFFALO PARALLAX + SLOW CINEMATIC ZOOM */}
           <div
             className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
             style={{ transform: `translateY(${parallaxY}px) scale(1.08)` }}
           >
-            <Image
-              src="/assets/Buffalo.png"
-              alt="Buffalo background"
-              fill
-              className="object-contain opacity-20"
-              priority
-            />
+            <div className="absolute inset-0 animate-[heroDrift_18s_ease-in-out_infinite]">
+              <Image
+                src="/assets/Buffalo.png"
+                alt="Buffalo background"
+                fill
+                className="object-contain opacity-20"
+                priority
+              />
+            </div>
           </div>
 
-          {/* TUNED EYE GLOW */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div
-              className="animate-[eyeGlow_3.5s_ease-in-out_infinite]"
-              style={{
-                width: "min(420px, 38vw)",
-                height: "min(220px, 20vw)",
-                transform: "translateY(50px)",
-                background: `
-                  radial-gradient(circle at 36% 64%, rgba(220, 38, 38, 0.48), transparent 8%),
-                  radial-gradient(circle at 70% 64%, rgba(220, 38, 38, 0.48), transparent 8%)
-                `,
-                filter: "blur(5px)",
-                opacity: 0.85,
-              }}
-            />
-          </div>
+          {/* SUBTLE ATMOSPHERIC FOG */}
+          <div
+            className="absolute inset-0 pointer-events-none animate-[fogMove_24s_ease-in-out_infinite]"
+            style={{
+              background: `
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.045), transparent 22%),
+                radial-gradient(circle at 78% 22%, rgba(255,255,255,0.035), transparent 20%),
+                radial-gradient(circle at 55% 68%, rgba(255,255,255,0.03), transparent 24%)
+              `,
+              filter: "blur(18px)",
+            }}
+          />
 
+          {/* CENTER DEPTH LIGHT */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05),transparent_58%)]" />
+
+          {/* VIGNETTE FOR FOCUS */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_42%,rgba(0,0,0,0.34)_100%)]" />
+
+          {/* MAIN OVERLAY */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black" />
         </div>
 
@@ -143,15 +148,25 @@ export default function HomePage() {
         </div>
 
         <style jsx>{`
-          @keyframes eyeGlow {
+          @keyframes heroDrift {
             0%,
             100% {
-              opacity: 0.4;
-              transform: scale(1);
+              transform: scale(1) translate3d(0, 0, 0);
             }
             50% {
-              opacity: 0.75;
-              transform: scale(1.04);
+              transform: scale(1.025) translate3d(0, -6px, 0);
+            }
+          }
+
+          @keyframes fogMove {
+            0%,
+            100% {
+              transform: translate3d(0, 0, 0) scale(1);
+              opacity: 0.7;
+            }
+            50% {
+              transform: translate3d(10px, -8px, 0) scale(1.03);
+              opacity: 1;
             }
           }
         `}</style>
