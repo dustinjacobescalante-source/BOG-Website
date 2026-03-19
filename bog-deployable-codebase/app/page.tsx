@@ -48,7 +48,7 @@ export default function HomePage() {
               style={{
                 width: "min(420px, 38vw)",
                 height: "min(220px, 20vw)",
-                transform: "translateY(156px)",
+                transform: "translateY(180px)",
                 background: `
                   radial-gradient(circle at 36% 64%, rgba(220, 38, 38, 0.48), transparent 8%),
                   radial-gradient(circle at 70% 64%, rgba(220, 38, 38, 0.48), transparent 8%)
