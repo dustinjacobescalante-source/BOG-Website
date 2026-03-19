@@ -20,7 +20,7 @@ export default function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="flex max-w-3xl flex-col justify-center">
-            <div className="mb-5 inline-flex w-fit rounded-full border border-gold/10 bg-gold/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-gold-300">
+            <div className="mb-5 inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-white-300">
               BOG Website + Member Platform
             </div>
 
