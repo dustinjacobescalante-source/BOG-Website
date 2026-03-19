@@ -42,20 +42,20 @@ export default function HomePage() {
             />
           </div>
 
-          {/* PRECISION EYE GLOW */}
+          {/* EYE GLOW - LOWERED + WIDENED */}
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
             <div
               className="animate-[eyeGlow_3.5s_ease-in-out_infinite]"
               style={{
-                width: "min(420px, 40vw)",
-                height: "min(220px, 22vw)",
-                transform: "translateY(10px)",
+                width: "min(520px, 48vw)",
+                height: "min(320px, 30vw)",
+                transform: "translateY(92px)",
                 background: `
-                  radial-gradient(circle at 32% 52%, rgba(220, 38, 38, 0.65), transparent 12%),
-                  radial-gradient(circle at 68% 52%, rgba(220, 38, 38, 0.65), transparent 12%)
+                  radial-gradient(circle at 31% 67%, rgba(220, 38, 38, 0.55), transparent 10%),
+                  radial-gradient(circle at 69% 67%, rgba(220, 38, 38, 0.55), transparent 10%)
                 `,
-                filter: "blur(6px)",
-                opacity: 0.85,
+                filter: "blur(7px)",
+                opacity: 0.9,
               }}
             />
           </div>
@@ -160,12 +160,12 @@ export default function HomePage() {
           @keyframes eyeGlow {
             0%,
             100% {
-              opacity: 0.55;
+              opacity: 0.45;
               transform: scale(1);
             }
             50% {
-              opacity: 1;
-              transform: scale(1.08);
+              opacity: 0.85;
+              transform: scale(1.05);
             }
           }
         `}</style>
