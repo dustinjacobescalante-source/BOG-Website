@@ -28,7 +28,6 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden border-b border-white/10 bg-black">
         <div className="absolute inset-0">
-          {/* 🦬 BUFFALO PARALLAX */}
           <div
             className="absolute inset-0 will-change-transform transition-transform duration-150 ease-out"
             style={{ transform: `translateY(${parallaxY}px) scale(1.08)` }}
@@ -42,35 +41,34 @@ export default function HomePage() {
             />
           </div>
 
-          {/* 🔴 SUBTLE EYE GLOW */}
-          <div
-            className="absolute inset-0 pointer-events-none animate-[eyeGlow_4.5s_ease-in-out_infinite]"
-            style={{
-              background: `
-                radial-gradient(circle at 43.5% 57%, rgba(220, 38, 38, 0.15), transparent 2%),
-                radial-gradient(circle at 56.5% 57%, rgba(220, 38, 38, 0.15), transparent 2%)
-              `,
-              filter: "blur(6px)",
-            }}
-          />
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div
+              className="animate-[eyeGlow_3.8s_ease-in-out_infinite]"
+              style={{
+                width: "min(42vw, 420px)",
+                height: "min(18vw, 180px)",
+                transform: "translateY(6px)",
+                background: `
+                  radial-gradient(circle at 34% 50%, rgba(220, 38, 38, 0.42), transparent 10%),
+                  radial-gradient(circle at 66% 50%, rgba(220, 38, 38, 0.42), transparent 10%)
+                `,
+                filter: "blur(10px)",
+              }}
+            />
+          </div>
 
-          {/* 🌑 OVERLAY */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div
             className={`flex max-w-3xl flex-col justify-center transform-gpu transition-all duration-700 ease-out ${
-              visible
-                ? "translate-y-0 opacity-100"
-                : "translate-y-8 opacity-0"
+              visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
             }`}
           >
             <div
               className={`mb-5 inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-bold uppercase tracking-[0.28em] text-zinc-300 backdrop-blur-sm transition-all duration-700 delay-75 ${
-                visible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
+                visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
               BOG Website + Member Platform
@@ -78,9 +76,7 @@ export default function HomePage() {
 
             <h1
               className={`max-w-4xl text-4xl font-black tracking-tight text-white transition-all duration-700 delay-150 sm:text-5xl lg:text-6xl ${
-                visible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
+                visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
               Built for Men Who Refuse Average.
@@ -88,9 +84,7 @@ export default function HomePage() {
 
             <p
               className={`mt-5 max-w-2xl text-base leading-relaxed text-zinc-300 transition-all duration-700 delay-300 sm:text-lg lg:text-xl ${
-                visible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
+                visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
               Give men a purpose.
@@ -118,9 +112,7 @@ export default function HomePage() {
 
             <p
               className={`mt-4 max-w-2xl text-base text-zinc-400 transition-all duration-700 delay-[450ms] ${
-                visible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
+                visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
               {site.quote}
@@ -128,9 +120,7 @@ export default function HomePage() {
 
             <div
               className={`mt-8 flex flex-wrap gap-3 transition-all duration-700 delay-[600ms] ${
-                visible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-6 opacity-0"
+                visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
               <Link
@@ -154,10 +144,10 @@ export default function HomePage() {
           @keyframes eyeGlow {
             0%,
             100% {
-              opacity: 0.25;
+              opacity: 0.3;
             }
             50% {
-              opacity: 0.45;
+              opacity: 0.7;
             }
           }
         `}</style>
