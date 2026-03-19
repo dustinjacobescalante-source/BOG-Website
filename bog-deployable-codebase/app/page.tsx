@@ -60,7 +60,7 @@ export default function HomePage() {
               alt="Lightning background"
               fill
               priority
-              className="object-cover opacity-[0.30] blur-[1px]"
+              className="object-cover opacity-[0.20] blur-[3px]"
             />
           </div>
 
