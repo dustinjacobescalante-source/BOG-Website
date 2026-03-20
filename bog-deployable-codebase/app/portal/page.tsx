@@ -60,10 +60,10 @@ export default async function PortalPage() {
   return (
     <AdminPageShell>
       <AdminHero
-        eyebrow="Member Portal"
-        title={`Welcome, ${displayName}`}
-        description={`Signed in as ${email}`}
-      />
+  eyebrow="Member Portal"
+  title="Welcome back"
+description={`Good to see you — you're signed in as ${email}`}
+/>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
