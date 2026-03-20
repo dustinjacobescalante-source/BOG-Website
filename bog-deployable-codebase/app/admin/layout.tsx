@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireUser, getProfile } from "@/lib/auth";
+import { requireAdmin, getProfile } from "@/lib/auth";
 
 const links = [
   ["/admin", "Overview"],
@@ -16,33 +16,52 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireUser();
+  await requireAdmin();
   const profile = await getProfile();
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
-      <aside className="card h-fit p-5">
-        <div className="text-sm font-bold text-white">ADMIN PANEL</div>
-        <div className="mt-1 text-sm text-zinc-400">{profile?.full_name}</div>
-        <div className="mt-1 text-xs text-zinc-500">
-          role: {profile?.role} • rank: {profile?.rank}
-        </div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8 lg:py-10">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-        <nav className="mt-5 flex flex-col gap-2">
-          {links.map(([href, label]) => (
-            <Link
-              key={href}
-              href={href}
-              className="rounded-xl px-3 py-2 text-sm text-zinc-300 hover:bg-white/5"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-      </aside>
+            <div className="relative">
+              <div className="border-b border-white/8 pb-5">
+                <div className="text-xl font-bold text-white">
+                  {profile?.full_name ?? "Admin"}
+                </div>
+                <div className="mt-1 text-sm text-zinc-400">
+                  {profile?.rank ?? "omega"} • {profile?.role ?? "admin"}
+                </div>
+              </div>
 
-      <div>{children}</div>
+              <nav className="mt-5 flex flex-col gap-2">
+                {links.map(([href, label]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="rounded-2xl px-4 py-3 text-sm font-medium text-zinc-300 transition-all duration-300 hover:bg-white/[0.05] hover:text-white"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+
+              <form action="/auth/sign-out" method="post" className="mt-6">
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left text-sm font-medium text-zinc-300 transition-all duration-300 hover:bg-white/[0.05] hover:text-white"
+                >
+                  Sign Out
+                </button>
+              </form>
+            </div>
+          </div>
+        </aside>
+
+        <main className="min-w-0">{children}</main>
+      </div>
     </div>
   );
 }
-
