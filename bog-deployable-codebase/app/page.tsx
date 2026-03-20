@@ -78,10 +78,15 @@ export default function HomePage() {
               </div>
 
               <h1
-                className={`mt-6 max-w-5xl text-4xl font-black leading-[0.95] tracking-[-0.045em] text-white transition-all duration-1000 delay-150 sm:text-5xl md:text-6xl lg:text-7xl ${
-                  visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-                }`}
-              >
+  className={`mt-6 max-w-5xl text-4xl font-black leading-[0.95] tracking-[-0.045em] text-white transition-all duration-1000 delay-150 sm:text-5xl md:text-6xl lg:text-7xl ${
+    visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+  }`}
+>
+  Built for Men
+  <span className="block bg-gradient-to-r from-white via-white/85 to-white/60 bg-clip-text text-transparent">
+    Who Refuse Average.
+  </span>
+</h1>
                 Built for Men
                 <span className="block text-white/90">Who Refuse Average.</span>
               </h1>
