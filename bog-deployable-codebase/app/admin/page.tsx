@@ -18,7 +18,7 @@ import AdminActivityItem from "@/components/admin/AdminActivityItem";
 const stats = [
   {
     label: "Total Members",
-    value: "248",
+    value: memberCount?.toString() ?? "0",
     subtext: "Active accounts with current portal access.",
     icon: <Users className="h-5 w-5" />,
   },
