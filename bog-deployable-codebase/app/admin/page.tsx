@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import AdminCard from "@/components/admin/AdminCard";
+import AdminSection from "@/components/admin/AdminSection";
 
 const stats = [
   {
@@ -164,21 +165,11 @@ export default function AdminPage() {
           </section>
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 px-6 py-6 backdrop-blur-sm sm:px-8 sm:py-8">
-              <div className="mb-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
-                  Fast Actions
-                </p>
-
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-[2rem]">
-                  Quick Admin Actions
-                </h2>
-
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-                  Jump straight into the most important admin workflows.
-                </p>
-              </div>
-
+            <AdminSection
+              eyebrow="Fast Actions"
+              title="Quick Admin Actions"
+              description="Jump straight into the most important admin workflows."
+            >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {actions.map((action) => (
                   <Link key={action.title} href={action.href}>
@@ -203,23 +194,13 @@ export default function AdminPage() {
                   </Link>
                 ))}
               </div>
-            </section>
+            </AdminSection>
 
-            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 px-6 py-6 backdrop-blur-sm sm:px-8 sm:py-8">
-              <div className="mb-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
-                  Live Feed
-                </p>
-
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-[2rem]">
-                  Recent Activity
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  A quick stream of what is happening across the platform.
-                </p>
-              </div>
-
+            <AdminSection
+              eyebrow="Live Feed"
+              title="Recent Activity"
+              description="A quick stream of what is happening across the platform."
+            >
               <div className="space-y-3">
                 {activityFeed.map((item) => (
                   <div
@@ -244,7 +225,7 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
-            </section>
+            </AdminSection>
           </section>
         </div>
       </div>
