@@ -34,12 +34,12 @@ export function Nav() {
     <>
       {/* NAVBAR */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "border-b border-white/10 bg-black/70 backdrop-blur-xl"
-            : "bg-transparent"
-        }`}
-      >
+  className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+    scrolled
+      ? "border-b border-white/10 bg-black/60 backdrop-blur-xl"
+      : "bg-black/0"
+  }`}
+>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
             {/* LOGO */}
