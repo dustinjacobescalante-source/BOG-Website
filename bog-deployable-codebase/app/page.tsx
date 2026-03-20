@@ -60,7 +60,7 @@ export default function HomePage() {
           <div className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-soft-light grain-layer" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8 lg:pb-24 lg:pt-32">
+       <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36">
           <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
             <div
               className={`transform-gpu transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
