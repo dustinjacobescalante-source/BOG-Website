@@ -114,9 +114,7 @@ export function Nav() {
             <nav className="hidden items-center gap-2 md:flex">
               {links.map(([label, href]) => {
                 const isActive =
-                  href === "/"
-                    ? pathname === "/"
-                    : pathname === href || pathname.startsWith(`${href}/`);
+                  pathname === href || pathname.startsWith(`${href}/`);
 
                 return (
                   <Link
