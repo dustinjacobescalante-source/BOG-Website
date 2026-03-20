@@ -20,14 +20,15 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  // ✅ REAL MEMBER COUNT
+  // Count only actual members
   const { count: memberCount } = await supabase
-    .from("profiles") // change if needed
-    .select("*", { count: "exact", head: true });
+    .from("profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("role", "member");
 
-  // ✅ REAL PENDING REVIEWS
+  // Count pending scholarship applications
   const { count: pendingReviewsCount } = await supabase
-    .from("applications") // change if needed
+    .from("scholarship_applications")
     .select("*", { count: "exact", head: true })
     .eq("status", "pending");
 
@@ -35,13 +36,13 @@ export default async function AdminPage() {
     {
       label: "Total Members",
       value: memberCount?.toString() ?? "0",
-      subtext: "Active accounts with current portal access.",
+      subtext: "Profiles currently assigned the member role.",
       icon: <Users className="h-5 w-5" />,
     },
     {
       label: "Pending Reviews",
       value: pendingReviewsCount?.toString() ?? "0",
-      subtext: "Items waiting for admin action.",
+      subtext: "Applications waiting for admin action.",
       icon: <Shield className="h-5 w-5" />,
     },
     {
@@ -116,7 +117,6 @@ export default async function AdminPage() {
         description="Manage members, reviews, and platform activity."
       />
 
-      {/* Stats */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <AdminStatCard
@@ -129,7 +129,6 @@ export default async function AdminPage() {
         ))}
       </section>
 
-      {/* Main */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.9fr]">
         <AdminSection
           eyebrow="Fast Actions"
