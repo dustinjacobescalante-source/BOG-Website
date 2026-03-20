@@ -1,8 +1,6 @@
-import './globals.css';
-import { Nav } from '@/components/nav';
-import { Footer } from '@/components/footer';
 import type { Metadata } from "next";
 import "./globals.css";
+import Footer from "@/components/footer";
 import NavVisibility from "@/components/layout/NavVisibility";
 
 export const metadata: Metadata = {
@@ -18,25 +16,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-black">
-      <body className="bg-black text-white antialiased">
-        <NavVisibility />
-        {children}
-      </body>
-    </html>
-  );
-}
+      <body className="min-h-screen bg-black text-white antialiased">
         <div
-          className="fixed inset-0 -z-30 opacity-50"
+          className="fixed inset-0 -z-30 opacity-20"
           style={{
-            backgroundImage: "url('/assets/buffalo.png')",
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundSize: '1000px',
+            backgroundImage:
+              "radial-gradient(circle at center, rgba(255,255,255,0.06) 0, transparent 55%)",
+            backgroundSize: "1000px",
           }}
         />
         <div className="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.14),transparent_20%),linear-gradient(180deg,#090909_0%,#000_100%)]" />
         <div className="fixed inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:42px_42px]" />
-        <Nav />
+
+        <NavVisibility />
         <main>{children}</main>
         <Footer />
       </body>
