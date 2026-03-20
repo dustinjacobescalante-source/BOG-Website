@@ -71,7 +71,7 @@ export default function HomePage() {
                 }`}
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.55)]" />
-                Brotherhood of Growth
+                Buffalo Dogs
               </div>
 
               <h1
