@@ -128,7 +128,7 @@ export default function AboutPage() {
               alt="Buffalo background"
               fill
               priority
-              className="object-contain object-center opacity-[0.16] select-none"
+              className="object-contain object-center opacity-[0.20] select-none"
             />
           </div>
 
