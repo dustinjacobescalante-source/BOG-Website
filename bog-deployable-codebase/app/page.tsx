@@ -27,12 +27,9 @@ export default function HomePage() {
   return (
     <>
       <section className="relative isolate overflow-hidden border-b border-white/10 bg-black">
-        {/* Background system */}
         <div className="absolute inset-0">
-          {/* Base background */}
           <div className="absolute inset-0 bg-black" />
 
-          {/* Buffalo layer */}
           <div
             className="absolute inset-0 will-change-transform transition-transform duration-300 ease-out"
             style={{
@@ -50,27 +47,21 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Premium lighting layers */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.10),transparent_38%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.04),transparent_44%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.22)_24%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.88)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(0,0,0,0.58)_100%)]" />
 
-          {/* Side vignette for cinematic framing */}
           <div className="absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-black/50 to-transparent" />
           <div className="absolute inset-y-0 right-0 w-[18%] bg-gradient-to-l from-black/50 to-transparent" />
 
-          {/* Top highlight line */}
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
-          {/* Grain */}
           <div className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-soft-light grain-layer" />
         </div>
 
-        {/* Foreground content */}
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8 lg:pb-24 lg:pt-32">
-          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-12">
-            {/* Left content */}
+          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
             <div
               className={`transform-gpu transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
@@ -165,68 +156,95 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right side stat / brand block */}
             <div
               className={`transform-gpu transition-all duration-1000 delay-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
               }`}
             >
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] p-5 backdrop-blur-md">
+              <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl">
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-                <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-red-600/10 blur-3xl" />
+                <div className="absolute -right-16 top-8 h-32 w-32 rounded-full bg-red-600/10 blur-3xl" />
+                <div className="absolute -left-10 bottom-0 h-24 w-24 rounded-full bg-white/[0.03] blur-2xl" />
 
-                <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-zinc-500">
-                  Core Standard
-                </p>
-
-                <div className="mt-5 space-y-5">
-                  <div>
-                    <p className="text-3xl font-black tracking-[-0.04em] text-white">
-                      Discipline
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-400">
-                      Built daily through action, not talk.
+                <div className="relative">
+                  <div className="flex items-center gap-3">
+                    <div className="h-px w-10 bg-gradient-to-r from-red-500 to-transparent" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-zinc-500">
+                      BOG Standard
                     </p>
                   </div>
 
-                  <div className="h-px w-full bg-white/8" />
+                  <p className="mt-5 max-w-[16rem] text-2xl font-black leading-tight tracking-[-0.04em] text-white">
+                    Strength with discipline. Brotherhood with standards.
+                  </p>
 
-                  <div>
-                    <p className="text-3xl font-black tracking-[-0.04em] text-white">
-                      Accountability
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-400">
-                      Men sharpened by standards and brotherhood.
-                    </p>
+                  <div className="mt-8 space-y-6">
+                    <div className="group">
+                      <div className="flex items-start gap-4">
+                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
+                          01
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
+                            Discipline
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-zinc-400">
+                            Daily action over empty motivation. Standards before
+                            feelings.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+                    <div className="group">
+                      <div className="flex items-start gap-4">
+                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
+                          02
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
+                            Accountability
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-zinc-400">
+                            Men sharpened through honesty, ownership, and real
+                            expectations.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+                    <div className="group">
+                      <div className="flex items-start gap-4">
+                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
+                          03
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
+                            Leadership
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-zinc-400">
+                            Strength directed with control, service, and purpose.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="h-px w-full bg-white/8" />
-
-                  <div>
-                    <p className="text-3xl font-black tracking-[-0.04em] text-white">
-                      Leadership
+                  <div className="mt-8 rounded-2xl border border-white/8 bg-black/30 px-4 py-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
+                      Brotherhood Principle
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-400">
-                      Strength directed with purpose and control.
+                    <p className="mt-2 text-sm leading-6 text-zinc-300">
+                      This is not built on hype. It is built on men showing up,
+                      doing the work, and raising the standard together.
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Bottom cue */}
-          <div
-            className={`mt-12 flex items-center gap-3 text-zinc-500 transition-all duration-1000 delay-[700ms] ${
-              visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-            }`}
-          >
-            <div className="h-px w-10 bg-white/10" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.34em]">
-              Scroll to explore
-            </span>
-            <div className="flex h-6 w-4 items-start justify-center rounded-full border border-white/15 p-1">
-              <div className="h-1.5 w-1.5 animate-[scrollDot_1.8s_ease-in-out_infinite] rounded-full bg-white/60" />
             </div>
           </div>
         </div>
@@ -239,18 +257,6 @@ export default function HomePage() {
             }
             50% {
               transform: scale(1.015) translateY(-8px);
-            }
-          }
-
-          @keyframes scrollDot {
-            0%,
-            100% {
-              transform: translateY(0);
-              opacity: 0.9;
-            }
-            50% {
-              transform: translateY(8px);
-              opacity: 0.35;
             }
           }
 
