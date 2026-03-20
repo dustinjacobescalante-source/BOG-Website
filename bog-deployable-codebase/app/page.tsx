@@ -66,11 +66,11 @@ export default function HomePage() {
               }`}
             >
               <div
-                className={`inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-300 backdrop-blur-md transition-all duration-1000 delay-100 ${
+               <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.06] px-5 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white"> backdrop-blur-md transition-all duration-1000 delay-100 ${
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
-               <span className="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_16px_rgba(239,68,68,0.65)]" />
+               <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_16px_rgba(239,68,68,0.65)]" />
                 Buffalo Dogs
               </div>
 
