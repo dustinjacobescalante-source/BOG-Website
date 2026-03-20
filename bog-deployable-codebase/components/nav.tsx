@@ -52,7 +52,7 @@ export function Nav() {
 
               <div className="hidden sm:block">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.34em] text-zinc-400">
-                  Brotherhood
+                  Brotherhood of Growth
                 </div>
                 <div className="mt-0.5 text-sm text-zinc-200">
                   Discipline • Brotherhood • Leadership
