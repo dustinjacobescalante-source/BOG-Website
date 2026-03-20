@@ -70,7 +70,7 @@ export default function HomePage() {
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
-                <span className="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_16px_rgba(239,68,68,0.65)]" />
+               <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.8)]" />
                 Buffalo Dogs
               </div>
 
