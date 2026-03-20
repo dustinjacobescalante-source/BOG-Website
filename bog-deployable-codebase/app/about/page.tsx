@@ -338,15 +338,42 @@ export default function AboutPage() {
             </h2>
           </Reveal>
 
-          <div className="grid gap-4">
-            {standards.map((item, index) => (
-              <Reveal key={item} delay={index * 70}>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-base text-zinc-200 transition duration-300 hover:border-white/20 hover:bg-white/[0.05]">
-                  {item}
-                </div>
-              </Reveal>
-            ))}
+          <div className="grid gap-5">
+  {standards.map((item, index) => (
+    <Reveal key={item} delay={index * 80}>
+      <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_20px_50px_rgba(0,0,0,0.28)]">
+
+        {/* subtle top line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+        {/* glow */}
+        <div className="absolute -right-6 top-4 h-20 w-20 rounded-full bg-red-600/10 blur-3xl transition-all duration-300 group-hover:bg-red-600/20" />
+
+        <div className="relative flex items-center justify-between gap-4">
+
+          {/* left side */}
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold tracking-[0.3em] text-red-500">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+
+            <div className="h-px w-10 bg-gradient-to-r from-white/20 to-transparent" />
+
+            <p className="text-base font-medium text-zinc-200 sm:text-lg">
+              {item}
+            </p>
           </div>
+
+          {/* arrow */}
+          <span className="text-zinc-500 transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+
+        </div>
+      </div>
+    </Reveal>
+  ))}
+</div>
         </div>
       </section>
 
