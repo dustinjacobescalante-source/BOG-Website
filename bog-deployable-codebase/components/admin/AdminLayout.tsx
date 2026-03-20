@@ -12,6 +12,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import AdminTopBar from "@/components/admin/AdminTopBar";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -37,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="flex min-h-screen bg-[#06070a] text-white">
       {/* MOBILE TOP BAR */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b0d11]/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="fixed left-0 right-0 top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b0d11]/90 px-4 py-3 backdrop-blur lg:hidden">
         <button
           onClick={() => setOpen(true)}
           className="rounded-lg border border-white/10 p-2"
@@ -45,23 +46,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Menu className="h-5 w-5" />
         </button>
 
-        <span className="text-sm font-semibold tracking-wide">
-          BOG Admin
-        </span>
+        <span className="text-sm font-semibold tracking-wide">BOG Admin</span>
 
-        <div className="w-8" /> {/* spacer */}
+        <div className="w-8" />
       </div>
 
       {/* MOBILE SIDEBAR */}
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* overlay */}
           <div
             className="absolute inset-0 bg-black/60"
             onClick={() => setOpen(false)}
           />
 
-          {/* panel */}
           <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#0b0d11] p-4">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-zinc-500">
@@ -98,14 +95,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden w-64 flex-col border-r border-white/10 bg-[#0b0d11] p-4 lg:flex">
-        <div className="mb-6 px-2">
+      <aside className="hidden w-64 flex-col border-r border-white/10 bg-[#0b0d11] lg:flex">
+        <div className="border-b border-white/10 px-6 py-5">
           <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-zinc-500">
             BOG Admin
           </h2>
         </div>
 
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-2 p-4">
           {nav.map((item) => (
             <Link
               key={item.name}
@@ -123,8 +120,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 pt-14 lg:pt-0">{children}</div>
+      {/* MAIN AREA */}
+      <div className="flex min-w-0 flex-1 flex-col pt-14 lg:pt-0">
+        <div className="hidden lg:block">
+          <AdminTopBar
+            title="Admin Dashboard"
+            subtitle="Manage members, reviews, content, and platform activity."
+            role="Administrator"
+            userName="Dustin"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
     </div>
   );
 }
