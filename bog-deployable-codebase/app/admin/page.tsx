@@ -20,9 +20,16 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
   const supabase = await createClient();
 
+  // ✅ REAL MEMBER COUNT
   const { count: memberCount } = await supabase
-    .from("profiles") // change if your table is different
+    .from("profiles") // change if needed
     .select("*", { count: "exact", head: true });
+
+  // ✅ REAL PENDING REVIEWS
+  const { count: pendingReviewsCount } = await supabase
+    .from("applications") // change if needed
+    .select("*", { count: "exact", head: true })
+    .eq("status", "pending");
 
   const stats = [
     {
@@ -33,7 +40,7 @@ export default async function AdminPage() {
     },
     {
       label: "Pending Reviews",
-      value: "17",
+      value: pendingReviewsCount?.toString() ?? "0",
       subtext: "Items waiting for admin action.",
       icon: <Shield className="h-5 w-5" />,
     },
