@@ -98,7 +98,6 @@ const supabase = await createClient();
     .from("profiles")
     .select("*", { count: "exact", head: true });
   return (
-  return (
     <AdminPageShell>
       <AdminHero
         eyebrow="Admin Command"
