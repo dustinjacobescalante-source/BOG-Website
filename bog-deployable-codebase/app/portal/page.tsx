@@ -10,43 +10,61 @@ import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 
-const stats = [
-  {
-    label: "Workouts Completed",
-    value: "42",
-    subtext: "Total sessions logged this month.",
-    icon: <Activity className="h-5 w-5" />,
-  },
-  {
-    label: "Upcoming Events",
-    value: "3",
-    subtext: "Events you are registered for.",
-    icon: <Calendar className="h-5 w-5" />,
-  },
-  {
-    label: "Rank",
-    value: "#12",
-    subtext: "Current leaderboard position.",
-    icon: <Trophy className="h-5 w-5" />,
-  },
-  {
-    label: "Profile Status",
-    value: "Active",
-    subtext: "Your account is in good standing.",
-    icon: <User className="h-5 w-5" />,
-  },
-];
+// CHANGE THIS IMPORT ONLY IF YOUR SUPABASE SERVER HELPER LIVES SOMEWHERE ELSE
+import { createClient } from "@/utils/supabase/server";
 
-export default function PortalPage() {
+export default async function PortalPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "Member";
+
+  const email = user?.email || "No email found";
+
+  const stats = [
+    {
+      label: "Workouts Completed",
+      value: "42",
+      subtext: "Total sessions logged this month.",
+      icon: <Activity className="h-5 w-5" />,
+    },
+    {
+      label: "Upcoming Events",
+      value: "3",
+      subtext: "Events you are registered for.",
+      icon: <Calendar className="h-5 w-5" />,
+    },
+    {
+      label: "Rank",
+      value: "#12",
+      subtext: "Current leaderboard position.",
+      icon: <Trophy className="h-5 w-5" />,
+    },
+    {
+      label: "Profile Status",
+      value: user ? "Active" : "Offline",
+      subtext: user
+        ? "Your account is in good standing."
+        : "User session not found.",
+      icon: <User className="h-5 w-5" />,
+    },
+  ];
+
   return (
     <AdminPageShell>
       <AdminHero
         eyebrow="Member Portal"
-        title="Your Dashboard"
-        description="Track your progress, stay engaged, and access everything in one place."
+        title={`Welcome, ${displayName}`}
+        description={`Signed in as ${email}`}
       />
 
-      {/* Stats */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <AdminStatCard
@@ -59,7 +77,6 @@ export default function PortalPage() {
         ))}
       </section>
 
-      {/* Main Content */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <AdminSection
           eyebrow="Progress"
