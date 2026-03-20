@@ -82,8 +82,7 @@ export default function AdminPage() {
                   Admin Overview
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-                  A cleaner, sharper control center for managing your platform
-                  with a more premium, elite feel.
+                  Take Control and Run This Shit Brother
                 </p>
               </div>
 
@@ -157,23 +156,28 @@ export default function AdminPage() {
                 <Link
                   key={action.title}
                   href={action.href}
-                  className="group rounded-3xl border border-white/10 bg-[#0e1014] p-5 transition hover:border-white/20 hover:bg-[#11151b]"
+                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-200">
-                    {action.icon}
-                  </div>
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)] opacity-0 transition duration-300 group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                  <h3 className="mt-4 text-lg font-semibold tracking-tight text-white">
-                    {action.title}
-                  </h3>
+                  <div className="relative">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-200 transition group-hover:border-white/20 group-hover:bg-white/10">
+                      {action.icon}
+                    </div>
 
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    {action.description}
-                  </p>
+                    <h3 className="mt-4 text-lg font-semibold tracking-tight text-white">
+                      {action.title}
+                    </h3>
 
-                  <div className="mt-6 flex items-center gap-2 text-sm font-medium text-zinc-300 transition group-hover:text-white">
-                    <span>Open</span>
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">
+                      {action.description}
+                    </p>
+
+                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-zinc-300 transition group-hover:text-white">
+                      <span>Open</span>
+                      <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                    </div>
                   </div>
                 </Link>
               ))}
