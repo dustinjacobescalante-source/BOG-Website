@@ -91,7 +91,7 @@ const activityFeed = [
   },
 ];
 
-export default function AdminPage() {
+export default async function AdminPage() {
   return (
     <AdminPageShell>
       <AdminHero
