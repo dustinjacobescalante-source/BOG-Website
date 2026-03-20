@@ -1,4 +1,14 @@
-import { Users, Shield, Wallet, Activity } from "lucide-react";
+import Link from "next/link";
+import {
+  Users,
+  Shield,
+  Wallet,
+  Activity,
+  BadgeCheck,
+  Sparkles,
+  CalendarRange,
+  ArrowRight,
+} from "lucide-react";
 
 const stats = [
   {
@@ -24,6 +34,33 @@ const stats = [
     value: "99.9%",
     subtext: "Core systems operational.",
     icon: <Activity className="h-5 w-5" />,
+  },
+];
+
+const actions = [
+  {
+    title: "Manage Members",
+    description: "Review profiles, update status, and manage access.",
+    href: "/admin/members",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Review Applications",
+    description: "Handle approvals, denials, and pending submissions.",
+    href: "/admin/reviews",
+    icon: <BadgeCheck className="h-5 w-5" />,
+  },
+  {
+    title: "Content Control",
+    description: "Edit announcements, featured content, and notices.",
+    href: "/admin/content",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Events & Scheduling",
+    description: "Create events and manage visibility for members.",
+    href: "/admin/events",
+    icon: <CalendarRange className="h-5 w-5" />,
   },
 ];
 
@@ -71,6 +108,48 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+          </section>
+
+          {/* Quick Actions */}
+          <section className="rounded-[2rem] border border-white/10 bg-[#0b0d11] p-6 sm:p-8">
+            <div className="mb-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
+                Fast Actions
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                Quick Admin Actions
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+                Jump straight into the most important admin workflows.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {actions.map((action) => (
+                <Link
+                  key={action.title}
+                  href={action.href}
+                  className="group rounded-3xl border border-white/10 bg-[#0e1014] p-5 transition hover:border-white/20 hover:bg-[#11151b]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-200">
+                    {action.icon}
+                  </div>
+
+                  <h3 className="mt-4 text-lg font-semibold tracking-tight text-white">
+                    {action.title}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">
+                    {action.description}
+                  </p>
+
+                  <div className="mt-6 flex items-center gap-2 text-sm font-medium text-zinc-300 transition group-hover:text-white">
+                    <span>Open</span>
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </section>
         </div>
       </div>
