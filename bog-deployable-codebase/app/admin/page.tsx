@@ -97,7 +97,7 @@ export default function AdminPage() {
       <AdminHero
         eyebrow="Admin Command"
         title="Admin Overview"
-        description="A cleaner, sharper control center for managing your platform with a more premium, elite feel."
+        description="Take Control and Run This Shit Brother"
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
