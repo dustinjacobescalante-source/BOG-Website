@@ -6,18 +6,22 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const pillars = [
   {
+    number: "01",
     title: "Discipline",
     text: "We do what needs to be done, especially when we do not feel like it. Standards come before mood.",
   },
   {
+    number: "02",
     title: "Brotherhood",
     text: "No man grows alone. We challenge, sharpen, and support each other through every season.",
   },
   {
+    number: "03",
     title: "Growth",
     text: "Physical, mental, spiritual, and professional growth are all part of the mission.",
   },
   {
+    number: "04",
     title: "Accountability",
     text: "We do not let each other drift. We expect effort, ownership, and follow-through.",
   },
@@ -274,7 +278,7 @@ export default function AboutPage() {
 
       <section className="border-b border-white/10 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <Reveal className="mb-12 text-center">
+          <Reveal className="mb-14 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500">
               The Pillars
             </p>
@@ -283,19 +287,35 @@ export default function AboutPage() {
             </h2>
           </Reveal>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2">
             {pillars.map((pillar, index) => (
-              <Reveal key={pillar.title} delay={index * 80}>
-                <div className="group rounded-[28px] border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-red-500">
-                    Pillar
+              <Reveal key={pillar.title} delay={index * 90}>
+                <div className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.03] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_24px_60px_rgba(0,0,0,0.32)]">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="absolute -right-8 top-6 h-24 w-24 rounded-full bg-red-600/10 blur-3xl transition-all duration-300 group-hover:bg-red-600/15" />
+
+                  <div className="relative">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-px w-10 bg-gradient-to-r from-red-500 to-transparent" />
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-zinc-500">
+                          Pillar
+                        </p>
+                      </div>
+
+                      <span className="text-sm font-bold tracking-[0.3em] text-red-500">
+                        {pillar.number}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-6 text-3xl font-black tracking-[-0.04em] text-white">
+                      {pillar.title}
+                    </h3>
+
+                    <p className="mt-4 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
+                      {pillar.text}
+                    </p>
                   </div>
-                  <h3 className="mt-3 text-2xl font-black tracking-[-0.03em] text-white">
-                    {pillar.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    {pillar.text}
-                  </p>
                 </div>
               </Reveal>
             ))}
@@ -339,41 +359,33 @@ export default function AboutPage() {
           </Reveal>
 
           <div className="grid gap-5">
-  {standards.map((item, index) => (
-    <Reveal key={item} delay={index * 80}>
-      <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_20px_50px_rgba(0,0,0,0.28)]">
+            {standards.map((item, index) => (
+              <Reveal key={item} delay={index * 80}>
+                <div className="group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03] px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.045] hover:shadow-[0_20px_50px_rgba(0,0,0,0.28)]">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="absolute -right-6 top-4 h-20 w-20 rounded-full bg-red-600/10 blur-3xl transition-all duration-300 group-hover:bg-red-600/20" />
 
-        {/* subtle top line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="relative flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-bold tracking-[0.3em] text-red-500">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
 
-        {/* glow */}
-        <div className="absolute -right-6 top-4 h-20 w-20 rounded-full bg-red-600/10 blur-3xl transition-all duration-300 group-hover:bg-red-600/20" />
+                      <div className="h-px w-10 bg-gradient-to-r from-white/20 to-transparent" />
 
-        <div className="relative flex items-center justify-between gap-4">
+                      <p className="text-base font-medium text-zinc-200 sm:text-lg">
+                        {item}
+                      </p>
+                    </div>
 
-          {/* left side */}
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-bold tracking-[0.3em] text-red-500">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-
-            <div className="h-px w-10 bg-gradient-to-r from-white/20 to-transparent" />
-
-            <p className="text-base font-medium text-zinc-200 sm:text-lg">
-              {item}
-            </p>
+                    <span className="text-zinc-500 transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
-
-          {/* arrow */}
-          <span className="text-zinc-500 transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-
-        </div>
-      </div>
-    </Reveal>
-  ))}
-</div>
         </div>
       </section>
 
@@ -391,16 +403,26 @@ export default function AboutPage() {
           <div className="grid gap-6 lg:grid-cols-4">
             {steps.map((step, index) => (
               <Reveal key={step.number} delay={index * 80}>
-                <div className="rounded-[28px] border border-white/10 bg-black/30 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20">
-                  <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-red-500">
-                    {step.number}
+                <div className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-black/30 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-black/40 hover:shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="absolute -right-8 top-5 h-20 w-20 rounded-full bg-red-600/10 blur-3xl transition-all duration-300 group-hover:bg-red-600/15" />
+
+                  <div className="relative">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.24em] text-red-500">
+                        {step.number}
+                      </div>
+                      <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+                    </div>
+
+                    <h3 className="mt-5 text-2xl font-black tracking-[-0.03em] text-white">
+                      {step.title}
+                    </h3>
+
+                    <p className="mt-4 text-sm leading-7 text-zinc-400">
+                      {step.text}
+                    </p>
                   </div>
-                  <h3 className="mt-3 text-2xl font-black tracking-[-0.03em] text-white">
-                    {step.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    {step.text}
-                  </p>
                 </div>
               </Reveal>
             ))}
@@ -449,32 +471,39 @@ export default function AboutPage() {
               className="object-contain object-center opacity-[0.10]"
             />
           </div>
+
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.08),transparent_26%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+          <div className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-soft-light grain-layer" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-6xl px-4 py-28 text-center sm:px-6 lg:px-8">
           <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500">
+            <div className="mx-auto w-fit rounded-full border border-white/10 bg-white/[0.04] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-zinc-300 backdrop-blur-md">
               Final Word
-            </p>
-            <h2 className="mt-5 text-4xl font-black tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl">
-              This is not for everyone.
-              <br />
-              But if you are ready,
-              <br />
-              step in.
+            </div>
+
+            <h2 className="mt-7 text-4xl font-black tracking-[-0.045em] text-white sm:text-6xl lg:text-7xl">
+              <span className="block leading-[1.02]">This is not for everyone.</span>
+              <span className="block leading-[1.02]">But if you are ready</span>
+              <span className="block pb-2 leading-[1.02] bg-gradient-to-r from-white via-white/88 to-white/60 bg-clip-text text-transparent">
+                step in.
+              </span>
             </h2>
 
-            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-              Brotherhood means more when it costs something. If you are ready
-              to commit to growth, accountability, challenge, and purpose, there
-              is a place for you here.
+            <div className="mx-auto mt-7 h-px w-28 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+
+            <p className="mx-auto mt-8 max-w-3xl text-base leading-8 text-zinc-400 sm:text-lg">
+              Brotherhood means more when it costs something. This is for men
+              willing to be sharpened, held accountable, and called higher.
+              If you are ready to commit to growth, challenge, purpose, and
+              responsibility, there is a place for you here. Are you feeling dangerous?
             </p>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/portal"
-                className="group inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-600 to-red-700 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(185,28,28,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-[0_16px_48px_rgba(185,28,28,0.32)]"
+                className="group inline-flex min-h-[54px] items-center justify-center rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-600 to-red-700 px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(185,28,28,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-[0_16px_48px_rgba(185,28,28,0.32)]"
               >
                 <span>Apply / Join BOG</span>
                 <span className="ml-2 transition-transform duration-300 group-hover:translate-x-0.5">
@@ -484,9 +513,9 @@ export default function AboutPage() {
 
               <Link
                 href="/"
-                className="inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.045] px-6 py-3 text-sm font-semibold text-zinc-100 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
+                className="group inline-flex min-h-[54px] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.045] px-7 py-3 text-sm font-semibold text-zinc-100 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
               >
-                Return Home
+                <span>Return Home</span>
               </Link>
             </div>
           </Reveal>
