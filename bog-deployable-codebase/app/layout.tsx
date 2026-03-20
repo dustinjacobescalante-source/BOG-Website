@@ -1,18 +1,30 @@
 import './globals.css';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
-import type { Metadata } from 'next';
-import { site } from '@/lib/site';
+import type { Metadata } from "next";
+import "./globals.css";
+import NavVisibility from "@/components/layout/NavVisibility";
 
 export const metadata: Metadata = {
-  title: site.name,
-  description: 'BOG public website and private member platform.',
+  title: "BOG | Brotherhood of Growth",
+  description:
+    "A brotherhood platform built on discipline, accountability, growth, and leadership.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body className="relative bg-black text-white">
+    <html lang="en" className="bg-black">
+      <body className="bg-black text-white antialiased">
+        <NavVisibility />
+        {children}
+      </body>
+    </html>
+  );
+}
         <div
           className="fixed inset-0 -z-30 opacity-50"
           style={{
