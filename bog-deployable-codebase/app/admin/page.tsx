@@ -91,20 +91,22 @@ const activityFeed = [
 export default function AdminPage() {
   return (
     <main className="min-h-screen bg-[#06070a] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,#11141a_0%,#0b0d11_100%)] p-6 sm:p-8 lg:p-10">
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
+        <div className="space-y-6 lg:space-y-8">
+          <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#11141a_0%,#0b0d11_100%)] px-6 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.10),transparent_30%)]" />
+
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
                   Admin Command
                 </p>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[3.25rem] lg:leading-[1]">
                   Admin Overview
                 </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
+
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-[15px]">
                   Take Control and Run This Shit Brother
                 </p>
               </div>
@@ -112,7 +114,7 @@ export default function AdminPage() {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/admin/members"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
                 >
                   Manage Members
                   <ArrowUpRight className="h-4 w-4" />
@@ -120,7 +122,7 @@ export default function AdminPage() {
 
                 <Link
                   href="/portal"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   View Portal
                   <ArrowUpRight className="h-4 w-4" />
@@ -129,7 +131,6 @@ export default function AdminPage() {
             </div>
           </section>
 
-          {/* Stat Cards */}
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
               <div
@@ -141,12 +142,14 @@ export default function AdminPage() {
 
                 <div className="relative flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-500">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-zinc-500">
                       {stat.label}
                     </p>
-                    <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">
+
+                    <h2 className="mt-3 text-[2rem] font-semibold leading-none tracking-tight text-white">
                       {stat.value}
                     </h2>
+
                     <p className="mt-2 text-sm leading-6 text-zinc-400">
                       {stat.subtext}
                     </p>
@@ -160,17 +163,17 @@ export default function AdminPage() {
             ))}
           </section>
 
-          {/* Main Grid */}
-          <section className="grid grid-cols-1 gap-8 xl:grid-cols-[1.4fr_0.9fr]">
-            {/* Quick Actions */}
-            <section className="rounded-[2rem] border border-white/10 bg-[#0b0d11] p-6 sm:p-8">
-              <div className="mb-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
+          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11] px-6 py-6 sm:px-8 sm:py-8">
+              <div className="mb-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
                   Fast Actions
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-[2rem]">
                   Quick Admin Actions
                 </h2>
+
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
                   Jump straight into the most important admin workflows.
                 </p>
@@ -199,7 +202,7 @@ export default function AdminPage() {
                         {action.description}
                       </p>
 
-                      <div className="mt-6 flex items-center gap-2 text-sm font-medium text-zinc-300 transition group-hover:text-white">
+                      <div className="mt-5 flex items-center gap-2 text-sm font-medium text-zinc-300 transition group-hover:text-white">
                         <span>Open</span>
                         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                       </div>
@@ -209,15 +212,16 @@ export default function AdminPage() {
               </div>
             </section>
 
-            {/* Recent Activity */}
-            <section className="rounded-[2rem] border border-white/10 bg-[#0b0d11] p-6 sm:p-8">
-              <div className="mb-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
+            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11] px-6 py-6 sm:px-8 sm:py-8">
+              <div className="mb-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
                   Live Feed
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-[2rem]">
                   Recent Activity
                 </h2>
+
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   A quick stream of what is happening across the platform.
                 </p>
@@ -234,12 +238,13 @@ export default function AdminPage() {
                         <h3 className="text-sm font-semibold text-white">
                           {item.title}
                         </h3>
+
                         <p className="mt-1 text-sm leading-6 text-zinc-400">
                           {item.detail}
                         </p>
                       </div>
 
-                      <span className="shrink-0 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                      <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-zinc-500">
                         {item.time}
                       </span>
                     </div>
