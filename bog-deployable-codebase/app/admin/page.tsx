@@ -93,6 +93,11 @@ const activityFeed = [
 ];
 
 export default async function AdminPage() {
+const supabase = await createClient();
+  const { count: memberCount } = await supabase
+    .from("profiles")
+    .select("*", { count: "exact", head: true });
+  return (
   return (
     <AdminPageShell>
       <AdminHero
