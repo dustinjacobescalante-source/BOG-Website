@@ -11,7 +11,7 @@ import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 
 // CHANGE THIS IMPORT ONLY IF YOUR SUPABASE SERVER HELPER LIVES SOMEWHERE ELSE
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PortalPage() {
   const supabase = await createClient();
