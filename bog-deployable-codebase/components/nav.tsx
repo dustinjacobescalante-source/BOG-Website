@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { site } from "@/lib/site";
 
 const links = [
   ["About", "/about"],
@@ -31,15 +30,6 @@ export function Nav() {
     setMobileOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = original;
-    };
-  }, [mobileOpen]);
-
   return (
     <>
       {/* NAVBAR */}
@@ -53,8 +43,8 @@ export function Nav() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
             {/* LOGO */}
-            <Link href="/" className="group flex items-center gap-3">
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-md transition-all duration-300 group-hover:border-white/20 group-hover:bg-white/[0.08]">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-md">
                 <span className="text-sm font-black tracking-[0.24em] text-white">
                   BOG
                 </span>
@@ -62,7 +52,7 @@ export function Nav() {
 
               <div className="hidden sm:block">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.34em] text-zinc-400">
-                  {site.name}
+                  Brotherhood
                 </div>
                 <div className="mt-0.5 text-sm text-zinc-200">
                   Discipline • Brotherhood • Leadership
@@ -82,38 +72,17 @@ export function Nav() {
                   <Link
                     key={href}
                     href={href}
-                    className={`relative inline-flex h-11 items-center rounded-2xl px-4 text-sm font-semibold transition-all duration-300 ${
+                    className={`inline-flex h-11 items-center rounded-2xl px-4 text-sm font-semibold transition-all duration-300 ${
                       isActive
-                        ? "bg-white/[0.08] text-white"
-                        : "text-zinc-300 hover:bg-white/[0.05] hover:text-white"
+                        ? "text-white"
+                        : "text-zinc-300 hover:text-white"
                     }`}
                   >
                     {label}
-
-                    {isActive && (
-                      <span className="absolute inset-x-4 bottom-2 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent" />
-                    )}
                   </Link>
                 );
               })}
             </nav>
-
-            {/* RIGHT SIDE CTA */}
-            <div className="hidden items-center gap-3 md:flex">
-              <Link
-                href="/login"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-semibold text-zinc-200 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
-              >
-                Log In
-              </Link>
-
-              <Link
-                href="/portal"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-600 to-red-700 px-5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(185,28,28,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-[0_16px_40px_rgba(185,28,28,0.34)]"
-              >
-                Enter
-              </Link>
-            </div>
 
             {/* MOBILE BUTTON */}
             <button
@@ -170,22 +139,6 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-
-        <div className="mt-8 flex flex-col gap-3">
-          <Link
-            href="/login"
-            className="rounded-xl border border-white/10 px-4 py-3 text-center text-zinc-200"
-          >
-            Log In
-          </Link>
-
-          <Link
-            href="/portal"
-            className="rounded-xl bg-red-600 px-4 py-3 text-center font-semibold text-white"
-          >
-            Enter Brotherhood
-          </Link>
-        </div>
       </aside>
     </>
   );
