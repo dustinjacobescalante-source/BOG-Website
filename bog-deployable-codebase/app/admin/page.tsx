@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import AdminCard from "@/components/admin/AdminCard";
 import AdminSection from "@/components/admin/AdminSection";
+import AdminStatCard from "@/components/admin/AdminStatCard";
 
 const stats = [
   {
@@ -140,27 +141,13 @@ export default function AdminPage() {
 
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <AdminCard key={stat.label}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-zinc-500">
-                      {stat.label}
-                    </p>
-
-                    <h2 className="mt-3 text-[2rem] font-semibold leading-none tracking-tight text-white">
-                      {stat.value}
-                    </h2>
-
-                    <p className="mt-2 text-sm leading-6 text-zinc-400">
-                      {stat.subtext}
-                    </p>
-                  </div>
-
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-200 transition group-hover:border-white/20 group-hover:bg-white/10">
-                    {stat.icon}
-                  </div>
-                </div>
-              </AdminCard>
+              <AdminStatCard
+                key={stat.label}
+                label={stat.label}
+                value={stat.value}
+                subtext={stat.subtext}
+                icon={stat.icon}
+              />
             ))}
           </section>
 
