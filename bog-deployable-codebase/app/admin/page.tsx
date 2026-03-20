@@ -12,6 +12,7 @@ import {
 import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import AdminActionCard from "@/components/admin/AdminActionCard";
+import AdminActivityItem from "@/components/admin/AdminActivityItem";
 
 const stats = [
   {
@@ -114,7 +115,8 @@ export default function AdminPage() {
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-[15px]">
-                  Take Control and Run This Shit Brother
+                  A cleaner, sharper control center for managing your platform
+                  with a more premium, elite feel.
                 </p>
               </div>
 
@@ -176,26 +178,12 @@ export default function AdminPage() {
             >
               <div className="space-y-3">
                 {activityFeed.map((item) => (
-                  <div
+                  <AdminActivityItem
                     key={`${item.title}-${item.time}`}
-                    className="rounded-2xl border border-white/10 bg-[#0e1014]/95 p-4 backdrop-blur-sm transition hover:border-white/20 hover:bg-[#11151b]"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm font-semibold text-white">
-                          {item.title}
-                        </h3>
-
-                        <p className="mt-1 text-sm leading-6 text-zinc-400">
-                          {item.detail}
-                        </p>
-                      </div>
-
-                      <span className="shrink-0 text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                        {item.time}
-                      </span>
-                    </div>
-                  </div>
+                    title={item.title}
+                    detail={item.detail}
+                    time={item.time}
+                  />
                 ))}
               </div>
             </AdminSection>
