@@ -90,8 +90,13 @@ const activityFeed = [
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen bg-[#06070a] text-white">
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
+    <main className="relative min-h-screen overflow-hidden bg-[#06070a] text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.07),transparent_28%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.08]" />
+      <div className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] rounded-full bg-white/[0.03] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-[320px] w-[320px] rounded-full bg-white/[0.025] blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:px-8 lg:pb-14 lg:pt-8">
         <div className="space-y-6 lg:space-y-8">
           <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#11141a_0%,#0b0d11_100%)] px-6 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.10),transparent_30%)]" />
@@ -135,7 +140,7 @@ export default function AdminPage() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014]/95 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)] opacity-0 transition duration-300 group-hover:opacity-100" />
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -164,7 +169,7 @@ export default function AdminPage() {
           </section>
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11] px-6 py-6 sm:px-8 sm:py-8">
+            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 px-6 py-6 backdrop-blur-sm sm:px-8 sm:py-8">
               <div className="mb-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
                   Fast Actions
@@ -184,7 +189,7 @@ export default function AdminPage() {
                   <Link
                     key={action.title}
                     href={action.href}
-                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014]/95 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
                   >
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)] opacity-0 transition duration-300 group-hover:opacity-100" />
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -212,7 +217,7 @@ export default function AdminPage() {
               </div>
             </section>
 
-            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11] px-6 py-6 sm:px-8 sm:py-8">
+            <section className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 px-6 py-6 backdrop-blur-sm sm:px-8 sm:py-8">
               <div className="mb-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
                   Live Feed
@@ -231,7 +236,7 @@ export default function AdminPage() {
                 {activityFeed.map((item) => (
                   <div
                     key={`${item.title}-${item.time}`}
-                    className="rounded-2xl border border-white/10 bg-[#0e1014] p-4 transition hover:border-white/20 hover:bg-[#11151b]"
+                    className="rounded-2xl border border-white/10 bg-[#0e1014]/95 p-4 backdrop-blur-sm transition hover:border-white/20 hover:bg-[#11151b]"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
