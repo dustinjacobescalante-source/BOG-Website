@@ -144,7 +144,7 @@ export default function AboutPage() {
           <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
             <Reveal className="max-w-4xl">
               <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.06] px-5 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white backdrop-blur-md">
-                <span className="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.8)]" />
+                <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.8)]" />
                 About BOG
               </div>
 
