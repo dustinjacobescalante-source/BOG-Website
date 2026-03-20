@@ -14,7 +14,7 @@ export default function HomePage() {
     setVisible(true);
 
     const handleScroll = () => {
-      const y = Math.min(window.scrollY * 0.12, 72);
+      const y = Math.min(window.scrollY * 0.1, 64);
       setParallaxY(y);
     };
 
@@ -28,40 +28,41 @@ export default function HomePage() {
     <>
       <section className="relative isolate overflow-hidden border-b border-white/10 bg-black">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-black" />
+          <div className="absolute inset-0 bg-[#050505]" />
 
           <div
             className="absolute inset-0 will-change-transform transition-transform duration-300 ease-out"
             style={{
-              transform: `translateY(${parallaxY}px) scale(1.08)`,
+              transform: `translateY(${parallaxY}px) scale(1.06)`,
             }}
           >
-            <div className="absolute inset-0 animate-[heroFloat_18s_ease-in-out_infinite]">
+            <div className="absolute inset-0 animate-[heroFloat_20s_ease-in-out_infinite]">
               <Image
                 src="/assets/Buffalo.png"
                 alt="Buffalo background"
                 fill
                 priority
-                className="object-contain object-center opacity-[0.16] select-none"
+                className="object-contain object-center opacity-[0.13] select-none"
               />
             </div>
           </div>
 
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.10),transparent_38%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.04),transparent_44%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.22)_24%,rgba(0,0,0,0.62)_72%,rgba(0,0,0,0.88)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(0,0,0,0.58)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(255,255,255,0.11),transparent_24%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.05),transparent_36%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_70%,rgba(120,120,120,0.03),transparent_42%)]" />
 
-          <div className="absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-black/50 to-transparent" />
-          <div className="absolute inset-y-0 right-0 w-[18%] bg-gradient-to-l from-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.10)_0%,rgba(0,0,0,0.22)_18%,rgba(0,0,0,0.42)_45%,rgba(0,0,0,0.72)_76%,rgba(0,0,0,0.92)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(0,0,0,0.62)_100%)]" />
 
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+          <div className="absolute inset-y-0 left-0 w-[16%] bg-gradient-to-r from-black/60 to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-[16%] bg-gradient-to-l from-black/60 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black to-transparent" />
 
-          <div className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-soft-light grain-layer" />
+          <div className="pointer-events-none absolute inset-0 opacity-[0.045] mix-blend-soft-light grain-layer" />
         </div>
 
-       <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36">
-          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36">
+          <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
             <div
               className={`transform-gpu transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
@@ -72,12 +73,12 @@ export default function HomePage() {
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
-                Buffalo Dogs
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.55)]" />
+                Brotherhood of Growth
               </div>
 
               <h1
-                className={`mt-6 max-w-5xl text-4xl font-black leading-[0.96] tracking-[-0.04em] text-white transition-all duration-1000 delay-150 sm:text-5xl md:text-6xl lg:text-7xl ${
+                className={`mt-6 max-w-5xl text-4xl font-black leading-[0.95] tracking-[-0.045em] text-white transition-all duration-1000 delay-150 sm:text-5xl md:text-6xl lg:text-7xl ${
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
@@ -86,7 +87,7 @@ export default function HomePage() {
               </h1>
 
               <div
-                className={`mt-6 h-px w-24 bg-gradient-to-r from-red-500 via-red-400/70 to-transparent transition-all duration-1000 delay-250 ${
+                className={`mt-6 h-px w-28 bg-gradient-to-r from-red-500 via-red-400/70 to-transparent transition-all duration-1000 delay-250 ${
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               />
@@ -136,7 +137,7 @@ export default function HomePage() {
               >
                 <Link
                   href="/about"
-                  className="group inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-600 to-red-700 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(185,28,28,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-[0_16px_48px_rgba(185,28,28,0.32)] focus:outline-none focus:ring-2 focus:ring-red-500/60"
+                  className="group inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-red-500/40 bg-gradient-to-b from-red-600 to-red-700 px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(185,28,28,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-[0_16px_48px_rgba(185,28,28,0.32)]"
                 >
                   <span>Learn What We Stand For</span>
                   <span className="ml-2 transition-transform duration-300 group-hover:translate-x-0.5">
@@ -146,7 +147,7 @@ export default function HomePage() {
 
                 <Link
                   href="/portal"
-                  className="group inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.045] px-6 py-3 text-sm font-semibold text-zinc-100 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07] hover:shadow-[0_12px_36px_rgba(255,255,255,0.06)] focus:outline-none focus:ring-2 focus:ring-white/20"
+                  className="group inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-white/12 bg-white/[0.045] px-6 py-3 text-sm font-semibold text-zinc-100 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07] hover:shadow-[0_12px_36px_rgba(255,255,255,0.06)]"
                 >
                   <span>Enter the Brotherhood</span>
                   <span className="ml-2 transition-transform duration-300 group-hover:translate-x-0.5">
@@ -161,84 +162,57 @@ export default function HomePage() {
                 visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
               }`}
             >
-              <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl">
+              <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.035] p-6 backdrop-blur-xl shadow-[0_20px_70px_rgba(0,0,0,0.35)]">
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-                <div className="absolute -right-16 top-8 h-32 w-32 rounded-full bg-red-600/10 blur-3xl" />
-                <div className="absolute -left-10 bottom-0 h-24 w-24 rounded-full bg-white/[0.03] blur-2xl" />
+                <div className="absolute -right-12 top-6 h-28 w-28 rounded-full bg-red-600/10 blur-3xl" />
+                <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
 
                 <div className="relative">
                   <div className="flex items-center gap-3">
                     <div className="h-px w-10 bg-gradient-to-r from-red-500 to-transparent" />
                     <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-zinc-500">
-                      BOG Standard
+                      BOG Creed
                     </p>
                   </div>
 
-                  <p className="mt-5 max-w-[16rem] text-2xl font-black leading-tight tracking-[-0.04em] text-white">
-                    Strength with discipline. Brotherhood with standards.
+                  <p className="mt-5 text-2xl font-black leading-tight tracking-[-0.04em] text-white">
+                    Standards first. Brotherhood always.
                   </p>
 
-                  <div className="mt-8 space-y-6">
-                    <div className="group">
-                      <div className="flex items-start gap-4">
-                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
-                          01
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
-                            Discipline
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-zinc-400">
-                            Daily action over empty motivation. Standards before
-                            feelings.
-                          </p>
-                        </div>
-                      </div>
+                  <div className="mt-8 space-y-5">
+                    <div className="rounded-2xl border border-white/6 bg-black/20 px-4 py-4">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-red-500">
+                        Discipline
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">
+                        Daily action over excuses. Order before emotion.
+                      </p>
                     </div>
 
-                    <div className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-
-                    <div className="group">
-                      <div className="flex items-start gap-4">
-                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
-                          02
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
-                            Accountability
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-zinc-400">
-                            Men sharpened through honesty, ownership, and real
-                            expectations.
-                          </p>
-                        </div>
-                      </div>
+                    <div className="rounded-2xl border border-white/6 bg-black/20 px-4 py-4">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-red-500">
+                        Accountability
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">
+                        Men sharpened by truth, ownership, and consistency.
+                      </p>
                     </div>
 
-                    <div className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-
-                    <div className="group">
-                      <div className="flex items-start gap-4">
-                        <span className="text-[11px] font-bold tracking-[0.3em] text-red-500">
-                          03
-                        </span>
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-200">
-                            Leadership
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-zinc-400">
-                            Strength directed with control, service, and purpose.
-                          </p>
-                        </div>
-                      </div>
+                    <div className="rounded-2xl border border-white/6 bg-black/20 px-4 py-4">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-red-500">
+                        Leadership
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">
+                        Strength directed with purpose, service, and restraint.
+                      </p>
                     </div>
                   </div>
 
-                  <div className="mt-8 rounded-2xl border border-white/8 bg-black/30 px-4 py-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-zinc-500">
+                  <div className="mt-8 border-t border-white/8 pt-5">
+                    <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">
                       Brotherhood Principle
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-zinc-300">
+                    <p className="mt-3 text-sm leading-6 text-zinc-300">
                       This is not built on hype. It is built on men showing up,
                       doing the work, and raising the standard together.
                     </p>
@@ -256,7 +230,7 @@ export default function HomePage() {
               transform: scale(1) translateY(0px);
             }
             50% {
-              transform: scale(1.015) translateY(-8px);
+              transform: scale(1.012) translateY(-6px);
             }
           }
 
