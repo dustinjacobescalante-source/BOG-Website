@@ -50,7 +50,6 @@ export default function AdminShell({
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* MOBILE TOP BAR */}
       <div className="border-b border-white/10 bg-black/85 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
@@ -82,7 +81,6 @@ export default function AdminShell({
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8 lg:py-10">
-        {/* DESKTOP SIDEBAR */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -128,11 +126,9 @@ export default function AdminShell({
           </div>
         </aside>
 
-        {/* MAIN CONTENT */}
         <main className="min-w-0">{children}</main>
       </div>
 
-      {/* MOBILE OVERLAY */}
       <div
         className={`fixed inset-0 z-40 bg-black/70 backdrop-blur-md transition-all duration-300 lg:hidden ${
           mobileOpen
@@ -142,7 +138,6 @@ export default function AdminShell({
         onClick={() => setMobileOpen(false)}
       />
 
-      {/* MOBILE DRAWER */}
       <aside
         className={`fixed left-0 top-0 z-50 h-dvh w-[88%] max-w-sm border-r border-white/10 bg-[#050505]/95 backdrop-blur-2xl transition-transform duration-300 lg:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
