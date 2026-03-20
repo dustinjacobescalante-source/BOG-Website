@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ArrowUpRight,
 } from "lucide-react";
+import AdminCard from "@/components/admin/AdminCard";
 
 const stats = [
   {
@@ -138,14 +139,8 @@ export default function AdminPage() {
 
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014]/95 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-              >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)] opacity-0 transition duration-300 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                <div className="relative flex items-start justify-between gap-4">
+              <AdminCard key={stat.label}>
+                <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-zinc-500">
                       {stat.label}
@@ -164,7 +159,7 @@ export default function AdminPage() {
                     {stat.icon}
                   </div>
                 </div>
-              </div>
+              </AdminCard>
             ))}
           </section>
 
@@ -186,15 +181,8 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {actions.map((action) => (
-                  <Link
-                    key={action.title}
-                    href={action.href}
-                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1014]/95 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#11151b] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                  >
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)] opacity-0 transition duration-300 group-hover:opacity-100" />
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                    <div className="relative">
+                  <Link key={action.title} href={action.href}>
+                    <AdminCard>
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-200 transition group-hover:border-white/20 group-hover:bg-white/10">
                         {action.icon}
                       </div>
@@ -211,7 +199,7 @@ export default function AdminPage() {
                         <span>Open</span>
                         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                       </div>
-                    </div>
+                    </AdminCard>
                   </Link>
                 ))}
               </div>
