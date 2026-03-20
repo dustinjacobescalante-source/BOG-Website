@@ -76,7 +76,7 @@ export default function HomePage() {
               </div>
 
               {/* ✅ FIXED HEADLINE */}
-              <h1 className="mt-6 text-4xl font-black leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="mt-6 pb-1 text-4xl font-black leading-[1.02] tracking-[-0.04em] text-white sm:text-5xl md:text-6xl lg:text-7xl">
                 Built for Men
                 <span className="block bg-gradient-to-r from-white via-white/85 to-white/60 bg-clip-text text-transparent">
                   Who Refuse Average.
