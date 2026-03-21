@@ -56,7 +56,7 @@ export default async function AdminMembersPage() {
                   <DeleteUserButton
   userId={member.id}
   label={member.full_name || member.email || "this user"}
-/> />
+/>
                 </div>
               </div>
             </div>
