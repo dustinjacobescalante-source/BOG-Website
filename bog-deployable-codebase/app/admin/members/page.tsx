@@ -23,7 +23,7 @@ export default async function AdminMembersPage() {
       <AdminSection
         eyebrow="Members"
         title="Member Directory"
-        description="Update each member and manage account access."
+        description="Approve pending users, update roles, and manage account access."
       >
         <div className="space-y-4">
           {error ? (
@@ -32,34 +32,88 @@ export default async function AdminMembersPage() {
             </div>
           ) : null}
 
+          {!error && (!members || members.length === 0) ? (
+            <div className="rounded-2xl border border-white/10 bg-[#0e1014]/95 p-4 text-sm text-zinc-400">
+              No members found.
+            </div>
+          ) : null}
+
           {members?.map((member) => (
-            <div
+            <form
               key={member.id}
+              action="/api/admin/update-member"
+              method="POST"
               className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 p-5 backdrop-blur-sm"
             >
+              <input type="hidden" name="userId" value={member.id} />
+
               <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                 <div className="min-w-0">
                   <h3 className="truncate text-xl font-semibold text-white">
                     {member.full_name || "Unnamed User"}
                   </h3>
                   <p className="mt-1 text-sm text-zinc-400">{member.email}</p>
+                  <p className="mt-2 text-sm text-zinc-300">
+                    Status:{" "}
+                    <span
+                      className={
+                        member.is_active
+                          ? "font-semibold text-emerald-400"
+                          : "font-semibold text-amber-400"
+                      }
+                    >
+                      {member.is_active ? "Approved" : "Pending"}
+                    </span>
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="rounded-xl bg-[#f26a3d] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-4 xl:min-w-[700px]">
+                  <select
+                    name="role"
+                    defaultValue={member.role ?? "member"}
+                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
                   >
-                    Save
-                  </button>
+                    <option value="member">member</option>
+                    <option value="admin">admin</option>
+                  </select>
 
-                  <DeleteUserButton
-  userId={member.id}
-  label={member.full_name || member.email || "this user"}
-/>
+                  <select
+                    name="rank"
+                    defaultValue={member.rank ?? "omega"}
+                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
+                  >
+                    <option value="omega">omega</option>
+                    <option value="alpha">alpha</option>
+                    <option value="beta">beta</option>
+                    <option value="gamma">gamma</option>
+                    <option value="delta">delta</option>
+                  </select>
+
+                  <select
+                    name="status"
+                    defaultValue={member.is_active ? "approved" : "pending"}
+                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
+                  >
+                    <option value="pending">pending</option>
+                    <option value="approved">approved</option>
+                  </select>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-[#f26a3d] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                    >
+                      Save
+                    </button>
+
+                    <DeleteUserButton
+                      userId={member.id}
+                      label={member.full_name || member.email || "this user"}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </form>
           ))}
         </div>
       </AdminSection>
