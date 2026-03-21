@@ -53,7 +53,10 @@ export default async function AdminMembersPage() {
                     Save
                   </button>
 
-                  <DeleteUserButton />
+                  <DeleteUserButton
+  userId={member.id}
+  label={member.full_name || member.email || "this user"}
+/> />
                 </div>
               </div>
             </div>
