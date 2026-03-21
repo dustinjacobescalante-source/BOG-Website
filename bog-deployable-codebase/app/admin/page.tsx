@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import {
   Users,
   Shield,
@@ -14,19 +15,34 @@ import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import AdminActionCard from "@/components/admin/AdminActionCard";
 import AdminActivityItem from "@/components/admin/AdminActivityItem";
-
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  // Count only actual members
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !profile.is_active || profile.role !== "admin") {
+    redirect("/portal");
+  }
+
   const { count: memberCount } = await supabase
     .from("profiles")
     .select("*", { count: "exact", head: true })
     .eq("role", "member");
 
-  // Count pending scholarship applications
   const { count: pendingReviewsCount } = await supabase
     .from("scholarship_applications")
     .select("*", { count: "exact", head: true })
@@ -115,6 +131,10 @@ export default async function AdminPage() {
         eyebrow="Admin Command"
         title="Admin Overview"
         description="Manage members, reviews, and platform activity."
+        actions={[
+          { href: "/admin/members", label: "Manage Members" },
+          { href: "/portal", label: "View Portal" },
+        ]}
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
