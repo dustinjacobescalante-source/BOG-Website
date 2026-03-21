@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
@@ -6,6 +7,24 @@ import DeleteUserButton from "@/components/admin/DeleteUserButton";
 
 export default async function AdminMembersPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !profile.is_active || profile.role !== "admin") {
+    redirect("/portal");
+  }
 
   const { data: members, error } = await supabase
     .from("profiles")
@@ -17,7 +36,7 @@ export default async function AdminMembersPage() {
       <AdminHero
         eyebrow="Admin"
         title="Manage Members"
-        description="Assign roles, ranks, and active status."
+        description="Approve pending users, update roles, and manage account access."
       />
 
       <AdminSection
