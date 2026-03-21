@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import {
   Activity,
   Calendar,
@@ -5,13 +6,11 @@ import {
   User,
 } from "lucide-react";
 
+import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
-
-// CHANGE THIS IMPORT ONLY IF YOUR SUPABASE SERVER HELPER LIVES SOMEWHERE ELSE
-import { createClient } from "@/lib/supabase/server";
 
 export default async function PortalPage() {
   const supabase = await createClient();
@@ -20,13 +19,32 @@ export default async function PortalPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/auth/sign-in");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("full_name, email, is_active, role, rank")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile) {
+    redirect("/auth/sign-in");
+  }
+
+  if (!profile.is_active) {
+    redirect("/pending");
+  }
+
   const displayName =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    user?.email?.split("@")[0] ||
+    profile.full_name ||
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
     "Member";
 
-  const email = user?.email || "No email found";
+  const email = profile.email || user.email || "No email found";
 
   const stats = [
     {
@@ -43,16 +61,14 @@ export default async function PortalPage() {
     },
     {
       label: "Rank",
-      value: "#12",
-      subtext: "Current leaderboard position.",
+      value: profile.rank ? String(profile.rank).toUpperCase() : "OMEGA",
+      subtext: "Current brotherhood rank.",
       icon: <Trophy className="h-5 w-5" />,
     },
     {
       label: "Profile Status",
-      value: user ? "Active" : "Offline",
-      subtext: user
-        ? "Your account is in good standing."
-        : "User session not found.",
+      value: "Active",
+      subtext: "Your account is approved and active.",
       icon: <User className="h-5 w-5" />,
     },
   ];
@@ -60,10 +76,10 @@ export default async function PortalPage() {
   return (
     <AdminPageShell>
       <AdminHero
-  eyebrow="Member Portal"
-  title="Welcome back"
-description={`Good to see you — you're signed in as ${email}`}
-/>
+        eyebrow="Member Portal"
+        title="Your Dashboard"
+        description={`Welcome back, ${displayName} • ${email}`}
+      />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
