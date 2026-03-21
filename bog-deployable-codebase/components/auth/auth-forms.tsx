@@ -26,6 +26,31 @@ export function AuthForm({ mode }: { mode: Mode }) {
       if (mode === 'sign-in') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          throw new Error('Unable to load user after sign-in.');
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_active, role')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          await supabase.auth.signOut();
+          throw new Error('Unable to load your profile. Please contact an admin.');
+        }
+
+        if (!profile?.is_active) {
+          await supabase.auth.signOut();
+          throw new Error('Your account is pending admin approval.');
+        }
+
         window.location.href = '/portal';
         return;
       }
@@ -38,8 +63,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
             data: { full_name: fullName }
           }
         });
+
         if (error) throw error;
-        setMessage('Account created. Check your email for confirmation if email verification is enabled.');
+
+        setMessage(
+          'Account created. Your account will remain pending until an admin approves it.'
+        );
+        return;
       }
 
       if (mode === 'reset-password') {
@@ -50,6 +80,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
         if (error) throw error;
+
         setMessage('Password reset email sent.');
       }
     } catch (err) {
@@ -108,4 +139,3 @@ export function AuthForm({ mode }: { mode: Mode }) {
     </form>
   );
 }
-
