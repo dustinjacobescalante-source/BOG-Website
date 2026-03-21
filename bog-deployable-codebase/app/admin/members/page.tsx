@@ -2,13 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
+import DeleteUserButton from "@/components/admin/DeleteUserButton";
 
 export default async function AdminMembersPage() {
   const supabase = await createClient();
 
   const { data: members, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, role, rank, is_active")
+    .select("id, full_name, email, role, rank, is_active, created_at")
     .order("created_at", { ascending: true });
 
   return (
@@ -22,7 +23,7 @@ export default async function AdminMembersPage() {
       <AdminSection
         eyebrow="Members"
         title="Member Directory"
-        description="Update each member and prepare for delete actions."
+        description="Update each member and manage account access."
       >
         <div className="space-y-4">
           {error ? (
@@ -31,14 +32,8 @@ export default async function AdminMembersPage() {
             </div>
           ) : null}
 
-          {!error && (!members || members.length === 0) ? (
-            <div className="rounded-2xl border border-white/10 bg-[#0e1014]/95 p-4 text-sm text-zinc-400">
-              No members found.
-            </div>
-          ) : null}
-
           {members?.map((member) => (
-            <form
+            <div
               key={member.id}
               className="rounded-[28px] border border-white/10 bg-[#0b0d11]/95 p-5 backdrop-blur-sm"
             >
@@ -48,69 +43,20 @@ export default async function AdminMembersPage() {
                     {member.full_name || "Unnamed User"}
                   </h3>
                   <p className="mt-1 text-sm text-zinc-400">{member.email}</p>
-                  <p className="mt-2 text-sm text-zinc-300">
-                    Status:{" "}
-                    <span
-                      className={
-                        member.is_active
-                          ? "font-semibold text-emerald-400"
-                          : "font-semibold text-amber-400"
-                      }
-                    >
-                      {member.is_active ? "Approved" : "Pending"}
-                    </span>
-                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-4 xl:min-w-[700px]">
-                  <select
-                    name="role"
-                    defaultValue={member.role ?? "member"}
-                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-[#f26a3d] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                   >
-                    <option value="member">member</option>
-                    <option value="admin">admin</option>
-                  </select>
+                    Save
+                  </button>
 
-                  <select
-                    name="rank"
-                    defaultValue={member.rank ?? "omega"}
-                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
-                  >
-                    <option value="omega">omega</option>
-                    <option value="alpha">alpha</option>
-                    <option value="beta">beta</option>
-                    <option value="gamma">gamma</option>
-                    <option value="delta">delta</option>
-                  </select>
-
-                  <select
-                    name="is_active"
-                    defaultValue={member.is_active ? "approved" : "pending"}
-                    className="rounded-xl border border-white/10 bg-[#0e1014] px-4 py-2.5 text-sm text-white outline-none"
-                  >
-                    <option value="pending">pending</option>
-                    <option value="approved">approved</option>
-                  </select>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      className="rounded-xl bg-[#f26a3d] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                    >
-                      Save
-                    </button>
-
-                    <button
-                      type="button"
-                      className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 hover:text-white"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <DeleteUserButton />
                 </div>
               </div>
-            </form>
+            </div>
           ))}
         </div>
       </AdminSection>
