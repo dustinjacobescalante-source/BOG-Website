@@ -38,7 +38,7 @@ export default function HomePage() {
           >
             <div className="absolute inset-0 animate-[heroFloat_20s_ease-in-out_infinite]">
               <Image
-                src="/assets/Buffalo.png"
+                src="/assets/buffalo2.jpg"
                 alt="Buffalo background"
                 fill
                 priority
