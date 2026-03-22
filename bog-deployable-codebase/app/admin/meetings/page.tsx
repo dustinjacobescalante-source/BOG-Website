@@ -149,6 +149,16 @@ export default async function AdminMeetingsPage() {
                 {meeting.description && (
                   <p className="mt-3 text-sm text-zinc-300">{meeting.description}</p>
                 )}
+                {meeting.arrival_silent_transition && (
+  <div className="mt-3">
+    <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+      Arrival & Silent Transition
+    </div>
+    <p className="mt-1 text-sm text-zinc-300">
+      {meeting.arrival_silent_transition}
+    </p>
+  </div>
+)}
 
                 <form action={deleteMeeting} className="mt-4">
                   <input type="hidden" name="id" value={meeting.id} />
