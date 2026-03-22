@@ -15,14 +15,17 @@ async function saveMeeting(formData: FormData) {
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
 
-  await supabase.from('meetings').insert({
+  const { error } = await supabase.from('meetings').insert({
   title,
-  description,
-  location,
   meeting_date,
   status,
   arrival_silent_transition,
 });
+
+if (error) {
+  console.error('saveMeeting error:', error.message);
+  throw new Error(error.message);
+}
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal');
