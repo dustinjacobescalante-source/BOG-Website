@@ -128,7 +128,7 @@ export default function AboutPage() {
             style={{ transform: `translateY(${parallaxY}px) scale(1.06)` }}
           >
             <Image
-              src="/assets/Buffalo.png"
+              src="/assets/buffalo2.jpg"
               alt="Buffalo background"
               fill
               priority
