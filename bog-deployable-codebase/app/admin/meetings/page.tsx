@@ -10,6 +10,7 @@ async function saveMeeting(formData: FormData) {
 
   const title = String(formData.get('title') ?? '');
   const description = String(formData.get('description') ?? '');
+  const arrival_silent_transition = String(formData.get('arrival_silent_transition') ?? '');
   const location = String(formData.get('location') ?? '');
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
