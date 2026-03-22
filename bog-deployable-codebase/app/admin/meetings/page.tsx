@@ -72,14 +72,16 @@ export default async function AdminMeetingsPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-white">Description / Agenda</label>
-              <textarea
-                name="description"
-                placeholder="Agenda, discussion topics, notes..."
-                rows={5}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-              />
-            </div>
+  <label className="mb-2 block text-sm font-medium text-white">
+    Arrival & Silent Transition
+  </label>
+  <textarea
+    name="arrival_silent_transition"
+    placeholder="Describe how members should arrive and transition..."
+    rows={3}
+    className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
+  />
+</div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-white">Location</label>
