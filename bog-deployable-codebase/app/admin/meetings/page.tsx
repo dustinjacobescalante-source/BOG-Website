@@ -16,12 +16,13 @@ async function saveMeeting(formData: FormData) {
   const status = String(formData.get('status') ?? 'draft');
 
   await supabase.from('meetings').insert({
-    title,
-    description,
-    location,
-    meeting_date,
-    status,
-  });
+  title,
+  description,
+  location,
+  meeting_date,
+  status,
+  arrival_silent_transition,
+});
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal');
