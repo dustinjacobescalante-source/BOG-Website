@@ -1,8 +1,12 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Section } from '@/components/section';
+import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
+import MeetingComments from '@/components/meetings/MeetingComments';
 import PrintMeetingButton from '@/components/meetings/PrintMeetingButton';
 
-function PrintBlock({
+function AgendaBlock({
   title,
   content,
 }: {
@@ -12,16 +16,16 @@ function PrintBlock({
   if (!content) return null;
 
   return (
-    <div className="mt-4">
-      <div className="mb-1 text-xs font-bold uppercase tracking-wider text-zinc-600">
+    <div className="pt-4">
+      <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
         {title}
       </div>
-      <div className="whitespace-pre-wrap text-sm text-black">{content}</div>
+      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-300">{content}</p>
     </div>
   );
 }
 
-export default async function PrintMeetingPage({
+export default async function PortalMeetingDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -64,73 +68,134 @@ export default async function PrintMeetingPage({
     .eq('meeting_id', id)
     .order('created_at', { ascending: false });
 
+  const { data: comments } = await supabase
+    .from('meeting_comments')
+    .select(
+      `
+        id,
+        comment_text,
+        created_at,
+        profiles (
+          full_name
+        )
+      `
+    )
+    .eq('meeting_id', id)
+    .order('created_at', { ascending: false });
+
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="mx-auto max-w-4xl px-8 py-10 print:px-4 print:py-4">
-        <div className="mb-6 print:hidden">
-          <PrintMeetingButton />
-        </div>
+    <Section
+      label="Portal"
+      title={meeting.title}
+      description="Meeting agenda and details."
+    >
+      <div className="mb-4 flex flex-wrap gap-3">
+        <PrintMeetingButton />
 
-        <div className="mb-6 border-b border-zinc-300 pb-4">
-          <h1 className="text-3xl font-bold">{meeting.title}</h1>
+        <Link
+          href={`/portal/meetings/${meeting.id}/print`}
+          className="rounded-2xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
+        >
+          Print Agenda Page
+        </Link>
+      </div>
 
-          <div className="mt-3 text-sm text-zinc-700">
+      <Card>
+        <div className="space-y-2">
+          <div className="text-sm text-zinc-400">
             {meeting.meeting_date
               ? new Date(meeting.meeting_date).toLocaleString()
               : 'No date set'}
           </div>
 
           {meeting.next_meeting_date && (
-            <div className="mt-1 text-sm text-zinc-700">
+            <div className="text-sm text-zinc-500">
               Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
             </div>
           )}
-        </div>
 
-        <PrintBlock
-          title="Arrival & Silent Transition"
-          content={meeting.arrival_silent_transition}
-        />
-        <PrintBlock title="Opening Anchor" content={meeting.opening_anchor} />
-        <PrintBlock
-          title="Code & Standard Reaffirmation"
-          content={meeting.code_standard_reaffirmation}
-        />
-        <PrintBlock title="Ownership Round" content={meeting.ownership_round} />
-        <PrintBlock title="Council Reflection" content={meeting.council_reflection} />
-        <PrintBlock
-          title="Practical Alignment Block"
-          content={meeting.practical_alignment_block}
-        />
-        <PrintBlock title="Open Business" content={meeting.open_business} />
-        <PrintBlock
-          title="Commitment Declarations"
-          content={meeting.commitment_declarations}
-        />
-        <PrintBlock title="Closing Anchor" content={meeting.closing_anchor} />
-        <PrintBlock
-          title="Post-Meeting Notes"
-          content={meeting.post_meeting_notes}
-        />
+          <AgendaBlock
+            title="Arrival & Silent Transition"
+            content={meeting.arrival_silent_transition}
+          />
+          <AgendaBlock title="Opening Anchor" content={meeting.opening_anchor} />
+          <AgendaBlock
+            title="Code & Standard Reaffirmation"
+            content={meeting.code_standard_reaffirmation}
+          />
+          <AgendaBlock title="Ownership Round" content={meeting.ownership_round} />
+          <AgendaBlock title="Council Reflection" content={meeting.council_reflection} />
+          <AgendaBlock
+            title="Practical Alignment Block"
+            content={meeting.practical_alignment_block}
+          />
+          <AgendaBlock title="Open Business" content={meeting.open_business} />
+          <AgendaBlock
+            title="Commitment Declarations"
+            content={meeting.commitment_declarations}
+          />
+          <AgendaBlock title="Closing Anchor" content={meeting.closing_anchor} />
+          <AgendaBlock
+            title="Post-Meeting Notes"
+            content={meeting.post_meeting_notes}
+          />
 
-        <div className="mt-6">
-          <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-600">
-            Attachments
+          <div className="pt-6">
+            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+              Attachments
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {attachments?.length ? (
+                attachments.map((attachment) => (
+                  <a
+                    key={attachment.id}
+                    href={attachment.file_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5"
+                  >
+                    {attachment.file_name}
+                  </a>
+                ))
+              ) : (
+                <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
+              )}
+            </div>
           </div>
-
-          {attachments?.length ? (
-            <ul className="list-disc pl-5 text-sm text-black">
-              {attachments.map((attachment) => (
-                <li key={attachment.id} className="mb-1">
-                  {attachment.file_name}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-zinc-700">No attachments for this meeting.</p>
-          )}
         </div>
+      </Card>
+
+      <div className="pt-6">
+        <MeetingComments meetingId={meeting.id} />
       </div>
-    </div>
+
+      <div className="pt-6">
+        <Card>
+          <div className="mb-3 text-sm font-medium text-white">Recent Comments</div>
+
+          <div className="space-y-3">
+            {comments?.length ? (
+              comments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="rounded-xl border border-white/10 bg-black/20 p-4"
+                >
+                  <div className="text-xs text-zinc-500">
+                    {(comment.profiles as { full_name?: string } | null)?.full_name || 'Unknown'} •{' '}
+                    {new Date(comment.created_at).toLocaleString()}
+                  </div>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">
+                    {comment.comment_text}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-zinc-500">No comments yet.</p>
+            )}
+          </div>
+        </Card>
+      </div>
+    </Section>
   );
 }
