@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
+import MeetingComments from '@/components/meetings/MeetingComments';
 
 function AgendaBlock({
   title,
@@ -136,6 +137,9 @@ export default async function PortalMeetingDetailPage({
           </div>
         </div>
       </Card>
+      <div className="pt-6">
+  <MeetingComments meetingId={meeting.id} />
+</div>
     </Section>
   );
 }
