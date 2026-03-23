@@ -66,12 +66,18 @@ export default async function PortalMeetingDetailPage({
     .eq('meeting_id', id)
     .order('created_at', { ascending: false });
 
-  const { data: comments } = await supabase
-    .from('meeting_comments')
-    .select('id, comment_text, created_at')
-    .eq('meeting_id', id)
-    .order('created_at', { ascending: false });
-
+ const { data: comments } = await supabase
+  .from('meeting_comments')
+  .select(`
+    id,
+    comment_text,
+    created_at,
+    profiles (
+      full_name
+    )
+  `)
+  .eq('meeting_id', id)
+  .order('created_at', { ascending: false });
   return (
     <Section
       label="Portal"
@@ -87,9 +93,10 @@ export default async function PortalMeetingDetailPage({
           </div>
 
           {meeting.next_meeting_date && (
-            <div className="text-sm text-zinc-500">
-              Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
-            </div>
+           <div className="text-xs text-zinc-500">
+  {comment.profiles?.full_name || 'Unknown'} •{' '}
+  {new Date(comment.created_at).toLocaleString()}
+</div>
           )}
 
           <AgendaBlock
