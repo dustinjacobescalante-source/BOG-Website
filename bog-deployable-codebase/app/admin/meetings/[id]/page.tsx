@@ -3,6 +3,7 @@ import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import MeetingAttachmentUpload from '@/components/meetings/MeetingAttachmentUpload';
 
 async function updateMeeting(id: string, formData: FormData) {
   'use server';
@@ -277,22 +278,14 @@ export default async function AdminMeetingEditPage({
               <option value="archived">archived</option>
             </select>
           </div>
-
-          <div>
-  <label className="mb-2 block text-sm font-medium text-white">
-    Upload Attachment
-  </label>
-  <input
-    type="file"
-    name="file"
-    className="w-full text-sm text-white"
-  />
-</div>
           
           <button
             type="submit"
             className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
           >
+            
+<MeetingAttachmentUpload meetingId={meeting.id} />
+            
             Update Meeting
           </button>
         </form>
