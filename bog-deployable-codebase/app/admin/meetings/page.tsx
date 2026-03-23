@@ -16,18 +16,18 @@ async function saveMeeting(formData: FormData) {
   const status = String(formData.get('status') ?? 'draft');
 
   const result = await supabase.from('meetings').insert({
-  title,
-  meeting_date: meeting_date || null,
-  status,
-  arrival_silent_transition: arrival_silent_transition || null,
-});
+    title,
+    meeting_date: meeting_date || null,
+    status,
+    arrival_silent_transition: arrival_silent_transition || null,
+  });
 
-console.log('INSERT RESULT:', result);
+  console.log('INSERT RESULT:', result);
 
-if (error) {
-  console.error('saveMeeting error:', error);
-  return;
-}
+  if (result.error) {
+    console.error('saveMeeting error:', result.error);
+    return;
+  }
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal/meetings');
@@ -41,10 +41,10 @@ async function deleteMeeting(formData: FormData) {
 
   if (!id) return;
 
-  const { error } = await supabase.from('meetings').delete().eq('id', id);
+  const result = await supabase.from('meetings').delete().eq('id', id);
 
-  if (error) {
-    console.error('deleteMeeting error:', error);
+  if (result.error) {
+    console.error('deleteMeeting error:', result.error);
     return;
   }
 
@@ -67,12 +67,19 @@ export default async function AdminMeetingsPage() {
       description="Create and publish meetings for members."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+        
+        {/* LEFT SIDE - CREATE */}
         <Card>
-          <div className="mb-4 text-lg font-bold text-white">Create New Meeting</div>
+          <div className="mb-4 text-lg font-bold text-white">
+            Create New Meeting
+          </div>
 
           <form action={saveMeeting} className="space-y-4">
+            
             <div>
-              <label className="mb-2 block text-sm font-medium text-white">Title</label>
+              <label className="mb-2 block text-sm font-medium text-white">
+                Title
+              </label>
               <input
                 name="title"
                 placeholder="Brotherhood Meeting"
@@ -106,7 +113,9 @@ export default async function AdminMeetingsPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-white">Status</label>
+              <label className="mb-2 block text-sm font-medium text-white">
+                Status
+              </label>
               <select
                 name="status"
                 defaultValue="draft"
@@ -127,13 +136,21 @@ export default async function AdminMeetingsPage() {
           </form>
         </Card>
 
+        {/* RIGHT SIDE - LIST */}
         <Card>
-          <div className="mb-4 text-lg font-bold text-white">Existing Meetings</div>
+          <div className="mb-4 text-lg font-bold text-white">
+            Existing Meetings
+          </div>
 
           <div className="space-y-4">
             {meetings?.map((meeting) => (
-              <div key={meeting.id} className="rounded-2xl border border-white/10 p-4">
-                <div className="font-semibold text-white">{meeting.title}</div>
+              <div
+                key={meeting.id}
+                className="rounded-2xl border border-white/10 p-4"
+              >
+                <div className="font-semibold text-white">
+                  {meeting.title}
+                </div>
 
                 <div className="mt-1 text-sm text-zinc-400">
                   {meeting.meeting_date
@@ -141,9 +158,11 @@ export default async function AdminMeetingsPage() {
                     : 'No date'}
                 </div>
 
-                <div className="mt-2 text-xs text-zinc-400">Status: {meeting.status}</div>
+                <div className="mt-2 text-xs text-zinc-400">
+                  Status: {meeting.status}
+                </div>
 
-                {meeting.arrival_silent_transition ? (
+                {meeting.arrival_silent_transition && (
                   <div className="mt-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                       Arrival &amp; Silent Transition
@@ -152,7 +171,7 @@ export default async function AdminMeetingsPage() {
                       {meeting.arrival_silent_transition}
                     </p>
                   </div>
-                ) : null}
+                )}
 
                 <form action={deleteMeeting} className="mt-4">
                   <input type="hidden" name="id" value={meeting.id} />
@@ -167,7 +186,9 @@ export default async function AdminMeetingsPage() {
             ))}
 
             {!meetings?.length && (
-              <div className="text-sm text-zinc-400">No meetings created yet.</div>
+              <div className="text-sm text-zinc-400">
+                No meetings created yet.
+              </div>
             )}
           </div>
         </Card>
