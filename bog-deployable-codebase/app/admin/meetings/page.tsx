@@ -22,10 +22,10 @@ async function saveMeeting(formData: FormData) {
     arrival_silent_transition: arrival_silent_transition || null,
   });
 
-  if (error) {
-    console.error('saveMeeting error:', error);
-    return;
-  }
+ if (error) {
+  console.error('saveMeeting error:', error);
+  throw new Error(error.message);
+}
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal/meetings');
