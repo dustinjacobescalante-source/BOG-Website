@@ -42,7 +42,7 @@ export default function HomePage() {
                 alt="Buffalo background"
                 fill
                 priority
-                className="object-contain object-center opacity-[0.30] select-none"
+                className="object-contain object-center opacity-[0.40] select-none"
               />
             </div>
           </div>
