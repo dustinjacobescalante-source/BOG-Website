@@ -278,8 +278,6 @@ export default async function AdminMeetingEditPage({
               <option value="archived">archived</option>
             </select>
           </div>
-          
-          <MeetingAttachmentUpload meetingId={meeting.id} />
 
 <div className="space-y-4 pt-2">
   <MeetingAttachmentUpload meetingId={meeting.id} />
