@@ -8,27 +8,26 @@ async function saveMeeting(formData: FormData) {
 
   const supabase = await createClient();
 
-  const title = String(formData.get('title') ?? '');
+  const title = String(formData.get('title') ?? '').trim();
   const arrival_silent_transition = String(
     formData.get('arrival_silent_transition') ?? ''
-  );
+  ).trim();
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
 
   const { error } = await supabase.from('meetings').insert({
     title,
-    meeting_date,
+    meeting_date: meeting_date || null,
     status,
-    arrival_silent_transition,
+    arrival_silent_transition: arrival_silent_transition || null,
   });
 
   if (error) {
-    console.error('saveMeeting error:', error.message);
-    throw new Error(error.message);
+    console.error('saveMeeting error:', error);
+    return;
   }
 
   revalidatePath('/admin/meetings');
-  revalidatePath('/portal');
   revalidatePath('/portal/meetings');
 }
 
@@ -43,30 +42,21 @@ async function deleteMeeting(formData: FormData) {
   const { error } = await supabase.from('meetings').delete().eq('id', id);
 
   if (error) {
-    console.error('deleteMeeting error:', error.message);
-    throw new Error(error.message);
+    console.error('deleteMeeting error:', error);
+    return;
   }
 
   revalidatePath('/admin/meetings');
-  revalidatePath('/portal');
   revalidatePath('/portal/meetings');
 }
 
 export default async function AdminMeetingsPage() {
   const supabase = await createClient();
 
- const { data: meetings, error } = await supabase
-  .from('meetings')
-  .select('id, title, meeting_date, status, arrival_silent_transition')
-  .order('meeting_date', { ascending: true });
-
-if (error) {
-  console.error('fetch meetings error:', error.message);
-}
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  const { data: meetings } = await supabase
+    .from('meetings')
+    .select('id, title, meeting_date, status, arrival_silent_transition')
+    .order('meeting_date', { ascending: true });
 
   return (
     <Section
@@ -149,11 +139,9 @@ if (error) {
                     : 'No date'}
                 </div>
 
-                <div className="mt-2 text-xs text-zinc-400">
-                  Status: {meeting.status}
-                </div>
+                <div className="mt-2 text-xs text-zinc-400">Status: {meeting.status}</div>
 
-                {meeting.arrival_silent_transition && (
+                {meeting.arrival_silent_transition ? (
                   <div className="mt-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
                       Arrival &amp; Silent Transition
@@ -162,7 +150,7 @@ if (error) {
                       {meeting.arrival_silent_transition}
                     </p>
                   </div>
-                )}
+                ) : null}
 
                 <form action={deleteMeeting} className="mt-4">
                   <input type="hidden" name="id" value={meeting.id} />
