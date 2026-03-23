@@ -94,69 +94,71 @@ export default async function PortalMeetingDetailPage({
         <PrintMeetingButton />
       </div>
 
-      <Card className="print:border-0 print:bg-white print:p-0 print:shadow-none">
-        <div className="space-y-2 print:space-y-1">
-          <div className="text-sm text-zinc-400 print:text-black">
-            {meeting.meeting_date
-              ? new Date(meeting.meeting_date).toLocaleString()
-              : 'No date set'}
-          </div>
-
-          {meeting.next_meeting_date && (
-            <div className="text-sm text-zinc-500 print:text-black">
-              Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
-            </div>
-          )}
-
-          <AgendaBlock
-            title="Arrival & Silent Transition"
-            content={meeting.arrival_silent_transition}
-          />
-          <AgendaBlock title="Opening Anchor" content={meeting.opening_anchor} />
-          <AgendaBlock
-            title="Code & Standard Reaffirmation"
-            content={meeting.code_standard_reaffirmation}
-          />
-          <AgendaBlock title="Ownership Round" content={meeting.ownership_round} />
-          <AgendaBlock title="Council Reflection" content={meeting.council_reflection} />
-          <AgendaBlock
-            title="Practical Alignment Block"
-            content={meeting.practical_alignment_block}
-          />
-          <AgendaBlock title="Open Business" content={meeting.open_business} />
-          <AgendaBlock
-            title="Commitment Declarations"
-            content={meeting.commitment_declarations}
-          />
-          <AgendaBlock title="Closing Anchor" content={meeting.closing_anchor} />
-          <AgendaBlock
-            title="Post-Meeting Notes"
-            content={meeting.post_meeting_notes}
-          />
-
-          <div className="pt-6 print:pt-4">
-            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400 print:text-black">
-              Attachments
+      <Card>
+        <div className="rounded-2xl print:rounded-none print:bg-white print:p-0">
+          <div className="space-y-2 print:space-y-1">
+            <div className="text-sm text-zinc-400 print:text-black">
+              {meeting.meeting_date
+                ? new Date(meeting.meeting_date).toLocaleString()
+                : 'No date set'}
             </div>
 
-            <div className="mt-3 space-y-2">
-              {attachments?.length ? (
-                attachments.map((attachment) => (
-                  <a
-                    key={attachment.id}
-                    href={attachment.file_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5 print:border-black/20 print:bg-white print:text-black"
-                  >
-                    {attachment.file_name}
-                  </a>
-                ))
-              ) : (
-                <p className="text-sm text-zinc-500 print:text-black">
-                  No attachments for this meeting.
-                </p>
-              )}
+            {meeting.next_meeting_date && (
+              <div className="text-sm text-zinc-500 print:text-black">
+                Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
+              </div>
+            )}
+
+            <AgendaBlock
+              title="Arrival & Silent Transition"
+              content={meeting.arrival_silent_transition}
+            />
+            <AgendaBlock title="Opening Anchor" content={meeting.opening_anchor} />
+            <AgendaBlock
+              title="Code & Standard Reaffirmation"
+              content={meeting.code_standard_reaffirmation}
+            />
+            <AgendaBlock title="Ownership Round" content={meeting.ownership_round} />
+            <AgendaBlock title="Council Reflection" content={meeting.council_reflection} />
+            <AgendaBlock
+              title="Practical Alignment Block"
+              content={meeting.practical_alignment_block}
+            />
+            <AgendaBlock title="Open Business" content={meeting.open_business} />
+            <AgendaBlock
+              title="Commitment Declarations"
+              content={meeting.commitment_declarations}
+            />
+            <AgendaBlock title="Closing Anchor" content={meeting.closing_anchor} />
+            <AgendaBlock
+              title="Post-Meeting Notes"
+              content={meeting.post_meeting_notes}
+            />
+
+            <div className="pt-6 print:pt-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400 print:text-black">
+                Attachments
+              </div>
+
+              <div className="mt-3 space-y-2">
+                {attachments?.length ? (
+                  attachments.map((attachment) => (
+                    <a
+                      key={attachment.id}
+                      href={attachment.file_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5 print:border-black/20 print:bg-white print:text-black"
+                    >
+                      {attachment.file_name}
+                    </a>
+                  ))
+                ) : (
+                  <p className="text-sm text-zinc-500 print:text-black">
+                    No attachments for this meeting.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
