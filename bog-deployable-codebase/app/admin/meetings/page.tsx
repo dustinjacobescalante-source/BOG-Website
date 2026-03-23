@@ -9,23 +9,23 @@ async function saveMeeting(formData: FormData) {
   const supabase = await createClient();
 
   const title = String(formData.get('title') ?? '');
-  const description = String(formData.get('description') ?? '');
-  const arrival_silent_transition = String(formData.get('arrival_silent_transition') ?? '');
-  const location = String(formData.get('location') ?? '');
+  const arrival_silent_transition = String(
+    formData.get('arrival_silent_transition') ?? ''
+  );
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
 
   const { error } = await supabase.from('meetings').insert({
-  title,
-  meeting_date,
-  status,
-  arrival_silent_transition,
-});
+    title,
+    meeting_date,
+    status,
+    arrival_silent_transition,
+  });
 
-if (error) {
-  console.error('saveMeeting error:', error.message);
-  throw new Error(error.message);
-}
+  if (error) {
+    console.error('saveMeeting error:', error.message);
+    throw new Error(error.message);
+  }
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal');
@@ -40,7 +40,12 @@ async function deleteMeeting(formData: FormData) {
 
   if (!id) return;
 
-  await supabase.from('meetings').delete().eq('id', id);
+  const { error } = await supabase.from('meetings').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteMeeting error:', error.message);
+    throw new Error(error.message);
+  }
 
   revalidatePath('/admin/meetings');
   revalidatePath('/portal');
@@ -50,10 +55,14 @@ async function deleteMeeting(formData: FormData) {
 export default async function AdminMeetingsPage() {
   const supabase = await createClient();
 
-  const { data: meetings } = await supabase
+  const { data: meetings, error } = await supabase
     .from('meetings')
     .select('*')
     .order('meeting_date', { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 
   return (
     <Section
@@ -77,37 +86,21 @@ export default async function AdminMeetingsPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-white">Description / Agenda</label>
+              <label className="mb-2 block text-sm font-medium text-white">
+                Arrival &amp; Silent Transition
+              </label>
               <textarea
-                name="description"
-                placeholder="Agenda, discussion topics, notes..."
-                rows={5}
+                name="arrival_silent_transition"
+                placeholder="Describe how members should arrive and transition..."
+                rows={3}
                 className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
               />
             </div>
 
             <div>
-  <label className="mb-2 block text-sm font-medium text-white">
-    Arrival & Silent Transition
-  </label>
-  <textarea
-    name="arrival_silent_transition"
-    placeholder="Describe how members should arrive and transition..."
-    rows={3}
-    className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-  />
-</div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-white">Location</label>
-              <input
-                name="location"
-                placeholder="Aransas Pass High School"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-white">Meeting Date & Time</label>
+              <label className="mb-2 block text-sm font-medium text-white">
+                Meeting Date &amp; Time
+              </label>
               <input
                 type="datetime-local"
                 name="meeting_date"
@@ -125,6 +118,7 @@ export default async function AdminMeetingsPage() {
               >
                 <option value="draft">draft</option>
                 <option value="published">published</option>
+                <option value="archived">archived</option>
               </select>
             </div>
 
@@ -144,24 +138,27 @@ export default async function AdminMeetingsPage() {
             {meetings?.map((meeting) => (
               <div key={meeting.id} className="rounded-2xl border border-white/10 p-4">
                 <div className="font-semibold text-white">{meeting.title}</div>
+
                 <div className="mt-1 text-sm text-zinc-400">
-                  {meeting.meeting_date ? new Date(meeting.meeting_date).toLocaleString() : 'No date'}
+                  {meeting.meeting_date
+                    ? new Date(meeting.meeting_date).toLocaleString()
+                    : 'No date'}
                 </div>
-                <div className="mt-1 text-sm text-zinc-500">{meeting.location || 'No location set'}</div>
-                <div className="mt-2 text-xs text-zinc-400">Status: {meeting.status}</div>
-                {meeting.description && (
-                  <p className="mt-3 text-sm text-zinc-300">{meeting.description}</p>
-                )}
+
+                <div className="mt-2 text-xs text-zinc-400">
+                  Status: {meeting.status}
+                </div>
+
                 {meeting.arrival_silent_transition && (
-  <div className="mt-3">
-    <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
-      Arrival & Silent Transition
-    </div>
-    <p className="mt-1 text-sm text-zinc-300">
-      {meeting.arrival_silent_transition}
-    </p>
-  </div>
-)}
+                  <div className="mt-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                      Arrival &amp; Silent Transition
+                    </div>
+                    <p className="mt-1 text-sm text-zinc-300">
+                      {meeting.arrival_silent_transition}
+                    </p>
+                  </div>
+                )}
 
                 <form action={deleteMeeting} className="mt-4">
                   <input type="hidden" name="id" value={meeting.id} />
