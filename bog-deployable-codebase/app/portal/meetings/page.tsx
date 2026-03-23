@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
@@ -56,49 +57,51 @@ export default async function MeetingsPage() {
     >
       <div className="space-y-4">
         {meetings?.map((meeting) => (
-          <Card key={meeting.id}>
-            <div className="space-y-2">
-              <div className="text-lg font-bold text-white">{meeting.title}</div>
+          <Link key={meeting.id} href={`/portal/meetings/${meeting.id}`} className="block">
+            <Card>
+              <div className="space-y-2">
+                <div className="text-lg font-bold text-white">{meeting.title}</div>
 
-              <div className="text-sm text-zinc-400">
-                {meeting.meeting_date
-                  ? new Date(meeting.meeting_date).toLocaleString()
-                  : 'No date set'}
-              </div>
-
-              {meeting.next_meeting_date && (
-                <div className="text-sm text-zinc-500">
-                  Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
+                <div className="text-sm text-zinc-400">
+                  {meeting.meeting_date
+                    ? new Date(meeting.meeting_date).toLocaleString()
+                    : 'No date set'}
                 </div>
-              )}
 
-              <AgendaBlock
-                title="Arrival & Silent Transition"
-                content={meeting.arrival_silent_transition}
-              />
-              <AgendaBlock title="Opening Anchor" content={meeting.opening_anchor} />
-              <AgendaBlock
-                title="Code & Standard Reaffirmation"
-                content={meeting.code_standard_reaffirmation}
-              />
-              <AgendaBlock title="Ownership Round" content={meeting.ownership_round} />
-              <AgendaBlock title="Council Reflection" content={meeting.council_reflection} />
-              <AgendaBlock
-                title="Practical Alignment Block"
-                content={meeting.practical_alignment_block}
-              />
-              <AgendaBlock title="Open Business" content={meeting.open_business} />
-              <AgendaBlock
-                title="Commitment Declarations"
-                content={meeting.commitment_declarations}
-              />
-              <AgendaBlock title="Closing Anchor" content={meeting.closing_anchor} />
-              <AgendaBlock
-                title="Post-Meeting Notes"
-                content={meeting.post_meeting_notes}
-              />
-            </div>
-          </Card>
+                {meeting.next_meeting_date && (
+                  <div className="text-sm text-zinc-500">
+                    Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
+                  </div>
+                )}
+
+                <AgendaBlock
+                  title="Arrival & Silent Transition"
+                  content={meeting.arrival_silent_transition}
+                />
+                <AgendaBlock title="Opening Anchor" content={meeting.opening_anchor} />
+                <AgendaBlock
+                  title="Code & Standard Reaffirmation"
+                  content={meeting.code_standard_reaffirmation}
+                />
+                <AgendaBlock title="Ownership Round" content={meeting.ownership_round} />
+                <AgendaBlock title="Council Reflection" content={meeting.council_reflection} />
+                <AgendaBlock
+                  title="Practical Alignment Block"
+                  content={meeting.practical_alignment_block}
+                />
+                <AgendaBlock title="Open Business" content={meeting.open_business} />
+                <AgendaBlock
+                  title="Commitment Declarations"
+                  content={meeting.commitment_declarations}
+                />
+                <AgendaBlock title="Closing Anchor" content={meeting.closing_anchor} />
+                <AgendaBlock
+                  title="Post-Meeting Notes"
+                  content={meeting.post_meeting_notes}
+                />
+              </div>
+            </Card>
+          </Link>
         ))}
 
         {!meetings?.length && (
