@@ -3,6 +3,7 @@ import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 import MeetingComments from '@/components/meetings/MeetingComments';
+import PrintMeetingButton from '@/components/meetings/PrintMeetingButton';
 
 function AgendaBlock({
   title,
@@ -14,11 +15,13 @@ function AgendaBlock({
   if (!content) return null;
 
   return (
-    <div className="pt-4">
-      <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+    <div className="pt-4 print:pt-3">
+      <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400 print:text-black">
         {title}
       </div>
-      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-300">{content}</p>
+      <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-300 print:text-black">
+        {content}
+      </p>
     </div>
   );
 }
@@ -87,16 +90,20 @@ export default async function PortalMeetingDetailPage({
       title={meeting.title}
       description="Meeting agenda and details."
     >
-      <Card>
-        <div className="space-y-2">
-          <div className="text-sm text-zinc-400">
+      <div className="mb-4 flex justify-end print:hidden">
+        <PrintMeetingButton />
+      </div>
+
+      <Card className="print:border-0 print:bg-white print:p-0 print:shadow-none">
+        <div className="space-y-2 print:space-y-1">
+          <div className="text-sm text-zinc-400 print:text-black">
             {meeting.meeting_date
               ? new Date(meeting.meeting_date).toLocaleString()
               : 'No date set'}
           </div>
 
           {meeting.next_meeting_date && (
-            <div className="text-sm text-zinc-500">
+            <div className="text-sm text-zinc-500 print:text-black">
               Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
             </div>
           )}
@@ -127,8 +134,8 @@ export default async function PortalMeetingDetailPage({
             content={meeting.post_meeting_notes}
           />
 
-          <div className="pt-6">
-            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+          <div className="pt-6 print:pt-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400 print:text-black">
               Attachments
             </div>
 
@@ -140,24 +147,26 @@ export default async function PortalMeetingDetailPage({
                     href={attachment.file_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5"
+                    className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5 print:border-black/20 print:bg-white print:text-black"
                   >
                     {attachment.file_name}
                   </a>
                 ))
               ) : (
-                <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
+                <p className="text-sm text-zinc-500 print:text-black">
+                  No attachments for this meeting.
+                </p>
               )}
             </div>
           </div>
         </div>
       </Card>
 
-      <div className="pt-6">
+      <div className="pt-6 print:hidden">
         <MeetingComments meetingId={meeting.id} />
       </div>
 
-      <div className="pt-6">
+      <div className="pt-6 print:hidden">
         <Card>
           <div className="mb-3 text-sm font-medium text-white">Recent Comments</div>
 
