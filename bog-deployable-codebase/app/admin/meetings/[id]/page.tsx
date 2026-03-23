@@ -32,10 +32,10 @@ async function updateMeeting(id: string, formData: FormData) {
     .update(data)
     .eq('id', id);
 
-  if (error) {
-    console.error('update error:', error);
-    return;
-  }
+ if (error) {
+  console.error('update error:', error);
+  throw new Error(error.message);
+}
 
   revalidatePath('/admin/meetings');
   redirect('/admin/meetings');
