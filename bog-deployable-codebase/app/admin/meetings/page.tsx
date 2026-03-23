@@ -55,10 +55,14 @@ async function deleteMeeting(formData: FormData) {
 export default async function AdminMeetingsPage() {
   const supabase = await createClient();
 
-  const { data: meetings, error } = await supabase
-    .from('meetings')
-    .select('*')
-    .order('meeting_date', { ascending: true });
+ const { data: meetings, error } = await supabase
+  .from('meetings')
+  .select('id, title, meeting_date, status, arrival_silent_transition')
+  .order('meeting_date', { ascending: true });
+
+if (error) {
+  console.error('fetch meetings error:', error.message);
+}
 
   if (error) {
     throw new Error(error.message);
