@@ -278,6 +278,17 @@ export default async function AdminMeetingEditPage({
             </select>
           </div>
 
+          <div>
+  <label className="mb-2 block text-sm font-medium text-white">
+    Upload Attachment
+  </label>
+  <input
+    type="file"
+    name="file"
+    className="w-full text-sm text-white"
+  />
+</div>
+          
           <button
             type="submit"
             className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
