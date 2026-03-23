@@ -12,6 +12,9 @@ async function saveMeeting(formData: FormData) {
   const arrival_silent_transition = String(
     formData.get('arrival_silent_transition') ?? ''
   ).trim();
+  const opening_anchor = String(
+    formData.get('opening_anchor') ?? ''
+  ).trim();
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
 
@@ -20,6 +23,7 @@ async function saveMeeting(formData: FormData) {
     meeting_date: meeting_date || null,
     status,
     arrival_silent_transition: arrival_silent_transition || null,
+    opening_anchor: opening_anchor || null,
   });
 
   console.log('INSERT RESULT:', result);
@@ -57,7 +61,7 @@ export default async function AdminMeetingsPage() {
 
   const { data: meetings } = await supabase
     .from('meetings')
-    .select('id, title, meeting_date, status, arrival_silent_transition')
+    .select('id, title, meeting_date, status, arrival_silent_transition, opening_anchor')
     .order('meeting_date', { ascending: true });
 
   return (
@@ -67,15 +71,15 @@ export default async function AdminMeetingsPage() {
       description="Create and publish meetings for members."
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        
-        {/* LEFT SIDE - CREATE */}
+
+        {/* CREATE */}
         <Card>
           <div className="mb-4 text-lg font-bold text-white">
             Create New Meeting
           </div>
 
           <form action={saveMeeting} className="space-y-4">
-            
+
             <div>
               <label className="mb-2 block text-sm font-medium text-white">
                 Title
@@ -95,6 +99,18 @@ export default async function AdminMeetingsPage() {
               <textarea
                 name="arrival_silent_transition"
                 placeholder="Describe how members should arrive and transition..."
+                rows={3}
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-white">
+                Opening Anchor
+              </label>
+              <textarea
+                name="opening_anchor"
+                placeholder="Opening message, intention, or grounding..."
                 rows={3}
                 className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
               />
@@ -136,7 +152,7 @@ export default async function AdminMeetingsPage() {
           </form>
         </Card>
 
-        {/* RIGHT SIDE - LIST */}
+        {/* LIST */}
         <Card>
           <div className="mb-4 text-lg font-bold text-white">
             Existing Meetings
@@ -144,13 +160,8 @@ export default async function AdminMeetingsPage() {
 
           <div className="space-y-4">
             {meetings?.map((meeting) => (
-              <div
-                key={meeting.id}
-                className="rounded-2xl border border-white/10 p-4"
-              >
-                <div className="font-semibold text-white">
-                  {meeting.title}
-                </div>
+              <div key={meeting.id} className="rounded-2xl border border-white/10 p-4">
+                <div className="font-semibold text-white">{meeting.title}</div>
 
                 <div className="mt-1 text-sm text-zinc-400">
                   {meeting.meeting_date
@@ -164,11 +175,22 @@ export default async function AdminMeetingsPage() {
 
                 {meeting.arrival_silent_transition && (
                   <div className="mt-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    <div className="text-xs font-semibold uppercase text-zinc-400">
                       Arrival &amp; Silent Transition
                     </div>
                     <p className="mt-1 text-sm text-zinc-300">
                       {meeting.arrival_silent_transition}
+                    </p>
+                  </div>
+                )}
+
+                {meeting.opening_anchor && (
+                  <div className="mt-3">
+                    <div className="text-xs font-semibold uppercase text-zinc-400">
+                      Opening Anchor
+                    </div>
+                    <p className="mt-1 text-sm text-zinc-300">
+                      {meeting.opening_anchor}
                     </p>
                   </div>
                 )}
