@@ -7,7 +7,7 @@ export default async function MeetingsPage() {
 
   const { data: meetings } = await supabase
     .from('meetings')
-    .select('id, title, meeting_date, status, arrival_silent_transition')
+    .select('id, title, meeting_date, status, arrival_silent_transition, opening_anchor')
     .eq('status', 'published')
     .order('meeting_date', { ascending: true });
 
@@ -36,6 +36,17 @@ export default async function MeetingsPage() {
                   </div>
                   <p className="mt-1 text-sm text-zinc-300">
                     {meeting.arrival_silent_transition}
+                  </p>
+                </div>
+              )}
+
+              {meeting.opening_anchor && (
+                <div className="pt-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Opening Anchor
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-300">
+                    {meeting.opening_anchor}
                   </p>
                 </div>
               )}
