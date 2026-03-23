@@ -281,12 +281,16 @@ export default async function AdminMeetingEditPage({
           
           <MeetingAttachmentUpload meetingId={meeting.id} />
 
-<button
-  type="submit"
-  className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
->
-  Update Meeting
-</button>
+<div className="space-y-4 pt-2">
+  <MeetingAttachmentUpload meetingId={meeting.id} />
+
+  <button
+    type="submit"
+    className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
+  >
+    Update Meeting
+  </button>
+</div>
         </form>
       </Card>
     </Section>
