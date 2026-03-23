@@ -7,7 +7,7 @@ export default async function MeetingsPage() {
 
   const { data: meetings } = await supabase
     .from('meetings')
-    .select('*')
+    .select('id, title, meeting_date, status, arrival_silent_transition')
     .eq('status', 'published')
     .order('meeting_date', { ascending: true });
 
@@ -15,7 +15,7 @@ export default async function MeetingsPage() {
     <Section
       label="Portal"
       title="Meetings"
-      description="View published brotherhood meetings, agendas, and locations."
+      description="View published brotherhood meetings and agenda details."
     >
       <div className="space-y-4">
         {meetings?.map((meeting) => (
@@ -29,12 +29,15 @@ export default async function MeetingsPage() {
                   : 'No date set'}
               </div>
 
-              <div className="text-sm text-zinc-500">
-                {meeting.location || 'No location set'}
-              </div>
-
-              {meeting.description && (
-                <p className="pt-2 text-sm text-zinc-300">{meeting.description}</p>
+              {meeting.arrival_silent_transition && (
+                <div className="pt-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Arrival &amp; Silent Transition
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-300">
+                    {meeting.arrival_silent_transition}
+                  </p>
+                </div>
               )}
             </div>
           </Card>
@@ -42,7 +45,7 @@ export default async function MeetingsPage() {
 
         {!meetings?.length && (
           <Card>
-            <div className="text-white font-semibold">No published meetings yet</div>
+            <div className="font-semibold text-white">No published meetings yet</div>
             <p className="mt-2 text-sm text-zinc-400">
               Once leadership publishes meetings, they will appear here.
             </p>
