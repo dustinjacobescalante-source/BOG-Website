@@ -59,6 +59,12 @@ export default async function PortalMeetingDetailPage({
     notFound();
   }
 
+  const { data: attachments } = await supabase
+    .from('meeting_attachments')
+    .select('id, file_name, file_url')
+    .eq('meeting_id', id)
+    .order('created_at', { ascending: false });
+
   return (
     <Section
       label="Portal"
@@ -104,6 +110,30 @@ export default async function PortalMeetingDetailPage({
             title="Post-Meeting Notes"
             content={meeting.post_meeting_notes}
           />
+
+          <div className="pt-6">
+            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+              Attachments
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {attachments?.length ? (
+                attachments.map((attachment) => (
+                  <a
+                    key={attachment.id}
+                    href={attachment.file_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 hover:bg-white/5"
+                  >
+                    {attachment.file_name}
+                  </a>
+                ))
+              ) : (
+                <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
+              )}
+            </div>
+          </div>
         </div>
       </Card>
     </Section>
