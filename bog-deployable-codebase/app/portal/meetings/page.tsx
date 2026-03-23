@@ -43,6 +43,17 @@ export default async function MeetingsPage() {
           </Card>
         ))}
 
+        <div>
+  <label className="mb-2 block text-sm font-medium text-white">
+    Opening Anchor
+  </label>
+  <textarea
+    name="opening_anchor"
+    placeholder="Opening message, intention, or grounding..."
+    rows={3}
+    className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
+  />
+</div>
         {!meetings?.length && (
           <Card>
             <div className="font-semibold text-white">No published meetings yet</div>
