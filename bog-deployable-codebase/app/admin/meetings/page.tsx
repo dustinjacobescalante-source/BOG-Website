@@ -15,12 +15,14 @@ async function saveMeeting(formData: FormData) {
   const meeting_date = String(formData.get('meeting_date') ?? '');
   const status = String(formData.get('status') ?? 'draft');
 
-  const { error } = await supabase.from('meetings').insert({
-    title,
-    meeting_date: meeting_date || null,
-    status,
-    arrival_silent_transition: arrival_silent_transition || null,
-  });
+  const result = await supabase.from('meetings').insert({
+  title,
+  meeting_date: meeting_date || null,
+  status,
+  arrival_silent_transition: arrival_silent_transition || null,
+});
+
+console.log('INSERT RESULT:', result);
 
 if (error) {
   console.error('saveMeeting error:', error);
