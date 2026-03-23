@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
@@ -48,8 +49,6 @@ async function saveMeeting(formData: FormData) {
     closing_anchor: closing_anchor || null,
     post_meeting_notes: post_meeting_notes || null,
   });
-
-  console.log('INSERT RESULT:', result);
 
   if (result.error) {
     console.error('saveMeeting error:', result.error);
@@ -316,21 +315,32 @@ export default async function AdminMeetingsPage() {
           <div className="space-y-4">
             {meetings?.map((meeting) => (
               <div key={meeting.id} className="rounded-2xl border border-white/10 p-4">
-                <div className="font-semibold text-white">{meeting.title}</div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-white">{meeting.title}</div>
 
-                <div className="mt-1 text-sm text-zinc-400">
-                  {meeting.meeting_date
-                    ? new Date(meeting.meeting_date).toLocaleString()
-                    : 'No date'}
-                </div>
+                    <div className="mt-1 text-sm text-zinc-400">
+                      {meeting.meeting_date
+                        ? new Date(meeting.meeting_date).toLocaleString()
+                        : 'No date'}
+                    </div>
 
-                {meeting.next_meeting_date && (
-                  <div className="mt-1 text-sm text-zinc-500">
-                    Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
+                    {meeting.next_meeting_date && (
+                      <div className="mt-1 text-sm text-zinc-500">
+                        Next Meeting: {new Date(meeting.next_meeting_date).toLocaleString()}
+                      </div>
+                    )}
+
+                    <div className="mt-2 text-xs text-zinc-400">Status: {meeting.status}</div>
                   </div>
-                )}
 
-                <div className="mt-2 text-xs text-zinc-400">Status: {meeting.status}</div>
+                  <Link
+                    href={`/admin/meetings/${meeting.id}`}
+                    className="rounded-xl border border-white/10 px-3 py-2 text-sm text-white hover:bg-white/5"
+                  >
+                    Edit
+                  </Link>
+                </div>
 
                 <AgendaBlock
                   title="Arrival & Silent Transition"
