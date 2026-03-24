@@ -77,30 +77,38 @@ export default async function AdminPage() {
 
   const actions = [
     {
-      title: "Manage Members",
-      description: "Review profiles, update status, and manage access.",
-      href: "/admin/members",
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      title: "Review Applications",
-      description: "Handle approvals, denials, and pending submissions.",
-      href: "/admin/reviews",
-      icon: <BadgeCheck className="h-5 w-5" />,
-    },
-    {
-      title: "Content Control",
-      description: "Edit announcements, featured content, and notices.",
-      href: "/admin/content",
-      icon: <Sparkles className="h-5 w-5" />,
-    },
-    {
-      title: "Events & Scheduling",
-      description: "Create events and manage visibility for members.",
-      href: "/admin/events",
-      icon: <CalendarRange className="h-5 w-5" />,
-    },
-  ];
+      const actions = [
+  {
+    title: "Manage Members",
+    description: "Review profiles, update status, and manage access.",
+    href: "/admin/members",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: "Manage Meetings",
+    description: "Create, edit, publish, and manage meeting agendas.",
+    href: "/admin/meetings",
+    icon: <CalendarRange className="h-5 w-5" />,
+  },
+  {
+    title: "Review Applications",
+    description: "Handle approvals, denials, and pending submissions.",
+    href: "/admin/reviews",
+    icon: <BadgeCheck className="h-5 w-5" />,
+  },
+  {
+    title: "Content Control",
+    description: "Edit announcements, featured content, and notices.",
+    href: "/admin/content",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Events & Scheduling",
+    description: "Create events and manage visibility for members.",
+    href: "/admin/events",
+    icon: <CalendarRange className="h-5 w-5" />,
+  },
+];
 
   const activityFeed = [
     {
