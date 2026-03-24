@@ -282,6 +282,30 @@ export default async function AdminMeetingEditPage({
 <div className="space-y-4 pt-2">
   <MeetingAttachmentUpload meetingId={meeting.id} />
 
+  <div className="mt-4 space-y-2">
+  <div className="text-sm font-medium text-white">Existing Attachments</div>
+
+  {attachments?.length ? (
+    attachments.map((file) => (
+      <form
+        key={file.id}
+        action={deleteAttachment.bind(null, file.id, file.file_url)}
+        className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-2"
+      >
+        <div className="text-sm text-zinc-200">{file.file_name}</div>
+
+        <button
+          type="submit"
+          className="text-xs text-red-400 hover:text-red-300"
+        >
+          Delete
+        </button>
+      </form>
+    ))
+  ) : (
+    <p className="text-sm text-zinc-500">No attachments yet.</p>
+  )}
+</div>
   <button
     type="submit"
     className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
