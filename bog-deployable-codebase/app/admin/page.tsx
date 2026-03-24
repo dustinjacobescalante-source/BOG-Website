@@ -77,7 +77,6 @@ export default async function AdminPage() {
 
   const actions = [
     {
-  {
     title: "Manage Members",
     description: "Review profiles, update status, and manage access.",
     href: "/admin/members",
