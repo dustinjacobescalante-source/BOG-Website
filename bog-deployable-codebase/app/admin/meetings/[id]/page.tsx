@@ -60,10 +60,42 @@ async function updateMeeting(id: string, formData: FormData) {
   }
 
   revalidatePath('/admin/meetings');
+  revalidatePath(`/admin/meetings/${id}`);
   revalidatePath('/portal/meetings');
   revalidatePath(`/portal/meetings/${id}`);
 
   redirect('/admin/meetings');
+}
+
+async function deleteAttachment(attachmentId: string, fileUrl: string, meetingId: string) {
+  'use server';
+
+  const supabase = await createClient();
+
+  const path = fileUrl.split('/meeting-files/')[1];
+
+  if (path) {
+    const { error: storageError } = await supabase.storage
+      .from('meeting-files')
+      .remove([path]);
+
+    if (storageError) {
+      console.error('deleteAttachment storage error:', storageError);
+    }
+  }
+
+  const { error: dbError } = await supabase
+    .from('meeting_attachments')
+    .delete()
+    .eq('id', attachmentId);
+
+  if (dbError) {
+    console.error('deleteAttachment db error:', dbError);
+    return;
+  }
+
+  revalidatePath(`/admin/meetings/${meetingId}`);
+  revalidatePath(`/portal/meetings/${meetingId}`);
 }
 
 export default async function AdminMeetingEditPage({
@@ -101,6 +133,12 @@ export default async function AdminMeetingEditPage({
   if (!meeting) {
     notFound();
   }
+
+  const { data: attachments } = await supabase
+    .from('meeting_attachments')
+    .select('id, file_name, file_url')
+    .eq('meeting_id', id)
+    .order('created_at', { ascending: false });
 
   return (
     <Section
@@ -279,40 +317,41 @@ export default async function AdminMeetingEditPage({
             </select>
           </div>
 
-<div className="space-y-4 pt-2">
-  <MeetingAttachmentUpload meetingId={meeting.id} />
+          <div className="space-y-4 pt-2">
+            <MeetingAttachmentUpload meetingId={meeting.id} />
 
-  <div className="mt-4 space-y-2">
-  <div className="text-sm font-medium text-white">Existing Attachments</div>
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-white">Existing Attachments</div>
 
-  {attachments?.length ? (
-    attachments.map((file) => (
-      <form
-        key={file.id}
-        action={deleteAttachment.bind(null, file.id, file.file_url)}
-        className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-2"
-      >
-        <div className="text-sm text-zinc-200">{file.file_name}</div>
+              {attachments?.length ? (
+                attachments.map((file) => (
+                  <form
+                    key={file.id}
+                    action={deleteAttachment.bind(null, file.id, file.file_url, meeting.id)}
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-2"
+                  >
+                    <div className="text-sm text-zinc-200">{file.file_name}</div>
 
-        <button
-          type="submit"
-          className="text-xs text-red-400 hover:text-red-300"
-        >
-          Delete
-        </button>
-      </form>
-    ))
-  ) : (
-    <p className="text-sm text-zinc-500">No attachments yet.</p>
-  )}
-</div>
-  <button
-    type="submit"
-    className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
-  >
-    Update Meeting
-  </button>
-</div>
+                    <button
+                      type="submit"
+                      className="text-xs text-red-400 hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                ))
+              ) : (
+                <p className="text-sm text-zinc-500">No attachments yet.</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
+            >
+              Update Meeting
+            </button>
+          </div>
         </form>
       </Card>
     </Section>
