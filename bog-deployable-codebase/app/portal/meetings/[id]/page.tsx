@@ -125,10 +125,12 @@ export default async function PortalMeetingDetailPage({
             content={meeting.post_meeting_notes}
           />
 
+          {/* 🔥 TEST UPLOAD BOX */}
           <div className="pt-6">
             <TestAttachmentUpload meetingId={meeting.id} />
           </div>
 
+          {/* 🔥 ATTACHMENTS LIST */}
           <div className="pt-6">
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Attachments
@@ -136,25 +138,39 @@ export default async function PortalMeetingDetailPage({
 
             <div className="mt-3 space-y-2">
               {attachments?.length ? (
-                attachments.map((attachment) => (
-                  <div
-                    key={attachment.id}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
-                  >
-                    <div>
-                      <div className="text-sm text-zinc-200">{attachment.file_name}</div>
-                      <div className="text-xs text-zinc-500">
-                        Uploaded {new Date(attachment.created_at).toLocaleString()}
-                      </div>
-                    </div>
+                attachments.map((attachment) => {
+                  const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/meeting-attachments/${attachment.file_path}`;
 
-                    <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
-                      Saved
-                    </span>
-                  </div>
-                ))
+                  return (
+                    <div
+                      key={attachment.id}
+                      className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+                    >
+                      <div>
+                        <div className="text-sm text-zinc-200">
+                          {attachment.file_name}
+                        </div>
+                        <div className="text-xs text-zinc-500">
+                          Uploaded{' '}
+                          {new Date(attachment.created_at).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
+                      >
+                        Open
+                      </a>
+                    </div>
+                  );
+                })
               ) : (
-                <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
+                <p className="text-sm text-zinc-500">
+                  No attachments for this meeting.
+                </p>
               )}
             </div>
           </div>
