@@ -93,7 +93,7 @@ export default async function PortalMeetingDetailPage({
         <PrintMeetingButton />
 
         <Link
-          href={`/portal/meetings/${meeting.id}/print`}
+         href={`/print/meetings/${meeting.id}`}
           target="_blank"
           rel="noreferrer"
           className="rounded-2xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
