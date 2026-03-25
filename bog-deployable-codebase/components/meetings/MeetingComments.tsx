@@ -10,7 +10,7 @@ type CommentItem = {
   user_id: string;
   profiles: {
     full_name: string | null;
-  } | null;
+  }[];
 };
 
 export default function MeetingComments({
@@ -73,7 +73,7 @@ export default function MeetingComments({
       return;
     }
 
-    setComments((data as CommentItem[]) ?? []);
+    setComments((data as unknown as CommentItem[]) ?? []);
     setLoadingComments(false);
   }
 
@@ -180,6 +180,9 @@ export default function MeetingComments({
               const canDelete =
                 currentUserRole === 'admin' || currentUserId === comment.user_id;
 
+              const commenterName =
+                comment.profiles?.[0]?.full_name || 'Unknown';
+
               return (
                 <div
                   key={comment.id}
@@ -187,8 +190,7 @@ export default function MeetingComments({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="text-xs text-zinc-500">
-                      {comment.profiles?.full_name || 'Unknown'} •{' '}
-                      {new Date(comment.created_at).toLocaleString()}
+                      {commenterName} • {new Date(comment.created_at).toLocaleString()}
                     </div>
 
                     {canDelete && (
