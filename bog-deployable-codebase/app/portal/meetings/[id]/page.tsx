@@ -4,7 +4,6 @@ import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 import MeetingComments from '@/components/meetings/MeetingComments';
-import PrintMeetingButton from '@/components/meetings/PrintMeetingButton';
 
 function AgendaBlock({
   title,
@@ -90,10 +89,8 @@ export default async function PortalMeetingDetailPage({
       description="Meeting agenda and details."
     >
       <div className="mb-4 flex flex-wrap gap-3">
-        <PrintMeetingButton />
-
         <Link
-         href={`/print/meetings/${meeting.id}`}
+          href={`/print/meetings/${meeting.id}`}
           target="_blank"
           rel="noreferrer"
           className="rounded-2xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
