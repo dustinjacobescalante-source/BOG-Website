@@ -7,6 +7,8 @@ type CommentItem = {
   id: string;
   comment_text: string;
   created_at: string;
+  updated_at?: string | null;
+  is_pinned?: boolean;
   user_id: string;
   profiles: {
     full_name: string | null;
@@ -25,6 +27,10 @@ export default function MeetingComments({
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
   const [loadingComments, setLoadingComments] = useState(true);
+
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
 
   async function loadCurrentUser() {
     const supabase = createClient();
@@ -58,6 +64,8 @@ export default function MeetingComments({
           id,
           comment_text,
           created_at,
+          updated_at,
+          is_pinned,
           user_id,
           profiles (
             full_name
@@ -65,6 +73,7 @@ export default function MeetingComments({
         `
       )
       .eq('meeting_id', meetingId)
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -143,6 +152,64 @@ export default function MeetingComments({
     await loadComments();
   }
 
+  function startEditing(comment: CommentItem) {
+    setEditingCommentId(comment.id);
+    setEditingText(comment.comment_text);
+    setMessage('');
+  }
+
+  function cancelEditing() {
+    setEditingCommentId(null);
+    setEditingText('');
+  }
+
+  async function handleSaveEdit(commentId: string) {
+    if (!editingText.trim()) return;
+
+    setSavingEdit(true);
+    setMessage('');
+
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from('meeting_comments')
+      .update({
+        comment_text: editingText.trim(),
+      })
+      .eq('id', commentId);
+
+    if (error) {
+      setMessage(`Edit failed: ${error.message}`);
+      setSavingEdit(false);
+      return;
+    }
+
+    setMessage('Comment updated.');
+    setEditingCommentId(null);
+    setEditingText('');
+    setSavingEdit(false);
+    await loadComments();
+  }
+
+  async function handleTogglePin(comment: CommentItem) {
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from('meeting_comments')
+      .update({
+        is_pinned: !comment.is_pinned,
+      })
+      .eq('id', comment.id);
+
+    if (error) {
+      setMessage(`Pin update failed: ${error.message}`);
+      return;
+    }
+
+    setMessage(comment.is_pinned ? 'Comment unpinned.' : 'Comment pinned.');
+    await loadComments();
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -180,8 +247,17 @@ export default function MeetingComments({
               const canDelete =
                 currentUserRole === 'admin' || currentUserId === comment.user_id;
 
+              const canEdit =
+                currentUserRole === 'admin' || currentUserId === comment.user_id;
+
+              const canPin = currentUserRole === 'admin';
+
               const commenterName =
                 comment.profiles?.[0]?.full_name || 'Unknown';
+
+              const wasEdited =
+                comment.updated_at &&
+                comment.updated_at !== comment.created_at;
 
               return (
                 <div
@@ -190,23 +266,77 @@ export default function MeetingComments({
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="text-xs text-zinc-500">
+                      {comment.is_pinned ? '📌 ' : ''}
                       {commenterName} • {new Date(comment.created_at).toLocaleString()}
+                      {wasEdited ? ' • edited' : ''}
                     </div>
 
-                    {canDelete && (
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(comment.id)}
-                        className="text-xs text-red-400 hover:text-red-300"
-                      >
-                        Delete
-                      </button>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {canPin && (
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePin(comment)}
+                          className="text-xs text-yellow-400 hover:text-yellow-300"
+                        >
+                          {comment.is_pinned ? 'Unpin' : 'Pin'}
+                        </button>
+                      )}
+
+                      {canEdit && editingCommentId !== comment.id && (
+                        <button
+                          type="button"
+                          onClick={() => startEditing(comment)}
+                          className="text-xs text-zinc-300 hover:text-white"
+                        >
+                          Edit
+                        </button>
+                      )}
+
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(comment.id)}
+                          className="text-xs text-red-400 hover:text-red-300"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">
-                    {comment.comment_text}
-                  </p>
+                  {editingCommentId === comment.id ? (
+                    <div className="mt-3 space-y-3">
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        rows={4}
+                        className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                      />
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSaveEdit(comment.id)}
+                          disabled={savingEdit}
+                          className="rounded-xl bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+                        >
+                          {savingEdit ? 'Saving...' : 'Save'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className="rounded-xl border border-white/10 px-3 py-2 text-xs text-white hover:bg-white/5"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">
+                      {comment.comment_text}
+                    </p>
+                  )}
                 </div>
               );
             })
