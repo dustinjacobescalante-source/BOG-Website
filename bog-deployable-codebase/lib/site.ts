@@ -1,6 +1,6 @@
 export const site = {
   name: 'Buffalo Dogs - BOG - Brotherhood of Growth',
-  domain: 'BOG.com',
+  domain: 'TheBuffaloDogs.com',
   clubEmail: 'BOGBuffalodogs@gmail.com',
   leaderEmail: 'BOGDustinE@gmail.com',
   mission: 'Serve, run at the storm, and establish routine.',
