@@ -67,21 +67,6 @@ export default async function PortalMeetingDetailPage({
     .eq('meeting_id', id)
     .order('created_at', { ascending: false });
 
-  const { data: comments } = await supabase
-    .from('meeting_comments')
-    .select(
-      `
-        id,
-        comment_text,
-        created_at,
-        profiles (
-          full_name
-        )
-      `
-    )
-    .eq('meeting_id', id)
-    .order('created_at', { ascending: false });
-
   return (
     <Section
       label="Portal"
@@ -173,33 +158,6 @@ export default async function PortalMeetingDetailPage({
 
       <div className="pt-6">
         <MeetingComments meetingId={meeting.id} />
-      </div>
-
-      <div className="pt-6">
-        <Card>
-          <div className="mb-3 text-sm font-medium text-white">Recent Comments</div>
-
-          <div className="space-y-3">
-            {comments?.length ? (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="rounded-xl border border-white/10 bg-black/20 p-4"
-                >
-                  <div className="text-xs text-zinc-500">
-                    {(comment.profiles as { full_name?: string } | null)?.full_name || 'Unknown'} •{' '}
-                    {new Date(comment.created_at).toLocaleString()}
-                  </div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-200">
-                    {comment.comment_text}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-zinc-500">No comments yet.</p>
-            )}
-          </div>
-        </Card>
       </div>
     </Section>
   );
