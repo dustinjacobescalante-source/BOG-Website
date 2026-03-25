@@ -67,6 +67,17 @@ export default async function PrintMeetingPage({
     .order('created_at', { ascending: false });
 
   return (
+    <style>{`
+  header,
+  nav {
+    display: none !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+`}</style>
     <div className="min-h-screen bg-white text-black">
       <div className="mx-auto max-w-4xl px-8 pb-10 pt-32 md:pt-36">
         <div className="mb-8 flex justify-end print:hidden">
