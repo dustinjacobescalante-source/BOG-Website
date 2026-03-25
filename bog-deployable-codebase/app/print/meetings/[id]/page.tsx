@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import PrintMeetingButton from '@/components/meetings/PrintMeetingButton';
 
 function PrintBlock({
   title,
@@ -70,7 +69,12 @@ export default async function PrintMeetingPage({
     <>
       <style>{`
         header,
-        nav {
+        nav,
+        [role="banner"] {
+          display: none !important;
+        }
+
+        body > div:first-child > div:first-child {
           display: none !important;
         }
 
@@ -81,9 +85,15 @@ export default async function PrintMeetingPage({
       `}</style>
 
       <div className="min-h-screen bg-white text-black">
-        <div className="mx-auto max-w-4xl px-8 pb-10 pt-32 md:pt-36">
+        <div className="mx-auto max-w-4xl px-8 py-10">
           <div className="mb-8 flex justify-end print:hidden">
-            <PrintMeetingButton />
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-100"
+            >
+              Print
+            </button>
           </div>
 
           <div className="border-b border-zinc-300 pb-4">
@@ -150,4 +160,3 @@ export default async function PrintMeetingPage({
     </>
   );
 }
-
