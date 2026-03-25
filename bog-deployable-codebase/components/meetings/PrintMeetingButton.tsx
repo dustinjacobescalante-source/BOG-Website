@@ -1,11 +1,11 @@
 'use client';
 
-export default function PrintPageButton() {
+export default function PrintMeetingButton() {
   return (
     <button
       type="button"
       onClick={() => window.print()}
-      className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-100"
+      className="rounded-2xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5 print:hidden"
     >
       Print
     </button>
