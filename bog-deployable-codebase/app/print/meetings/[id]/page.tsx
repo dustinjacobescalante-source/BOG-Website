@@ -68,8 +68,8 @@ export default async function PrintMeetingPage({
 
   return (
     <div className="min-h-screen bg-white text-black">
-      <div className="mx-auto max-w-4xl px-8 py-10">
-        <div className="mb-6 print:hidden">
+      <div className="mx-auto max-w-4xl px-8 pb-10 pt-32 md:pt-36">
+        <div className="mb-8 flex justify-end print:hidden">
           <PrintMeetingButton />
         </div>
 
