@@ -94,6 +94,8 @@ export default async function PortalMeetingDetailPage({
 
         <Link
           href={`/portal/meetings/${meeting.id}/print`}
+          target="_blank"
+          rel="noreferrer"
           className="rounded-2xl border border-white/10 bg-black/30 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
         >
           Print Agenda Page
@@ -147,24 +149,24 @@ export default async function PortalMeetingDetailPage({
 
             <div className="mt-3 space-y-2">
               {attachments?.length ? (
-  attachments.map((attachment) => (
-    <div
-      key={attachment.id}
-      className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
-    >
-      <div className="text-sm text-zinc-200">{attachment.file_name}</div>
+                attachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+                  >
+                    <div className="text-sm text-zinc-200">{attachment.file_name}</div>
 
-      <a
-        href={attachment.file_url}
-        target="_blank"
-        rel="noreferrer"
-        className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
-      >
-        Open
-      </a>
-    </div>
-  ))
-) : (
+                    <a
+                      href={attachment.file_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
+                    >
+                      Open
+                    </a>
+                  </div>
+                ))
+              ) : (
                 <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
               )}
             </div>
