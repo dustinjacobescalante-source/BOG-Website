@@ -149,30 +149,7 @@ export default async function PortalMeetingDetailPage({
 
             <div className="mt-3 space-y-2">
               {attachmentsWithUrls.length ? (
-               <div className="flex items-center gap-2">
-  {attachment.signedUrl && (
-    <a
-      href={attachment.signedUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
-    >
-      Open
-    </a>
-  )}
-
-  <form
-    action={`/api/meetings/${meeting.id}/attachments/${attachment.id}`}
-    method="POST"
-  >
-    <button
-      type="submit"
-      className="rounded-lg border border-red-500/40 px-3 py-1 text-xs text-red-400 hover:bg-red-500/10"
-    >
-      Delete
-    </button>
-  </form>
-</div>
+                attachmentsWithUrls.map((attachment) => (
                   <div
                     key={attachment.id}
                     className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
@@ -184,20 +161,34 @@ export default async function PortalMeetingDetailPage({
                       </div>
                     </div>
 
-                    {attachment.signedUrl ? (
-                      <a
-                        href={attachment.signedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
+                    <div className="flex items-center gap-2">
+                      {attachment.signedUrl ? (
+                        <a
+                          href={attachment.signedUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
+                        >
+                          Open
+                        </a>
+                      ) : (
+                        <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
+                          Unavailable
+                        </span>
+                      )}
+
+                      <form
+                        action={`/api/meetings/${meeting.id}/attachments/${attachment.id}`}
+                        method="POST"
                       >
-                        Open
-                      </a>
-                    ) : (
-                      <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
-                        Unavailable
-                      </span>
-                    )}
+                        <button
+                          type="submit"
+                          className="rounded-lg border border-red-500/40 px-3 py-1 text-xs text-red-400 hover:bg-red-500/10"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 ))
               ) : (
