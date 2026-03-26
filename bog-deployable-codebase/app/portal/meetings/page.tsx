@@ -1,4 +1,4 @@
-import Link from 'next/link';
+
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
