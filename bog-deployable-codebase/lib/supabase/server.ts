@@ -1,10 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 
+type CookieItem = {
+  name: string;
+  value: string;
+  options?: Record<string, unknown>;
+};
+
 type CookieStoreLike = {
   getAll?: () => { name: string; value: string }[];
-  setAll?: (
-    cookies: { name: string; value: string; options?: Record<string, unknown> }[]
-  ) => void;
+  setAll?: (cookies: CookieItem[]) => void;
 };
 
 export function createClient(cookieStore?: CookieStoreLike) {
@@ -16,7 +20,7 @@ export function createClient(cookieStore?: CookieStoreLike) {
         getAll() {
           return cookieStore?.getAll?.() ?? [];
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieItem[]) {
           cookieStore?.setAll?.(cookiesToSet);
         },
       },
