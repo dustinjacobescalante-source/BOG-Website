@@ -11,17 +11,36 @@ type CookieStoreLike = {
   setAll?: (cookies: CookieItem[]) => void;
 };
 
-export function createClient(cookieStore?: CookieStoreLike) {
+export async function createClient(cookieStore?: CookieStoreLike) {
+  let resolvedCookieStore = cookieStore;
+
+  if (!resolvedCookieStore) {
+    try {
+      const { cookies } = await import('next/headers');
+      const nextCookieStore = await cookies();
+
+      resolvedCookieStore = {
+        getAll: () => nextCookieStore.getAll(),
+        setAll: () => {},
+      };
+    } catch {
+      resolvedCookieStore = {
+        getAll: () => [],
+        setAll: () => {},
+      };
+    }
+  }
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return cookieStore?.getAll?.() ?? [];
+          return resolvedCookieStore?.getAll?.() ?? [];
         },
-        setAll: (cookiesToSet: CookieItem[]) => {
-          cookieStore?.setAll?.(cookiesToSet);
+        setAll(cookiesToSet: CookieItem[]) {
+          resolvedCookieStore?.setAll?.(cookiesToSet);
         },
       },
     }
