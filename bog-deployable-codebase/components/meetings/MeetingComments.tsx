@@ -20,40 +20,48 @@ export default function MeetingComments({
   const [commentText, setCommentText] = useState('');
   const [message, setMessage] = useState('');
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // ✅ start false
   const [saving, setSaving] = useState(false);
 
   async function loadComments() {
-    try {
-      setLoading(true);
-      setMessage('');
+    console.log('Loading comments for meeting:', meetingId);
 
-      const { data, error } = await supabase
-        .from('meeting_comments')
-        .select('id, meeting_id, user_id, comment_text, created_at, updated_at, is_pinned')
-        .eq('meeting_id', meetingId)
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false });
+    setLoading(true);
+    setMessage('');
 
-      if (error) {
-        console.error('COMMENTS LOAD ERROR:', error);
-        setMessage(`Could not load comments: ${error.message}`);
-        setComments([]);
-        return;
-      }
+    const { data, error } = await supabase
+      .from('meeting_comments')
+      .select(
+        `
+        id,
+        comment_text,
+        created_at,
+        user_id,
+        is_pinned
+      `
+      )
+      .eq('meeting_id', meetingId)
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false });
 
-      setComments(data ?? []);
-    } catch (error) {
-      console.error('COMMENTS LOAD UNEXPECTED ERROR:', error);
-      setMessage('Could not load comments.');
+    if (error) {
+      console.error('COMMENTS LOAD ERROR:', error);
+      setMessage(`Could not load comments: ${error.message}`);
       setComments([]);
-    } finally {
       setLoading(false);
+      return;
     }
+
+    console.log('Comments loaded:', data);
+
+    setComments(data ?? []);
+    setLoading(false);
   }
 
   useEffect(() => {
-    void loadComments();
+    if (meetingId) {
+      loadComments();
+    }
   }, [meetingId]);
 
   async function handlePostComment() {
@@ -126,7 +134,9 @@ export default function MeetingComments({
       </div>
 
       <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-        <div className="mb-3 text-sm font-semibold text-white">Recent Comments</div>
+        <div className="mb-3 text-sm font-semibold text-white">
+          Recent Comments
+        </div>
 
         {loading ? (
           <p className="text-sm text-zinc-400">Loading comments...</p>
@@ -139,7 +149,9 @@ export default function MeetingComments({
                 key={comment.id}
                 className="rounded-xl border border-white/10 bg-black/30 p-4"
               >
-                <div className="text-sm text-white">{comment.comment_text}</div>
+                <div className="text-sm text-white">
+                  {comment.comment_text}
+                </div>
                 <div className="mt-2 text-xs text-zinc-500">
                   {new Date(comment.created_at).toLocaleString()}
                   {comment.is_pinned ? ' • pinned' : ''}
