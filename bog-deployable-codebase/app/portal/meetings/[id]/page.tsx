@@ -68,6 +68,19 @@ export default async function PortalMeetingDetailPage({
     .eq('meeting_id', id)
     .order('created_at', { ascending: false });
 
+  const attachmentsWithUrls = await Promise.all(
+    (attachments || []).map(async (attachment) => {
+      const { data: signedUrlData } = await supabase.storage
+        .from('meeting-attachments')
+        .createSignedUrl(attachment.file_path, 60 * 60);
+
+      return {
+        ...attachment,
+        signedUrl: signedUrlData?.signedUrl || null,
+      };
+    })
+  );
+
   return (
     <Section
       label="Portal"
@@ -125,52 +138,47 @@ export default async function PortalMeetingDetailPage({
             content={meeting.post_meeting_notes}
           />
 
-          {/* 🔥 TEST UPLOAD BOX */}
           <div className="pt-6">
             <TestAttachmentUpload meetingId={meeting.id} />
           </div>
 
-          {/* 🔥 ATTACHMENTS LIST */}
           <div className="pt-6">
             <div className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Attachments
             </div>
 
             <div className="mt-3 space-y-2">
-              {attachments?.length ? (
-                attachments.map((attachment) => {
-                  const fileUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/meeting-attachments/${attachment.file_path}`;
-
-                  return (
-                    <div
-                      key={attachment.id}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
-                    >
-                      <div>
-                        <div className="text-sm text-zinc-200">
-                          {attachment.file_name}
-                        </div>
-                        <div className="text-xs text-zinc-500">
-                          Uploaded{' '}
-                          {new Date(attachment.created_at).toLocaleString()}
-                        </div>
+              {attachmentsWithUrls.length ? (
+                attachmentsWithUrls.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+                  >
+                    <div>
+                      <div className="text-sm text-zinc-200">{attachment.file_name}</div>
+                      <div className="text-xs text-zinc-500">
+                        Uploaded {new Date(attachment.created_at).toLocaleString()}
                       </div>
+                    </div>
 
+                    {attachment.signedUrl ? (
                       <a
-                        href={fileUrl}
+                        href={attachment.signedUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
                       >
                         Open
                       </a>
-                    </div>
-                  );
-                })
+                    ) : (
+                      <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
+                        Unavailable
+                      </span>
+                    )}
+                  </div>
+                ))
               ) : (
-                <p className="text-sm text-zinc-500">
-                  No attachments for this meeting.
-                </p>
+                <p className="text-sm text-zinc-500">No attachments for this meeting.</p>
               )}
             </div>
           </div>
