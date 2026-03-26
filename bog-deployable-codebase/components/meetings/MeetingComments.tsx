@@ -22,28 +22,21 @@ export default function MeetingComments({
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const loadComments = async () => {
+  async function loadComments() {
     try {
       setLoading(true);
       setMessage('');
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setCurrentUserId(user?.id ?? null);
-
       const { data, error } = await supabase
         .from('meeting_comments')
-        .select('id, comment_text, created_at, user_id, is_pinned')
+        .select('id, meeting_id, user_id, comment_text, created_at, updated_at, is_pinned')
         .eq('meeting_id', meetingId)
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('loadComments error:', error);
+        console.error('COMMENTS LOAD ERROR:', error);
         setMessage(`Could not load comments: ${error.message}`);
         setComments([]);
         return;
@@ -51,13 +44,13 @@ export default function MeetingComments({
 
       setComments(data ?? []);
     } catch (error) {
-      console.error('loadComments unexpected error:', error);
+      console.error('COMMENTS LOAD UNEXPECTED ERROR:', error);
       setMessage('Could not load comments.');
       setComments([]);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     void loadComments();
@@ -90,7 +83,7 @@ export default function MeetingComments({
       });
 
       if (error) {
-        console.error('post comment error:', error);
+        console.error('POST COMMENT ERROR:', error);
         setMessage(`Could not post comment: ${error.message}`);
         return;
       }
@@ -99,83 +92,10 @@ export default function MeetingComments({
       setMessage('Comment posted.');
       await loadComments();
     } catch (error) {
-      console.error('post comment unexpected error:', error);
+      console.error('POST COMMENT UNEXPECTED ERROR:', error);
       setMessage('Something went wrong while posting your comment.');
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleDelete(commentId: string) {
-    try {
-      setMessage('');
-
-      const { error } = await supabase
-        .from('meeting_comments')
-        .delete()
-        .eq('id', commentId);
-
-      if (error) {
-        console.error('delete comment error:', error);
-        setMessage(`Could not delete comment: ${error.message}`);
-        return;
-      }
-
-      await loadComments();
-    } catch (error) {
-      console.error('delete comment unexpected error:', error);
-      setMessage('Something went wrong while deleting the comment.');
-    }
-  }
-
-  async function handleEdit(commentId: string, currentText: string) {
-    const nextText = window.prompt('Edit comment:', currentText);
-    if (nextText === null) return;
-    if (!nextText.trim()) {
-      setMessage('Comment cannot be empty.');
-      return;
-    }
-
-    try {
-      setMessage('');
-
-      const { error } = await supabase
-        .from('meeting_comments')
-        .update({ comment_text: nextText.trim() })
-        .eq('id', commentId);
-
-      if (error) {
-        console.error('edit comment error:', error);
-        setMessage(`Could not update comment: ${error.message}`);
-        return;
-      }
-
-      await loadComments();
-    } catch (error) {
-      console.error('edit comment unexpected error:', error);
-      setMessage('Something went wrong while editing the comment.');
-    }
-  }
-
-  async function handleTogglePin(commentId: string, currentPinned: boolean | null | undefined) {
-    try {
-      setMessage('');
-
-      const { error } = await supabase
-        .from('meeting_comments')
-        .update({ is_pinned: !currentPinned })
-        .eq('id', commentId);
-
-      if (error) {
-        console.error('pin comment error:', error);
-        setMessage(`Could not update pin: ${error.message}`);
-        return;
-      }
-
-      await loadComments();
-    } catch (error) {
-      console.error('pin comment unexpected error:', error);
-      setMessage('Something went wrong while updating the pin.');
     }
   }
 
@@ -214,62 +134,18 @@ export default function MeetingComments({
           <p className="text-sm text-zinc-500">No comments yet.</p>
         ) : (
           <div className="space-y-3">
-            {comments.map((comment) => {
-              const isOwner = currentUserId === comment.user_id;
-
-              return (
-                <div
-                  key={comment.id}
-                  className="rounded-xl border border-white/10 bg-black/30 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-white">
-                        {comment.comment_text}
-                      </div>
-                      <div className="mt-2 text-xs text-zinc-500">
-                        {new Date(comment.created_at).toLocaleString()}
-                        {comment.is_pinned ? ' • pinned' : ''}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleTogglePin(comment.id, comment.is_pinned)
-                        }
-                        className="text-xs text-yellow-400 hover:text-yellow-300"
-                      >
-                        {comment.is_pinned ? 'Unpin' : 'Pin'}
-                      </button>
-
-                      {isOwner && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEdit(comment.id, comment.comment_text)
-                            }
-                            className="text-xs text-zinc-300 hover:text-white"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(comment.id)}
-                            className="text-xs text-red-400 hover:text-red-300"
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+            {comments.map((comment) => (
+              <div
+                key={comment.id}
+                className="rounded-xl border border-white/10 bg-black/30 p-4"
+              >
+                <div className="text-sm text-white">{comment.comment_text}</div>
+                <div className="mt-2 text-xs text-zinc-500">
+                  {new Date(comment.created_at).toLocaleString()}
+                  {comment.is_pinned ? ' • pinned' : ''}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>
