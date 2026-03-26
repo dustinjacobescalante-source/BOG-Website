@@ -25,6 +25,26 @@ function AgendaBlock({
   );
 }
 
+function getFileType(fileName: string) {
+  const lower = fileName.toLowerCase();
+
+  if (
+    lower.endsWith('.png') ||
+    lower.endsWith('.jpg') ||
+    lower.endsWith('.jpeg') ||
+    lower.endsWith('.gif') ||
+    lower.endsWith('.webp')
+  ) {
+    return 'image';
+  }
+
+  if (lower.endsWith('.pdf')) {
+    return 'pdf';
+  }
+
+  return 'other';
+}
+
 export default async function PortalMeetingDetailPage({
   params,
 }: {
@@ -77,6 +97,7 @@ export default async function PortalMeetingDetailPage({
       return {
         ...attachment,
         signedUrl: signedUrlData?.signedUrl || null,
+        fileType: getFileType(attachment.file_name),
       };
     })
   );
@@ -147,47 +168,77 @@ export default async function PortalMeetingDetailPage({
               Attachments
             </div>
 
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 space-y-3">
               {attachmentsWithUrls.length ? (
                 attachmentsWithUrls.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+                    className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
                   >
-                    <div>
-                      <div className="text-sm text-zinc-200">{attachment.file_name}</div>
-                      <div className="text-xs text-zinc-500">
-                        Uploaded {new Date(attachment.created_at).toLocaleString()}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {attachment.signedUrl ? (
-                        <a
-                          href={attachment.signedUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
-                        >
-                          Open
-                        </a>
-                      ) : (
-                        <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
-                          Unavailable
-                        </span>
-                      )}
-
-                      <form
-                        action={`/api/meetings/${meeting.id}/attachments/${attachment.id}`}
-                        method="POST"
+                    {attachment.fileType === 'image' && attachment.signedUrl && (
+                      <a
+                        href={attachment.signedUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block"
                       >
-                        <button
-                          type="submit"
-                          className="rounded-lg border border-red-500/40 px-3 py-1 text-xs text-red-400 hover:bg-red-500/10"
+                        <img
+                          src={attachment.signedUrl}
+                          alt={attachment.file_name}
+                          className="max-h-72 w-full object-cover"
+                        />
+                      </a>
+                    )}
+
+                    {attachment.fileType === 'pdf' && attachment.signedUrl && (
+                      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-6 text-center">
+                        <div className="text-sm font-medium text-zinc-200">
+                          PDF Preview Available
+                        </div>
+                        <div className="mt-1 text-xs text-zinc-500">
+                          Open to view the full PDF in a new tab
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-3 px-4 py-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm text-zinc-200">
+                          {attachment.file_name}
+                        </div>
+                        <div className="text-xs text-zinc-500">
+                          Uploaded {new Date(attachment.created_at).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {attachment.signedUrl ? (
+                          <a
+                            href={attachment.signedUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
+                          >
+                            {attachment.fileType === 'pdf' ? 'Preview' : 'Open'}
+                          </a>
+                        ) : (
+                          <span className="rounded-lg border border-white/10 px-3 py-1 text-xs text-zinc-400">
+                            Unavailable
+                          </span>
+                        )}
+
+                        <form
+                          action={`/api/meetings/${meeting.id}/attachments/${attachment.id}`}
+                          method="POST"
                         >
-                          Delete
-                        </button>
-                      </form>
+                          <button
+                            type="submit"
+                            className="rounded-lg border border-red-500/40 px-3 py-1 text-xs text-red-400 hover:bg-red-500/10"
+                          >
+                            Delete
+                          </button>
+                        </form>
+                      </div>
                     </div>
                   </div>
                 ))
