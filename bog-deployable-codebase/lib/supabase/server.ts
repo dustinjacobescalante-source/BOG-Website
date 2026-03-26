@@ -1,11 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 
-export function createClient(cookieStore?: {
+type CookieStoreLike = {
   getAll?: () => { name: string; value: string }[];
   setAll?: (
     cookies: { name: string; value: string; options?: Record<string, unknown> }[]
   ) => void;
-}) {
+};
+
+export function createClient(cookieStore?: CookieStoreLike) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
