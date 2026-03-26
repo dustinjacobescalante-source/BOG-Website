@@ -190,16 +190,15 @@ export default async function PortalMeetingDetailPage({
                       </a>
                     )}
 
-                    {attachment.fileType === 'pdf' && attachment.signedUrl && (
-                      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-6 text-center">
-                        <div className="text-sm font-medium text-zinc-200">
-                          PDF Preview Available
-                        </div>
-                        <div className="mt-1 text-xs text-zinc-500">
-                          Open to view the full PDF in a new tab
-                        </div>
-                      </div>
-                    )}
+                   {attachment.fileType === 'pdf' && attachment.signedUrl && (
+  <div className="border-b border-white/10 bg-black">
+    <iframe
+      src={attachment.signedUrl}
+      className="w-full"
+      style={{ height: '500px' }}
+    />
+  </div>
+)}
 
                     <div className="flex items-center justify-between gap-3 px-4 py-3">
                       <div className="min-w-0">
