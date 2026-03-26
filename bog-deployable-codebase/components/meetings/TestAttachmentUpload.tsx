@@ -29,7 +29,7 @@ export default function TestAttachmentUpload({ meetingId }: { meetingId: string 
     formData.append('meetingId', meetingId);
 
     try {
-      const res = await fetch('/api/meetings/upload', {
+      const res = await fetch(`/api/meetings/${meetingId}/attachments/upload`, {
         method: 'POST',
         body: formData,
       });
