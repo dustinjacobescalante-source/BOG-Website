@@ -176,14 +176,15 @@ export default async function PortalMeetingDetailPage({
                     className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
                   >
                     {attachment.fileType === 'pdf' && attachment.signedUrl && (
-                      <div className="border-b border-white/10 bg-black">
-                        <iframe
-                          src={attachment.signedUrl}
-                          className="w-full"
-                          style={{ height: '500px' }}
-                        />
-                      </div>
-                    )}
+  <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-center">
+    <div className="text-sm font-medium text-zinc-200">
+      PDF Preview Available
+    </div>
+    <div className="mt-1 text-xs text-zinc-500">
+      Click Preview to open the PDF in a new tab
+    </div>
+  </div>
+)}
 
                     {attachment.fileType === 'image' && attachment.signedUrl && (
                       <a
