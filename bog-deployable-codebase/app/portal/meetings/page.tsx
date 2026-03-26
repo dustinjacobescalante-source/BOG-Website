@@ -40,12 +40,12 @@ export default async function PortalMeetingsPage() {
                   )}
                 </div>
 
-                <Link
-                  href={`/portal/meetings/${meeting.id}`}
-                  className="text-sm font-semibold text-white hover:text-zinc-300"
-                >
-                  View Agenda →
-                </Link>
+               <a
+  href={`/portal/meetings/${meeting.id}`}
+  className="text-sm font-semibold text-white hover:text-zinc-300"
+>
+  View Agenda →
+</a>
               </div>
             </Card>
           ))
