@@ -20,7 +20,7 @@ export function createClient(cookieStore?: CookieStoreLike) {
         getAll() {
           return cookieStore?.getAll?.() ?? [];
         },
-        setAll(cookiesToSet: CookieItem[]) {
+        setAll: (cookiesToSet: CookieItem[]) => {
           cookieStore?.setAll?.(cookiesToSet);
         },
       },
