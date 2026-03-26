@@ -1,19 +1,21 @@
-import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 
-export async function createClient() {
-  const cookieStore = await cookies();
-
+export function createClient(cookieStore?: {
+  getAll?: () => { name: string; value: string }[];
+  setAll?: (
+    cookies: { name: string; value: string; options?: Record<string, unknown> }[]
+  ) => void;
+}) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return cookieStore?.getAll?.() ?? [];
         },
-        setAll() {
-          // no-op for server components/route handlers here
+        setAll(cookiesToSet) {
+          cookieStore?.setAll?.(cookiesToSet);
         },
       },
     }
