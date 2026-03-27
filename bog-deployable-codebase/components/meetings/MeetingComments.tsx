@@ -22,51 +22,67 @@ export default function MeetingComments({
   const [userId, setUserId] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'posting' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [initialized, setInitialized] = useState(false);
 
   const loadCurrentUser = useCallback(async () => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-    if (error) {
-      console.error('getUser error:', error);
-      setMessage(`Auth error: ${error.message}`);
+      if (error) {
+        console.error('getUser error:', error);
+        setMessage(`Auth error: ${error.message}`);
+        setUserId(null);
+        return null;
+      }
+
+      if (!user) {
+        console.warn('No signed-in user found');
+        setMessage('No signed-in user found.');
+        setUserId(null);
+        return null;
+      }
+
+      setUserId(user.id);
+      return user.id;
+    } catch (err) {
+      console.error('Unexpected getUser error:', err);
+      setMessage('Failed to load current user.');
+      setUserId(null);
       return null;
     }
-
-    if (!user) {
-      console.warn('No signed-in user found');
-      setMessage('No signed-in user found.');
-      return null;
-    }
-
-    setUserId(user.id);
-    return user.id;
   }, [supabase]);
 
   const loadComments = useCallback(async () => {
     if (!meetingId) return;
 
-    setStatus('loading');
-    setMessage('');
+    try {
+      setStatus('loading');
+      setMessage('');
 
-    const { data, error } = await supabase
-      .from('meeting_comments')
-      .select('id, comment_text, created_at, user_id, is_pinned')
-      .eq('meeting_id', meetingId)
-      .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('meeting_comments')
+        .select('id, comment_text, created_at, user_id, is_pinned')
+        .eq('meeting_id', meetingId)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('loadComments error:', error);
-      setMessage(`Load comments error: ${error.message}`);
+      if (error) {
+        console.error('loadComments error:', error);
+        setMessage(`Load comments error: ${error.message}`);
+        setComments([]);
+        setStatus('error');
+        return;
+      }
+
+      setComments(data || []);
+      setStatus('idle');
+    } catch (err) {
+      console.error('Unexpected loadComments error:', err);
+      setMessage('Unexpected error loading comments.');
+      setComments([]);
       setStatus('error');
-      return;
     }
-
-    setComments(data || []);
-    setStatus('idle');
   }, [supabase, meetingId]);
 
   const handlePostComment = async () => {
@@ -80,45 +96,47 @@ export default function MeetingComments({
       return;
     }
 
-    setStatus('posting');
-    setMessage('');
+    try {
+      setStatus('posting');
+      setMessage('');
 
-    const { error } = await supabase.from('meeting_comments').insert({
-      meeting_id: meetingId,
-      user_id: userId,
-      comment_text: commentText.trim(),
-    });
+      const { error } = await supabase.from('meeting_comments').insert({
+        meeting_id: meetingId,
+        user_id: userId,
+        comment_text: commentText.trim(),
+      });
 
-    if (error) {
-      console.error('insert comment error:', error);
-      setMessage(`Post error: ${error.message}`);
+      if (error) {
+        console.error('insert comment error:', error);
+        setMessage(`Post error: ${error.message}`);
+        setStatus('error');
+        return;
+      }
+
+      setCommentText('');
+      setMessage('Comment posted.');
+      await loadComments();
+    } catch (err) {
+      console.error('Unexpected handlePostComment error:', err);
+      setMessage('Unexpected error posting comment.');
       setStatus('error');
-      return;
     }
-
-    setCommentText('');
-    setStatus('idle');
-    setMessage('Comment posted.');
-    await loadComments();
   };
 
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
 
     async function init() {
-      if (initialized) return;
+      if (!meetingId) return;
 
       try {
         await loadCurrentUser();
-        if (!mounted) return;
+        if (cancelled) return;
 
         await loadComments();
-        if (!mounted) return;
-
-        setInitialized(true);
       } catch (err) {
         console.error('init error:', err);
-        if (mounted) {
+        if (!cancelled) {
           setMessage('Unexpected initialization error.');
           setStatus('error');
         }
@@ -128,9 +146,9 @@ export default function MeetingComments({
     init();
 
     return () => {
-      mounted = false;
+      cancelled = true;
     };
-  }, [initialized, loadCurrentUser, loadComments]);
+  }, [meetingId, loadCurrentUser, loadComments]);
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
