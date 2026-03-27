@@ -303,12 +303,12 @@ export default async function AccountabilityPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700"
-            >
-              Save Accountability Entry
-            </button>
+           <button
+  type="submit"
+  className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 active:scale-[0.98]"
+>
+  Save Accountability Entry
+</button>
           </div>
         </Card>
       </form>
