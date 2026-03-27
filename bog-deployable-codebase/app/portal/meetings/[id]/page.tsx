@@ -177,32 +177,6 @@ export default async function PortalMeetingDetailPage({
                     key={attachment.id}
                     className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
                   >
-                    {attachment.fileType === 'pdf' && attachment.signedUrl && (
-                      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-center">
-                        <div className="text-sm font-medium text-zinc-200">
-                          PDF Preview Available
-                        </div>
-                        <div className="mt-1 text-xs text-zinc-500">
-                          Click Preview to open the PDF in a new tab
-                        </div>
-                      </div>
-                    )}
-
-                    {attachment.fileType === 'image' && attachment.signedUrl && (
-                      <a
-                        href={attachment.signedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="block border-b border-white/10"
-                      >
-                        <img
-                          src={attachment.signedUrl}
-                          alt={attachment.file_name}
-                          className="max-h-72 w-full object-cover"
-                        />
-                      </a>
-                    )}
-
                     <div className="flex items-center justify-between gap-3 px-4 py-3">
                       <div className="min-w-0">
                         <div className="truncate text-sm text-zinc-200">
@@ -214,18 +188,7 @@ export default async function PortalMeetingDetailPage({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {attachment.fileType === 'pdf' && attachment.signedUrl && (
-                          <a
-                            href={attachment.signedUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-3 py-1 text-xs text-white hover:bg-white/5"
-                          >
-                            Preview
-                          </a>
-                        )}
-
-                        {attachment.fileType !== 'pdf' && attachment.signedUrl && (
+                        {attachment.signedUrl && (
                           <a
                             href={attachment.signedUrl}
                             target="_blank"
