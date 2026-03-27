@@ -3,6 +3,7 @@ import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import AccountabilitySubmitButton from '@/components/accountability/AccountabilitySubmitButton';
 
 function isChecked(formData: FormData, key: string) {
   return formData.get(key) === 'on';
@@ -38,53 +39,19 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-white">
-              Week 1 Notes
-            </label>
-            <textarea
-              name={`${prefix}_week1_notes`}
-              defaultValue={entry?.[`${prefix}_week1_notes`] ?? ''}
-              rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-white">
-              Week 2 Notes
-            </label>
-            <textarea
-              name={`${prefix}_week2_notes`}
-              defaultValue={entry?.[`${prefix}_week2_notes`] ?? ''}
-              rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-white">
-              Week 3 Notes
-            </label>
-            <textarea
-              name={`${prefix}_week3_notes`}
-              defaultValue={entry?.[`${prefix}_week3_notes`] ?? ''}
-              rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-white">
-              Week 4 Notes
-            </label>
-            <textarea
-              name={`${prefix}_week4_notes`}
-              defaultValue={entry?.[`${prefix}_week4_notes`] ?? ''}
-              rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-            />
-          </div>
+          {['week1', 'week2', 'week3', 'week4'].map((week) => (
+            <div key={week}>
+              <label className="mb-2 block text-sm font-medium text-white">
+                {week.replace('week', 'Week ')} Notes
+              </label>
+              <textarea
+                name={`${prefix}_${week}_notes`}
+                defaultValue={entry?.[`${prefix}_${week}_notes`] ?? ''}
+                rows={4}
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+              />
+            </div>
+          ))}
         </div>
 
         <label className="flex items-center gap-3 text-sm text-white">
@@ -181,6 +148,8 @@ async function saveAccountability(formData: FormData) {
 
   revalidatePath('/portal');
   revalidatePath('/portal/accountability');
+
+  return { success: true };
 }
 
 export default async function AccountabilityPage() {
@@ -208,7 +177,7 @@ export default async function AccountabilityPage() {
     <Section
       label="Portal"
       title="Accountability Tracker"
-      description="Track your monthly commitments, weekly progress notes, and goal completion."
+      description="Track your monthly commitments and weekly progress."
     >
       <form action={saveAccountability} className="space-y-6">
         <Card>
@@ -217,7 +186,7 @@ export default async function AccountabilityPage() {
               <div>
                 <div className="mb-2 text-sm font-medium text-white">Name</div>
                 <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
-                  {user.user_metadata?.full_name || user.email || 'Member'}
+                  {user.user_metadata?.full_name || user.email}
                 </div>
               </div>
 
@@ -229,56 +198,13 @@ export default async function AccountabilityPage() {
               </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-white">
-                Notes / Obstacles / Wins
-              </label>
-              <textarea
-                name="notes_obstacles_wins"
-                defaultValue={entry?.notes_obstacles_wins ?? ''}
-                rows={4}
-                placeholder="Capture current notes, obstacles, and wins for the month"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-              />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                <input
-                  type="checkbox"
-                  name="attended_monthly_club_meeting"
-                  defaultChecked={Boolean(entry?.attended_monthly_club_meeting)}
-                  className="h-4 w-4 rounded border-white/20 bg-black/40"
-                />
-                Attended Monthly Club Meeting
-              </label>
-
-              <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                <input
-                  type="checkbox"
-                  name="memorized_scripture"
-                  defaultChecked={Boolean(entry?.memorized_scripture)}
-                  className="h-4 w-4 rounded border-white/20 bg-black/40"
-                />
-                Memorized the Scripture
-              </label>
-
-              <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                <input
-                  type="checkbox"
-                  name="monthly_book_finished"
-                  defaultChecked={Boolean(entry?.monthly_book_finished)}
-                  className="h-4 w-4 rounded border-white/20 bg-black/40"
-                />
-                Monthly Book Finished
-              </label>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
-              Ownership is not a mindset. It&apos;s a lifestyle. Strong men build foundations.
-              I take full responsibility for the commitments I listed. I understand this group
-              exists to sharpen me, not comfort me.
-            </div>
+            <textarea
+              name="notes_obstacles_wins"
+              defaultValue={entry?.notes_obstacles_wins ?? ''}
+              rows={4}
+              placeholder="Notes / Obstacles / Wins"
+              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+            />
           </div>
         </Card>
 
@@ -289,26 +215,16 @@ export default async function AccountabilityPage() {
         <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
 
         <Card>
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-white">
-                One Thing I Did to Help a Fellow Group Member
-              </label>
-              <textarea
-                name="helped_group_member"
-                defaultValue={entry?.helped_group_member ?? ''}
-                rows={4}
-                placeholder="Describe one thing you did to support another member"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-              />
-            </div>
+          <textarea
+            name="helped_group_member"
+            defaultValue={entry?.helped_group_member ?? ''}
+            rows={4}
+            placeholder="How did you help another member?"
+            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+          />
 
-           <button
-  type="submit"
-  className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 active:scale-[0.98]"
->
-  Save Accountability Entry
-</button>
+          <div className="pt-4">
+            <AccountabilitySubmitButton />
           </div>
         </Card>
       </form>
