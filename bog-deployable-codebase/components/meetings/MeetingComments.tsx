@@ -14,6 +14,15 @@ type CommentItem = {
   } | null;
 };
 
+type RawCommentItem = {
+  id: string;
+  comment_text: string;
+  created_at: string;
+  user_id: string;
+  is_pinned?: boolean | null;
+  profiles?: { full_name: string | null }[] | { full_name: string | null } | null;
+};
+
 const supabase = createClient();
 
 export default function MeetingComments({
@@ -73,7 +82,18 @@ export default function MeetingComments({
         return;
       }
 
-      setComments((data as CommentItem[]) ?? []);
+      const formatted: CommentItem[] = ((data ?? []) as RawCommentItem[]).map((item) => ({
+        id: item.id,
+        comment_text: item.comment_text,
+        created_at: item.created_at,
+        user_id: item.user_id,
+        is_pinned: item.is_pinned,
+        profiles: Array.isArray(item.profiles)
+          ? (item.profiles[0] ?? null)
+          : (item.profiles ?? null),
+      }));
+
+      setComments(formatted);
     } catch (error) {
       console.error('COMMENTS LOAD UNEXPECTED ERROR:', error);
       setComments([]);
