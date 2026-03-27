@@ -192,7 +192,7 @@ async function saveAccountability(formData: FormData) {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { saved?: string };
+  searchParams?: Promise<{ saved?: string }>;
 }) {
   const supabase = await createClient();
   const user = await requireUser();
@@ -222,7 +222,8 @@ export default async function Page({
       5
   );
 
-  const saved = searchParams?.saved === '1';
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const saved = resolvedSearchParams?.saved === '1';
 
   return (
     <Section title="Accountability Tracker">
