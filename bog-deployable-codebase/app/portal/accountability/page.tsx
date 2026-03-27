@@ -3,6 +3,7 @@ import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import AccountabilitySubmitButton from '@/components/accountability/AccountabilitySubmitButton';
 
 function isChecked(formData: FormData, key: string) {
@@ -148,9 +149,15 @@ async function saveAccountability(formData: FormData) {
 
   revalidatePath('/portal');
   revalidatePath('/portal/accountability');
+
+  redirect('/portal/accountability?saved=1');
 }
 
-export default async function AccountabilityPage() {
+export default async function AccountabilityPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ saved?: string }>;
+}) {
   const supabase = await createClient();
   const user = await requireUser();
 
@@ -162,6 +169,9 @@ export default async function AccountabilityPage() {
     month: 'long',
     year: 'numeric',
   });
+
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const saved = resolvedSearchParams?.saved === '1';
 
   const { data: entry } = await supabase
     .from('accountability_entries')
@@ -177,55 +187,63 @@ export default async function AccountabilityPage() {
       title="Accountability Tracker"
       description="Track your monthly commitments and weekly progress."
     >
-      <form action={saveAccountability} className="space-y-6">
-        <Card>
-          <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <div className="mb-2 text-sm font-medium text-white">Name</div>
-                <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
-                  {user.user_metadata?.full_name || user.email}
+      <div className="space-y-6">
+        {saved ? (
+          <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-300">
+            Saved successfully.
+          </div>
+        ) : null}
+
+        <form action={saveAccountability} className="space-y-6">
+          <Card>
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <div className="mb-2 text-sm font-medium text-white">Name</div>
+                  <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
+                    {user.user_metadata?.full_name || user.email}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 text-sm font-medium text-white">Month Of</div>
+                  <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
+                    {monthLabel}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <div className="mb-2 text-sm font-medium text-white">Month Of</div>
-                <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
-                  {monthLabel}
-                </div>
-              </div>
+              <textarea
+                name="notes_obstacles_wins"
+                defaultValue={entry?.notes_obstacles_wins ?? ''}
+                rows={4}
+                placeholder="Notes / Obstacles / Wins"
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+              />
             </div>
+          </Card>
 
+          <GoalSection title="Spiritual Goals" prefix="spiritual" entry={entry} />
+          <GoalSection title="Personal Goals" prefix="personal" entry={entry} />
+          <GoalSection title="Professional Goals" prefix="professional" entry={entry} />
+          <GoalSection title="Physical Goals" prefix="physical" entry={entry} />
+          <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
+
+          <Card>
             <textarea
-              name="notes_obstacles_wins"
-              defaultValue={entry?.notes_obstacles_wins ?? ''}
+              name="helped_group_member"
+              defaultValue={entry?.helped_group_member ?? ''}
               rows={4}
-              placeholder="Notes / Obstacles / Wins"
+              placeholder="How did you help another member?"
               className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
             />
-          </div>
-        </Card>
 
-        <GoalSection title="Spiritual Goals" prefix="spiritual" entry={entry} />
-        <GoalSection title="Personal Goals" prefix="personal" entry={entry} />
-        <GoalSection title="Professional Goals" prefix="professional" entry={entry} />
-        <GoalSection title="Physical Goals" prefix="physical" entry={entry} />
-        <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
-
-        <Card>
-          <textarea
-            name="helped_group_member"
-            defaultValue={entry?.helped_group_member ?? ''}
-            rows={4}
-            placeholder="How did you help another member?"
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
-          />
-
-          <div className="pt-4">
-            <AccountabilitySubmitButton />
-          </div>
-        </Card>
-      </form>
+            <div className="pt-4">
+              <AccountabilitySubmitButton />
+            </div>
+          </Card>
+        </form>
+      </div>
     </Section>
   );
 }
