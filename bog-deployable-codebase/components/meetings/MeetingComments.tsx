@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 type CommentItem = {
   id: string;
   comment_text: string;
   created_at: string;
+  user_id: string;
+  is_pinned?: boolean | null;
 };
 
 export default function MeetingComments({
@@ -14,157 +16,169 @@ export default function MeetingComments({
 }: {
   meetingId: string;
 }) {
+  const supabase = useMemo(() => createClient(), []);
   const [commentText, setCommentText] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState('loading');
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [posting, setPosting] = useState(false);
-  const [status, setStatus] = useState('');
-  const [debugUser, setDebugUser] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
 
-  async function loadComments() {
-    setLoading(true);
-    setStatus(`Loading comments for meeting: ${meetingId}`);
-
-    const supabase = createClient();
-
-    const { data, error } = await supabase
-      .from('meeting_comments')
-      .select('id, comment_text, created_at')
-      .eq('meeting_id', meetingId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('LOAD COMMENTS ERROR:', error);
-      setStatus(`Load failed: ${error.message}`);
-      setComments([]);
-      setLoading(false);
-      return;
-    }
-
-    setComments(data ?? []);
-    setStatus(`Loaded ${data?.length ?? 0} comment(s)`);
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    void loadComments();
-  }, [meetingId]);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    if (!commentText.trim()) {
-      setStatus('Please enter a comment.');
-      return;
-    }
-
-    setPosting(true);
-    setStatus('Checking signed-in user...');
-
+  async function loadCurrentUser() {
     try {
-      const supabase = createClient();
-
       const {
         data: { user },
-        error: userError,
+        error,
       } = await supabase.auth.getUser();
 
-      if (userError) {
-        console.error('AUTH ERROR:', userError);
-        setStatus(`Auth error: ${userError.message}`);
-        setPosting(false);
+      if (error) {
+        console.error('getUser error:', error);
+        setMessage(`Auth error: ${error.message}`);
+        setUserId(null);
         return;
       }
 
       if (!user) {
-        setStatus('You must be signed in to comment.');
-        setPosting(false);
+        console.warn('No signed-in user found');
+        setMessage('No signed-in user found.');
+        setUserId(null);
         return;
       }
 
-      setDebugUser(user.id);
-      setStatus(`Posting comment as user: ${user.id}`);
+      setUserId(user.id);
+    } catch (err) {
+      console.error('Unexpected loadCurrentUser error:', err);
+      setMessage('Failed to load current user.');
+      setUserId(null);
+    }
+  }
+
+  async function loadComments() {
+    try {
+      setStatus('loading');
+
+      const { data, error } = await supabase
+        .from('meeting_comments')
+        .select('id, comment_text, created_at, user_id, is_pinned')
+        .eq('meeting_id', meetingId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('loadComments error:', error);
+        setMessage(`Load comments error: ${error.message}`);
+        setComments([]);
+        setStatus('error');
+        return;
+      }
+
+      setComments(data || []);
+      setStatus('loaded');
+    } catch (err) {
+      console.error('Unexpected loadComments error:', err);
+      setMessage('Unexpected error loading comments.');
+      setComments([]);
+      setStatus('error');
+    }
+  }
+
+  async function handlePostComment() {
+    if (!commentText.trim()) {
+      setMessage('Please enter a comment first.');
+      return;
+    }
+
+    if (!userId) {
+      setMessage('User not loaded yet. Please refresh and try again.');
+      return;
+    }
+
+    try {
+      setStatus('posting');
+      setMessage('');
 
       const { error } = await supabase.from('meeting_comments').insert({
         meeting_id: meetingId,
-        user_id: user.id,
+        user_id: userId,
         comment_text: commentText.trim(),
       });
 
       if (error) {
-        console.error('INSERT ERROR:', error);
-        setStatus(`Insert failed: ${error.message}`);
-        setPosting(false);
+        console.error('insert comment error:', error);
+        setMessage(`Post error: ${error.message}`);
+        setStatus('error');
         return;
       }
 
       setCommentText('');
-      setStatus('Comment added.');
+      setMessage('Comment posted successfully.');
       await loadComments();
-    } catch (error) {
-      console.error('UNEXPECTED COMMENT ERROR:', error);
-      setStatus('Something went wrong.');
-    } finally {
-      setPosting(false);
+      setStatus('loaded');
+    } catch (err) {
+      console.error('Unexpected handlePostComment error:', err);
+      setMessage('Unexpected error posting comment.');
+      setStatus('error');
     }
   }
 
+  useEffect(() => {
+    async function init() {
+      await loadCurrentUser();
+      await loadComments();
+    }
+
+    init();
+  }, [meetingId]);
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-        <div className="mb-2 text-sm font-semibold text-white">Comments</div>
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <h3 className="mb-4 text-lg font-semibold text-white">Comments</h3>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <textarea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            rows={4}
-            placeholder="Leave a comment for this meeting..."
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
-          />
+      <textarea
+        value={commentText}
+        onChange={(e) => setCommentText(e.target.value)}
+        placeholder="Leave a comment for this meeting..."
+        className="min-h-[120px] w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white outline-none"
+      />
 
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={posting}
-              className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-            >
-              {posting ? 'Posting...' : 'Post Comment'}
-            </button>
+      <div className="mt-4 flex gap-3">
+        <button
+          onClick={handlePostComment}
+          className="rounded-full bg-red-600 px-5 py-2 font-semibold text-white"
+        >
+          Post Comment
+        </button>
 
-            <button
-              type="button"
-              onClick={() => void loadComments()}
-              className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
-            >
-              Refresh Comments
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-3 space-y-1 text-xs text-zinc-400">
-          <p>Status: {status || 'idle'}</p>
-          <p>Meeting ID: {meetingId}</p>
-          <p>User ID: {debugUser || 'not loaded yet'}</p>
-        </div>
+        <button
+          onClick={loadComments}
+          className="rounded-full border border-white/20 px-5 py-2 font-semibold text-white"
+        >
+          Refresh Comments
+        </button>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-        <div className="mb-3 text-sm font-semibold text-white">Recent Comments</div>
+      <div className="mt-3 text-sm text-white/80">
+        <div>Status: {status}</div>
+        <div>Meeting ID: {meetingId}</div>
+        <div>User ID: {userId ?? 'not loaded yet'}</div>
+      </div>
 
-        {loading ? (
-          <p className="text-sm text-zinc-400">Loading comments...</p>
-        ) : comments.length === 0 ? (
-          <p className="text-sm text-zinc-500">No comments yet.</p>
+      {message ? (
+        <div className="mt-3 text-sm text-red-300">{message}</div>
+      ) : null}
+
+      <div className="mt-6">
+        <h4 className="mb-3 text-md font-semibold text-white">Recent Comments</h4>
+
+        {comments.length === 0 ? (
+          <p className="text-white/70">No comments yet.</p>
         ) : (
           <div className="space-y-3">
             {comments.map((comment) => (
               <div
                 key={comment.id}
-                className="rounded-xl border border-white/10 bg-black/30 p-4"
+                className="rounded-xl border border-white/10 bg-white/5 p-3"
               >
-                <div className="text-sm text-white">{comment.comment_text}</div>
-                <div className="mt-2 text-xs text-zinc-500">
+                <div className="text-white">{comment.comment_text}</div>
+                <div className="mt-2 text-xs text-white/50">
                   {new Date(comment.created_at).toLocaleString()}
                 </div>
               </div>
