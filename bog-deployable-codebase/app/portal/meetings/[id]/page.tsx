@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Section } from '@/components/section';
@@ -50,12 +48,12 @@ function getFileType(fileName: string) {
 export default async function PortalMeetingDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createClient();
 
-  const { data: meeting } = await supabase
+  const { data: meeting, error: meetingError } = await supabase
     .from('meetings')
     .select(
       `
@@ -80,11 +78,11 @@ export default async function PortalMeetingDetailPage({
     .eq('status', 'published')
     .single();
 
-  if (!meeting) {
+  if (meetingError || !meeting) {
     notFound();
   }
 
-  const { data: attachments } = await supabase
+  const { data: attachments, error: attachmentsError } = await supabase
     .from('meeting_attachments')
     .select('id, file_name, file_path, created_at')
     .eq('meeting_id', id)
@@ -171,22 +169,26 @@ export default async function PortalMeetingDetailPage({
             </div>
 
             <div className="mt-3 space-y-3">
-              {attachmentsWithUrls.length ? (
+              {attachmentsError ? (
+                <p className="text-sm text-red-400">
+                  Could not load attachments.
+                </p>
+              ) : attachmentsWithUrls.length ? (
                 attachmentsWithUrls.map((attachment) => (
                   <div
                     key={attachment.id}
                     className="overflow-hidden rounded-xl border border-white/10 bg-black/30"
                   >
                     {attachment.fileType === 'pdf' && attachment.signedUrl && (
-  <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-center">
-    <div className="text-sm font-medium text-zinc-200">
-      PDF Preview Available
-    </div>
-    <div className="mt-1 text-xs text-zinc-500">
-      Click Preview to open the PDF in a new tab
-    </div>
-  </div>
-)}
+                      <div className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-center">
+                        <div className="text-sm font-medium text-zinc-200">
+                          PDF Preview Available
+                        </div>
+                        <div className="mt-1 text-xs text-zinc-500">
+                          Click Preview to open the PDF in a new tab
+                        </div>
+                      </div>
+                    )}
 
                     {attachment.fileType === 'image' && attachment.signedUrl && (
                       <a
