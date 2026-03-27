@@ -9,6 +9,7 @@ type CommentItem = {
   created_at: string;
   user_id: string;
   is_pinned?: boolean | null;
+  meeting_id?: string;
 };
 
 export default function MeetingComments({
@@ -20,26 +21,18 @@ export default function MeetingComments({
   const [commentText, setCommentText] = useState('');
   const [message, setMessage] = useState('');
   const [comments, setComments] = useState<CommentItem[]>([]);
-  const [loading, setLoading] = useState(false); // ✅ start false
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [debug, setDebug] = useState<string>('');
 
   async function loadComments() {
-    console.log('Loading comments for meeting:', meetingId);
-
     setLoading(true);
     setMessage('');
+    setDebug(`Loading comments for meetingId: ${meetingId}`);
 
     const { data, error } = await supabase
       .from('meeting_comments')
-      .select(
-        `
-        id,
-        comment_text,
-        created_at,
-        user_id,
-        is_pinned
-      `
-      )
+      .select('id, meeting_id, comment_text, created_at, user_id, is_pinned')
       .eq('meeting_id', meetingId)
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
@@ -52,15 +45,16 @@ export default function MeetingComments({
       return;
     }
 
-    console.log('Comments loaded:', data);
-
     setComments(data ?? []);
+    setDebug(
+      `Loaded ${data?.length ?? 0} comment(s) for meetingId: ${meetingId}`
+    );
     setLoading(false);
   }
 
   useEffect(() => {
     if (meetingId) {
-      loadComments();
+      void loadComments();
     }
   }, [meetingId]);
 
@@ -73,22 +67,31 @@ export default function MeetingComments({
     try {
       setSaving(true);
       setMessage('');
+      setDebug(`Posting comment to meetingId: ${meetingId}`);
 
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
 
-      if (userError || !user) {
+      if (userError) {
+        setMessage(`Auth error: ${userError.message}`);
+        return;
+      }
+
+      if (!user) {
         setMessage('You must be signed in to comment.');
         return;
       }
 
-      const { error } = await supabase.from('meeting_comments').insert({
-        meeting_id: meetingId,
-        user_id: user.id,
-        comment_text: commentText.trim(),
-      });
+      const { data: inserted, error } = await supabase
+        .from('meeting_comments')
+        .insert({
+          meeting_id: meetingId,
+          user_id: user.id,
+          comment_text: commentText.trim(),
+        })
+        .select();
 
       if (error) {
         console.error('POST COMMENT ERROR:', error);
@@ -98,6 +101,9 @@ export default function MeetingComments({
 
       setCommentText('');
       setMessage('Comment posted.');
+      setDebug(
+        `Posted comment successfully to meetingId: ${meetingId}. Inserted rows: ${inserted?.length ?? 0}`
+      );
       await loadComments();
     } catch (error) {
       console.error('POST COMMENT UNEXPECTED ERROR:', error);
@@ -119,7 +125,7 @@ export default function MeetingComments({
           className="min-h-[120px] w-full rounded-xl border border-white/10 bg-black/30 p-4 text-white outline-none placeholder:text-zinc-500"
         />
 
-        <div className="mt-3">
+        <div className="mt-3 flex gap-2">
           <button
             type="button"
             onClick={handlePostComment}
@@ -128,9 +134,19 @@ export default function MeetingComments({
           >
             {saving ? 'Posting...' : 'Post Comment'}
           </button>
+
+          <button
+            type="button"
+            onClick={loadComments}
+            disabled={loading}
+            className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5 disabled:opacity-50"
+          >
+            Refresh Comments
+          </button>
         </div>
 
         {message && <p className="mt-3 text-sm text-zinc-300">{message}</p>}
+        {debug && <p className="mt-2 text-xs text-zinc-500">{debug}</p>}
       </div>
 
       <div className="rounded-xl border border-white/10 bg-black/20 p-4">
@@ -149,9 +165,7 @@ export default function MeetingComments({
                 key={comment.id}
                 className="rounded-xl border border-white/10 bg-black/30 p-4"
               >
-                <div className="text-sm text-white">
-                  {comment.comment_text}
-                </div>
+                <div className="text-sm text-white">{comment.comment_text}</div>
                 <div className="mt-2 text-xs text-zinc-500">
                   {new Date(comment.created_at).toLocaleString()}
                   {comment.is_pinned ? ' • pinned' : ''}
