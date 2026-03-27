@@ -226,7 +226,11 @@ export default async function Page({
   const saved = resolvedSearchParams?.saved === '1';
 
   return (
-    <Section title="Accountability Tracker">
+    <Section
+      label="Portal"
+      title="Accountability Tracker"
+      description="Track your monthly commitments and weekly progress."
+    >
       <div className="space-y-6">
         {saved && <SaveSuccessMessage />}
 
