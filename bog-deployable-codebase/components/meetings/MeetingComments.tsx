@@ -151,6 +151,30 @@ export default function MeetingComments({
     void loadComments();
   }, [loadCurrentUser, loadComments]);
 
+  useEffect(() => {
+    if (!meetingId) return;
+
+    const channel = supabase
+      .channel(`meeting-comments-${meetingId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meeting_comments',
+          filter: `meeting_id=eq.${meetingId}`,
+        },
+        () => {
+          void loadComments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [meetingId, loadComments]);
+
   async function handlePostComment() {
     if (!commentText.trim()) {
       showMessage('Please enter a comment.', 'error');
@@ -192,7 +216,6 @@ export default function MeetingComments({
 
       setCommentText('');
       showMessage('Comment added.', 'success');
-      await loadComments();
     } catch (error) {
       console.error('POST COMMENT UNEXPECTED ERROR:', error);
       showMessage('Something went wrong while posting your comment.', 'error');
@@ -221,7 +244,6 @@ export default function MeetingComments({
       }
 
       showMessage(currentlyPinned ? 'Comment unpinned.' : 'Comment pinned.', 'success');
-      await loadComments();
     } catch (error) {
       console.error('PIN TOGGLE UNEXPECTED ERROR:', error);
       showMessage('Something went wrong while updating pin status.', 'error');
@@ -230,8 +252,8 @@ export default function MeetingComments({
     }
   }
 
-  async function handleDeleteComment(commentId: string) {
-    if (!isAdmin) return;
+  async function handleDeleteComment(commentId: string, isOwnComment: boolean) {
+    if (!isAdmin && !isOwnComment) return;
 
     const confirmed = window.confirm('Delete this comment?');
     if (!confirmed) return;
@@ -253,7 +275,6 @@ export default function MeetingComments({
       }
 
       showMessage('Comment deleted.', 'success');
-      await loadComments();
     } catch (error) {
       console.error('DELETE COMMENT UNEXPECTED ERROR:', error);
       showMessage('Something went wrong while deleting the comment.', 'error');
@@ -325,6 +346,7 @@ export default function MeetingComments({
             {comments.map((comment) => {
               const isBusy = actingCommentId === comment.id;
               const isOwner = currentUserId === comment.user_id;
+              const canDelete = isAdmin || isOwner;
 
               return (
                 <div
@@ -352,8 +374,8 @@ export default function MeetingComments({
                       ) : null}
                     </div>
 
-                    {isAdmin ? (
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      {isAdmin ? (
                         <button
                           type="button"
                           onClick={() => void handleTogglePin(comment.id, comment.is_pinned)}
@@ -366,17 +388,19 @@ export default function MeetingComments({
                             ? 'Unpin'
                             : 'Pin'}
                         </button>
+                      ) : null}
 
+                      {canDelete ? (
                         <button
                           type="button"
-                          onClick={() => void handleDeleteComment(comment.id)}
+                          onClick={() => void handleDeleteComment(comment.id, isOwner)}
                           disabled={isBusy}
                           className="rounded-lg border border-red-500/40 px-3 py-1 text-xs text-red-400 hover:bg-red-500/10 disabled:opacity-60"
                         >
                           {isBusy ? 'Working...' : 'Delete'}
                         </button>
-                      </div>
-                    ) : null}
+                      ) : null}
+                    </div>
                   </div>
 
                   <div className="mt-2 text-sm text-white">{comment.comment_text}</div>
