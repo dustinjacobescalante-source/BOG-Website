@@ -25,26 +25,6 @@ function AgendaBlock({
   );
 }
 
-function getFileType(fileName: string) {
-  const lower = fileName.toLowerCase();
-
-  if (
-    lower.endsWith('.png') ||
-    lower.endsWith('.jpg') ||
-    lower.endsWith('.jpeg') ||
-    lower.endsWith('.gif') ||
-    lower.endsWith('.webp')
-  ) {
-    return 'image';
-  }
-
-  if (lower.endsWith('.pdf')) {
-    return 'pdf';
-  }
-
-  return 'other';
-}
-
 export default async function PortalMeetingDetailPage({
   params,
 }: {
@@ -97,7 +77,6 @@ export default async function PortalMeetingDetailPage({
       return {
         ...attachment,
         signedUrl: signedUrlData?.signedUrl || null,
-        fileType: getFileType(attachment.file_name),
       };
     })
   );
