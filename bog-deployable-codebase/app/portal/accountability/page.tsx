@@ -148,8 +148,6 @@ async function saveAccountability(formData: FormData) {
 
   revalidatePath('/portal');
   revalidatePath('/portal/accountability');
-
-  return { success: true };
 }
 
 export default async function AccountabilityPage() {
