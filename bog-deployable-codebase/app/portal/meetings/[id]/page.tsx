@@ -48,9 +48,9 @@ function getFileType(fileName: string) {
 export default async function PortalMeetingDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   const supabase = await createClient();
 
   const { data: meeting, error: meetingError } = await supabase
@@ -170,9 +170,7 @@ export default async function PortalMeetingDetailPage({
 
             <div className="mt-3 space-y-3">
               {attachmentsError ? (
-                <p className="text-sm text-red-400">
-                  Could not load attachments.
-                </p>
+                <p className="text-sm text-red-400">Could not load attachments.</p>
               ) : attachmentsWithUrls.length ? (
                 attachmentsWithUrls.map((attachment) => (
                   <div
