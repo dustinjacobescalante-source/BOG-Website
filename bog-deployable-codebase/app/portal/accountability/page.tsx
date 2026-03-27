@@ -14,9 +14,16 @@ function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim();
 }
 
+type GoalPrefix =
+  | 'spiritual'
+  | 'personal'
+  | 'professional'
+  | 'physical'
+  | 'emotional';
+
 type GoalSectionProps = {
   title: string;
-  prefix: 'spiritual' | 'personal' | 'professional' | 'physical' | 'emotional';
+  prefix: GoalPrefix;
   entry: Record<string, any> | null;
 };
 
@@ -64,6 +71,92 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
           />
           Goal met this month
         </label>
+      </div>
+    </Card>
+  );
+}
+
+function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) {
+  const focus = String(entry?.[`${prefix}_focus`] ?? '').trim();
+  const week1 = String(entry?.[`${prefix}_week1_notes`] ?? '').trim();
+  const week2 = String(entry?.[`${prefix}_week2_notes`] ?? '').trim();
+  const week3 = String(entry?.[`${prefix}_week3_notes`] ?? '').trim();
+  const week4 = String(entry?.[`${prefix}_week4_notes`] ?? '').trim();
+  const goalMet = Boolean(entry?.[`${prefix}_goal_met`]);
+
+  const weeklyFilled = [week1, week2, week3, week4].filter(Boolean).length;
+  const totalFilled = [focus, week1, week2, week3, week4].filter(Boolean).length;
+  const percent = goalMet ? 100 : Math.round((totalFilled / 5) * 100);
+
+  let status = 'Not Started';
+  if (goalMet) {
+    status = 'Completed';
+  } else if (totalFilled > 0) {
+    status = 'In Progress';
+  }
+
+  return {
+    focus,
+    weeklyFilled,
+    percent,
+    goalMet,
+    status,
+  };
+}
+
+function ProgressCard({
+  title,
+  progress,
+}: {
+  title: string;
+  progress: ReturnType<typeof getGoalProgress>;
+}) {
+  const statusClasses = progress.goalMet
+    ? 'border-green-500/30 bg-green-500/10 text-green-300'
+    : progress.percent > 0
+    ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300'
+    : 'border-white/10 bg-white/5 text-zinc-300';
+
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-base font-semibold text-white">{title}</div>
+          <span
+            className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusClasses}`}
+          >
+            {progress.status}
+          </span>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center justify-between text-xs text-zinc-400">
+            <span>Progress</span>
+            <span>{progress.percent}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/10">
+            <div
+              className="h-2 rounded-full bg-red-500 transition-all"
+              style={{ width: `${progress.percent}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+            <div className="text-zinc-400">Weekly Notes</div>
+            <div className="mt-1 text-lg font-semibold text-white">
+              {progress.weeklyFilled}/4
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
+            <div className="text-zinc-400">Goal Met</div>
+            <div className="mt-1 text-lg font-semibold text-white">
+              {progress.goalMet ? 'Yes' : 'No'}
+            </div>
+          </div>
+        </div>
       </div>
     </Card>
   );
@@ -181,6 +274,22 @@ export default async function AccountabilityPage({
     .eq('entry_year', entry_year)
     .maybeSingle();
 
+  const spiritualProgress = getGoalProgress(entry, 'spiritual');
+  const personalProgress = getGoalProgress(entry, 'personal');
+  const professionalProgress = getGoalProgress(entry, 'professional');
+  const physicalProgress = getGoalProgress(entry, 'physical');
+  const emotionalProgress = getGoalProgress(entry, 'emotional');
+
+  const overallPercent = Math.round(
+    (
+      spiritualProgress.percent +
+      personalProgress.percent +
+      professionalProgress.percent +
+      physicalProgress.percent +
+      emotionalProgress.percent
+    ) / 5
+  );
+
   return (
     <Section
       label="Portal"
@@ -193,6 +302,46 @@ export default async function AccountabilityPage({
             Saved successfully.
           </div>
         ) : null}
+
+        <Card>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-lg font-semibold text-white">Monthly Progress Dashboard</div>
+                <div className="text-sm text-zinc-400">
+                  Snapshot for {monthLabel}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-right">
+                <div className="text-xs uppercase tracking-wide text-zinc-400">
+                  Overall Progress
+                </div>
+                <div className="text-2xl font-bold text-white">{overallPercent}%</div>
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center justify-between text-xs text-zinc-400">
+                <span>Overall Completion</span>
+                <span>{overallPercent}%</span>
+              </div>
+              <div className="h-3 rounded-full bg-white/10">
+                <div
+                  className="h-3 rounded-full bg-red-500 transition-all"
+                  style={{ width: `${overallPercent}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <ProgressCard title="Spiritual" progress={spiritualProgress} />
+              <ProgressCard title="Personal" progress={personalProgress} />
+              <ProgressCard title="Professional" progress={professionalProgress} />
+              <ProgressCard title="Physical" progress={physicalProgress} />
+              <ProgressCard title="Emotional" progress={emotionalProgress} />
+            </div>
+          </div>
+        </Card>
 
         <form action={saveAccountability} className="space-y-6">
           <Card>
@@ -213,13 +362,50 @@ export default async function AccountabilityPage({
                 </div>
               </div>
 
-              <textarea
-                name="notes_obstacles_wins"
-                defaultValue={entry?.notes_obstacles_wins ?? ''}
-                rows={4}
-                placeholder="Notes / Obstacles / Wins"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
-              />
+              <div>
+                <label className="mb-2 block text-sm font-medium text-white">
+                  Notes / Obstacles / Wins
+                </label>
+                <textarea
+                  name="notes_obstacles_wins"
+                  defaultValue={entry?.notes_obstacles_wins ?? ''}
+                  rows={4}
+                  placeholder="Notes / Obstacles / Wins"
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                />
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
+                  <input
+                    type="checkbox"
+                    name="attended_monthly_club_meeting"
+                    defaultChecked={Boolean(entry?.attended_monthly_club_meeting)}
+                    className="h-4 w-4 rounded border-white/20 bg-black/40"
+                  />
+                  Attended Monthly Club Meeting
+                </label>
+
+                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
+                  <input
+                    type="checkbox"
+                    name="memorized_scripture"
+                    defaultChecked={Boolean(entry?.memorized_scripture)}
+                    className="h-4 w-4 rounded border-white/20 bg-black/40"
+                  />
+                  Memorized the Scripture
+                </label>
+
+                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
+                  <input
+                    type="checkbox"
+                    name="monthly_book_finished"
+                    defaultChecked={Boolean(entry?.monthly_book_finished)}
+                    className="h-4 w-4 rounded border-white/20 bg-black/40"
+                  />
+                  Monthly Book Finished
+                </label>
+              </div>
             </div>
           </Card>
 
@@ -230,16 +416,23 @@ export default async function AccountabilityPage({
           <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
 
           <Card>
-            <textarea
-              name="helped_group_member"
-              defaultValue={entry?.helped_group_member ?? ''}
-              rows={4}
-              placeholder="How did you help another member?"
-              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
-            />
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-white">
+                  How did you help another member?
+                </label>
+                <textarea
+                  name="helped_group_member"
+                  defaultValue={entry?.helped_group_member ?? ''}
+                  rows={4}
+                  placeholder="How did you help another member?"
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                />
+              </div>
 
-            <div className="pt-4">
-              <AccountabilitySubmitButton />
+              <div className="pt-4">
+                <AccountabilitySubmitButton />
+              </div>
             </div>
           </Card>
         </form>
