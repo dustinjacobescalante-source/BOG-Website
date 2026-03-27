@@ -1,3 +1,4 @@
+import SaveSuccessMessage from '@/components/accountability/SaveSuccessMessage';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
 import { createClient } from '@/lib/supabase/server';
@@ -297,11 +298,7 @@ export default async function AccountabilityPage({
       description="Track your monthly commitments and weekly progress."
     >
       <div className="space-y-6">
-        {saved ? (
-          <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-300">
-            Saved successfully.
-          </div>
-        ) : null}
+        {saved ? <SaveSuccessMessage /> : null}
 
         <Card>
           <div className="space-y-4">
