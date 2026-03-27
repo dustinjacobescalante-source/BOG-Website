@@ -9,6 +9,9 @@ type CommentItem = {
   created_at: string;
   user_id: string;
   is_pinned?: boolean | null;
+  profiles?: {
+    full_name: string | null;
+  } | null;
 };
 
 const supabase = createClient();
@@ -51,7 +54,14 @@ export default function MeetingComments({
     try {
       const { data, error } = await supabase
         .from('meeting_comments')
-        .select('id, comment_text, created_at, user_id, is_pinned')
+        .select(`
+          id,
+          comment_text,
+          created_at,
+          user_id,
+          is_pinned,
+          profiles ( full_name )
+        `)
         .eq('meeting_id', meetingId)
         .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
@@ -63,7 +73,7 @@ export default function MeetingComments({
         return;
       }
 
-      setComments(data ?? []);
+      setComments((data as CommentItem[]) ?? []);
     } catch (error) {
       console.error('COMMENTS LOAD UNEXPECTED ERROR:', error);
       setComments([]);
@@ -198,7 +208,8 @@ export default function MeetingComments({
 
                 <div className="mt-2 text-sm text-white">{comment.comment_text}</div>
 
-                <div className="mt-2 text-xs text-zinc-500">
+                <div className="mt-2 text-xs text-zinc-400">
+                  {comment.profiles?.full_name || 'Member'} •{' '}
                   {new Date(comment.created_at).toLocaleString()}
                 </div>
               </div>
