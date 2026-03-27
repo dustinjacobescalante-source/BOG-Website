@@ -1,15 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 type CommentItem = {
   id: string;
   comment_text: string;
   created_at: string;
-  user_id: string;
-  is_pinned?: boolean | null;
-  meeting_id?: string;
 };
 
 export default function MeetingComments({
@@ -17,57 +14,55 @@ export default function MeetingComments({
 }: {
   meetingId: string;
 }) {
-  const supabase = useMemo(() => createClient(), []);
   const [commentText, setCommentText] = useState('');
-  const [message, setMessage] = useState('');
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [debug, setDebug] = useState<string>('');
+  const [posting, setPosting] = useState(false);
+  const [status, setStatus] = useState('');
+  const [debugUser, setDebugUser] = useState('');
 
   async function loadComments() {
     setLoading(true);
-    setMessage('');
-    setDebug(`Loading comments for meetingId: ${meetingId}`);
+    setStatus(`Loading comments for meeting: ${meetingId}`);
+
+    const supabase = createClient();
 
     const { data, error } = await supabase
       .from('meeting_comments')
-      .select('id, meeting_id, comment_text, created_at, user_id, is_pinned')
+      .select('id, comment_text, created_at')
       .eq('meeting_id', meetingId)
-      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('COMMENTS LOAD ERROR:', error);
-      setMessage(`Could not load comments: ${error.message}`);
+      console.error('LOAD COMMENTS ERROR:', error);
+      setStatus(`Load failed: ${error.message}`);
       setComments([]);
       setLoading(false);
       return;
     }
 
     setComments(data ?? []);
-    setDebug(
-      `Loaded ${data?.length ?? 0} comment(s) for meetingId: ${meetingId}`
-    );
+    setStatus(`Loaded ${data?.length ?? 0} comment(s)`);
     setLoading(false);
   }
 
   useEffect(() => {
-    if (meetingId) {
-      void loadComments();
-    }
+    void loadComments();
   }, [meetingId]);
 
-  async function handlePostComment() {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
     if (!commentText.trim()) {
-      setMessage('Please enter a comment.');
+      setStatus('Please enter a comment.');
       return;
     }
 
+    setPosting(true);
+    setStatus('Checking signed-in user...');
+
     try {
-      setSaving(true);
-      setMessage('');
-      setDebug(`Posting comment to meetingId: ${meetingId}`);
+      const supabase = createClient();
 
       const {
         data: { user },
@@ -75,41 +70,42 @@ export default function MeetingComments({
       } = await supabase.auth.getUser();
 
       if (userError) {
-        setMessage(`Auth error: ${userError.message}`);
+        console.error('AUTH ERROR:', userError);
+        setStatus(`Auth error: ${userError.message}`);
+        setPosting(false);
         return;
       }
 
       if (!user) {
-        setMessage('You must be signed in to comment.');
+        setStatus('You must be signed in to comment.');
+        setPosting(false);
         return;
       }
 
-      const { data: inserted, error } = await supabase
-        .from('meeting_comments')
-        .insert({
-          meeting_id: meetingId,
-          user_id: user.id,
-          comment_text: commentText.trim(),
-        })
-        .select();
+      setDebugUser(user.id);
+      setStatus(`Posting comment as user: ${user.id}`);
+
+      const { error } = await supabase.from('meeting_comments').insert({
+        meeting_id: meetingId,
+        user_id: user.id,
+        comment_text: commentText.trim(),
+      });
 
       if (error) {
-        console.error('POST COMMENT ERROR:', error);
-        setMessage(`Could not post comment: ${error.message}`);
+        console.error('INSERT ERROR:', error);
+        setStatus(`Insert failed: ${error.message}`);
+        setPosting(false);
         return;
       }
 
       setCommentText('');
-      setMessage('Comment posted.');
-      setDebug(
-        `Posted comment successfully to meetingId: ${meetingId}. Inserted rows: ${inserted?.length ?? 0}`
-      );
+      setStatus('Comment added.');
       await loadComments();
     } catch (error) {
-      console.error('POST COMMENT UNEXPECTED ERROR:', error);
-      setMessage('Something went wrong while posting your comment.');
+      console.error('UNEXPECTED COMMENT ERROR:', error);
+      setStatus('Something went wrong.');
     } finally {
-      setSaving(false);
+      setPosting(false);
     }
   }
 
@@ -118,41 +114,43 @@ export default function MeetingComments({
       <div className="rounded-xl border border-white/10 bg-black/20 p-4">
         <div className="mb-2 text-sm font-semibold text-white">Comments</div>
 
-        <textarea
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Leave a comment for this meeting..."
-          className="min-h-[120px] w-full rounded-xl border border-white/10 bg-black/30 p-4 text-white outline-none placeholder:text-zinc-500"
-        />
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            rows={4}
+            placeholder="Leave a comment for this meeting..."
+            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500"
+          />
 
-        <div className="mt-3 flex gap-2">
-          <button
-            type="button"
-            onClick={handlePostComment}
-            disabled={saving}
-            className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
-          >
-            {saving ? 'Posting...' : 'Post Comment'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={posting}
+              className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+            >
+              {posting ? 'Posting...' : 'Post Comment'}
+            </button>
 
-          <button
-            type="button"
-            onClick={loadComments}
-            disabled={loading}
-            className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5 disabled:opacity-50"
-          >
-            Refresh Comments
-          </button>
+            <button
+              type="button"
+              onClick={() => void loadComments()}
+              className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/5"
+            >
+              Refresh Comments
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-3 space-y-1 text-xs text-zinc-400">
+          <p>Status: {status || 'idle'}</p>
+          <p>Meeting ID: {meetingId}</p>
+          <p>User ID: {debugUser || 'not loaded yet'}</p>
         </div>
-
-        {message && <p className="mt-3 text-sm text-zinc-300">{message}</p>}
-        {debug && <p className="mt-2 text-xs text-zinc-500">{debug}</p>}
       </div>
 
       <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-        <div className="mb-3 text-sm font-semibold text-white">
-          Recent Comments
-        </div>
+        <div className="mb-3 text-sm font-semibold text-white">Recent Comments</div>
 
         {loading ? (
           <p className="text-sm text-zinc-400">Loading comments...</p>
@@ -168,7 +166,6 @@ export default function MeetingComments({
                 <div className="text-sm text-white">{comment.comment_text}</div>
                 <div className="mt-2 text-xs text-zinc-500">
                   {new Date(comment.created_at).toLocaleString()}
-                  {comment.is_pinned ? ' • pinned' : ''}
                 </div>
               </div>
             ))}
