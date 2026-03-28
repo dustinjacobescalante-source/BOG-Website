@@ -31,8 +31,15 @@ type GoalSectionProps = {
 function GoalSection({ title, prefix, entry }: GoalSectionProps) {
   return (
     <Card>
-      <div className="space-y-4">
-        <div className="text-base font-semibold text-white">{title}</div>
+      <div className="space-y-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-lg font-bold text-white">{title}</div>
+            <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+              Monthly Goal Category
+            </div>
+          </div>
+        </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-white">
@@ -43,35 +50,38 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
             defaultValue={entry?.[`${prefix}_focus`] ?? ''}
             rows={3}
             placeholder={`Enter your ${title.toLowerCase()} focus`}
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {['week1', 'week2', 'week3', 'week4'].map((week) => (
-            <div key={week}>
-              <label className="mb-2 block text-sm font-medium text-white">
-                {week.replace('week', 'Week ')} Notes
+          {['week1', 'week2', 'week3', 'week4'].map((week, index) => (
+            <div
+              key={week}
+              className="rounded-2xl border border-white/10 bg-black/20 p-3"
+            >
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Week {index + 1}
               </label>
               <textarea
                 name={`${prefix}_${week}_notes`}
                 defaultValue={entry?.[`${prefix}_${week}_notes`] ?? ''}
-                rows={3}
-                placeholder={week.replace('week', 'Week ')}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                rows={4}
+                placeholder={`Week ${index + 1} progress`}
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
               />
             </div>
           ))}
         </div>
 
-        <label className="flex items-center gap-3 text-sm text-white">
+        <label className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
           <input
             type="checkbox"
             name={`${prefix}_goal_met`}
             defaultChecked={Boolean(entry?.[`${prefix}_goal_met`])}
-            className="h-4 w-4"
+            className="h-4 w-4 rounded border-white/20 bg-black/40"
           />
-          Goal met
+          Goal met this month
         </label>
       </div>
     </Card>
@@ -105,6 +115,47 @@ function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) 
   };
 }
 
+function getCategoryStyle(progress: ReturnType<typeof getGoalProgress>) {
+  if (progress.goalMet) {
+    return {
+      pill: 'border-green-500/30 bg-green-500/10 text-green-300',
+      bar: 'bg-green-400',
+      glow: 'shadow-[0_0_0_1px_rgba(34,197,94,0.08),0_12px_40px_rgba(34,197,94,0.08)]',
+    };
+  }
+
+  if (progress.percent > 0) {
+    return {
+      pill: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300',
+      bar: 'bg-red-400',
+      glow: 'shadow-[0_0_0_1px_rgba(239,68,68,0.08),0_12px_40px_rgba(239,68,68,0.08)]',
+    };
+  }
+
+  return {
+    pill: 'border-white/10 bg-white/5 text-zinc-300',
+    bar: 'bg-zinc-500',
+    glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.03)]',
+  };
+}
+
+function getCategoryAccent(title: string) {
+  switch (title) {
+    case 'Spiritual':
+      return 'from-violet-500/20 to-fuchsia-500/5';
+    case 'Personal':
+      return 'from-sky-500/20 to-cyan-500/5';
+    case 'Professional':
+      return 'from-amber-500/20 to-orange-500/5';
+    case 'Physical':
+      return 'from-red-500/20 to-rose-500/5';
+    case 'Emotional':
+      return 'from-emerald-500/20 to-teal-500/5';
+    default:
+      return 'from-white/10 to-white/5';
+  }
+}
+
 function ProgressCard({
   title,
   progress,
@@ -112,44 +163,59 @@ function ProgressCard({
   title: string;
   progress: ReturnType<typeof getGoalProgress>;
 }) {
-  const statusClasses = progress.goalMet
-    ? 'border-green-500/30 bg-green-500/10 text-green-300'
-    : progress.percent > 0
-    ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300'
-    : 'border-white/10 bg-white/5 text-zinc-300';
-
-  const barClass = progress.goalMet
-    ? 'bg-green-400'
-    : progress.percent > 0
-    ? 'bg-red-400'
-    : 'bg-zinc-500';
+  const styles = getCategoryStyle(progress);
+  const accent = getCategoryAccent(title);
 
   return (
-    <div className="rounded-[28px] border border-white/10 bg-[#0b1220]/80 p-5">
-      <div className="space-y-4">
+    <div
+      className={`group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1220]/85 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ${styles.glow}`}
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-100`} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)]" />
+      <div className="relative space-y-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-lg font-bold text-white">{title}</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.15em] text-zinc-500">
-              Monthly Category
+            <div className="text-xl font-bold text-white">{title}</div>
+            <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+              Monthly category
             </div>
           </div>
 
           <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusClasses}`}
+            className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${styles.pill}`}
           >
             {progress.status}
           </span>
         </div>
 
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
+              Progress
+            </div>
+            <div className="mt-1 text-4xl font-bold leading-none text-white">
+              {progress.percent}%
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-right">
+            <div className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+              Goal Met
+            </div>
+            <div className="mt-1 text-lg font-bold text-white">
+              {progress.goalMet ? 'Yes' : 'No'}
+            </div>
+          </div>
+        </div>
+
         <div>
           <div className="mb-2 flex items-center justify-between text-xs text-zinc-400">
-            <span>Progress</span>
+            <span>Completion</span>
             <span>{progress.percent}%</span>
           </div>
           <div className="h-2.5 rounded-full bg-white/10">
             <div
-              className={`h-2.5 rounded-full transition-all ${barClass}`}
+              className={`h-2.5 rounded-full transition-all ${styles.bar}`}
               style={{ width: `${progress.percent}%` }}
             />
           </div>
@@ -167,10 +233,10 @@ function ProgressCard({
 
           <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4">
             <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
-              Goal Met
+              Status
             </div>
-            <div className="mt-2 text-3xl font-bold leading-none text-white">
-              {progress.goalMet ? 'Yes' : 'No'}
+            <div className="mt-2 text-lg font-bold leading-none text-white">
+              {progress.status}
             </div>
           </div>
         </div>
@@ -329,7 +395,7 @@ export default async function Page({
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-black/30 px-5 py-4 text-right">
+              <div className="rounded-3xl border border-white/10 bg-black/30 px-5 py-4 text-right shadow-[0_12px_40px_rgba(239,68,68,0.08)]">
                 <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
                   Overall Progress
                 </div>
@@ -390,7 +456,7 @@ export default async function Page({
                   defaultValue={entry?.notes_obstacles_wins ?? ''}
                   rows={4}
                   placeholder="Notes / Obstacles / Wins"
-                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
                 />
               </div>
 
@@ -445,7 +511,7 @@ export default async function Page({
                   defaultValue={entry?.helped_group_member ?? ''}
                   rows={4}
                   placeholder="How did you help another member?"
-                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
+                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
                 />
               </div>
 
