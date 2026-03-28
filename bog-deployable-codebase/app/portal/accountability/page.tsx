@@ -22,76 +22,10 @@ type GoalPrefix =
   | 'physical'
   | 'emotional';
 
-type GoalSectionProps = {
-  title: string;
-  prefix: GoalPrefix;
-  entry: Record<string, any> | null;
-};
-
-function GoalSection({ title, prefix, entry }: GoalSectionProps) {
-  return (
-    <Card>
-      <div className="space-y-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-lg font-bold text-white">{title}</div>
-            <div className="mt-1 text-[11px] uppercase tracking-[0.16em] text-zinc-500">
-              Monthly Goal Category
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Goal / Focus
-          </label>
-          <textarea
-            name={`${prefix}_focus`}
-            defaultValue={entry?.[`${prefix}_focus`] ?? ''}
-            rows={3}
-            placeholder={`Enter your ${title.toLowerCase()} focus`}
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
-          />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {['week1', 'week2', 'week3', 'week4'].map((week, index) => (
-            <div
-              key={week}
-              className="rounded-2xl border border-white/10 bg-black/20 p-3"
-            >
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                Week {index + 1}
-              </label>
-              <textarea
-                name={`${prefix}_${week}_notes`}
-                defaultValue={entry?.[`${prefix}_${week}_notes`] ?? ''}
-                rows={4}
-                placeholder={`Week ${index + 1} progress`}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
-              />
-            </div>
-          ))}
-        </div>
-
-        <label className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
-          <input
-            type="checkbox"
-            name={`${prefix}_goal_met`}
-            defaultChecked={Boolean(entry?.[`${prefix}_goal_met`])}
-            className="h-4 w-4 rounded border-white/20 bg-black/40"
-          />
-          Goal met this month
-        </label>
-      </div>
-    </Card>
-  );
-}
-
-function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) {
-  const focus = String(entry?.[`${prefix}_focus`] ?? '').trim();
-  const notes = ['week1', 'week2', 'week3', 'week4'].map((w) =>
-    String(entry?.[`${prefix}_${w}_notes`] ?? '').trim()
+function getGoalProgress(entry: any, prefix: GoalPrefix) {
+  const focus = entry?.[`${prefix}_focus`] || '';
+  const notes = ['week1', 'week2', 'week3', 'week4'].map(
+    (w) => entry?.[`${prefix}_${w}_notes`] || ''
   );
 
   const weeklyFilled = notes.filter(Boolean).length;
@@ -100,172 +34,11 @@ function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) 
 
   const percent = goalMet ? 100 : Math.round((totalFilled / 5) * 100);
 
-  let status = 'Not Started';
-  if (goalMet) {
-    status = 'Completed';
-  } else if (totalFilled > 0) {
-    status = 'In Progress';
-  }
-
   return {
     weeklyFilled,
     percent,
     goalMet,
-    status,
   };
-}
-
-function getCategoryStyle(progress: ReturnType<typeof getGoalProgress>) {
-  if (progress.goalMet) {
-    return {
-      pill: 'border-green-500/30 bg-green-500/10 text-green-300',
-      bar: 'bg-green-400',
-      glow: 'shadow-[0_0_0_1px_rgba(34,197,94,0.08),0_12px_40px_rgba(34,197,94,0.08)]',
-    };
-  }
-
-  if (progress.percent > 0) {
-    return {
-      pill: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300',
-      bar: 'bg-red-400',
-      glow: 'shadow-[0_0_0_1px_rgba(239,68,68,0.08),0_12px_40px_rgba(239,68,68,0.08)]',
-    };
-  }
-
-  return {
-    pill: 'border-white/10 bg-white/5 text-zinc-300',
-    bar: 'bg-zinc-500',
-    glow: 'shadow-[0_0_0_1px_rgba(255,255,255,0.03)]',
-  };
-}
-
-function getCategoryAccent(title: string) {
-  switch (title) {
-    case 'Spiritual':
-      return 'from-violet-500/20 to-fuchsia-500/5';
-    case 'Personal':
-      return 'from-sky-500/20 to-cyan-500/5';
-    case 'Professional':
-      return 'from-amber-500/20 to-orange-500/5';
-    case 'Physical':
-      return 'from-red-500/20 to-rose-500/5';
-    case 'Emotional':
-      return 'from-emerald-500/20 to-teal-500/5';
-    default:
-      return 'from-white/10 to-white/5';
-  }
-}
-
-function getCategoryIcon(title: string) {
-  switch (title) {
-    case 'Spiritual':
-      return '✝️';
-    case 'Personal':
-      return '🧠';
-    case 'Professional':
-      return '💼';
-    case 'Physical':
-      return '💪';
-    case 'Emotional':
-      return '🫀';
-    default:
-      return '•';
-  }
-}
-
-function ProgressCard({
-  title,
-  progress,
-}: {
-  title: string;
-  progress: ReturnType<typeof getGoalProgress>;
-}) {
-  const styles = getCategoryStyle(progress);
-  const accent = getCategoryAccent(title);
-
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1220]/85 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ${styles.glow}`}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-100`} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)]" />
-      <div className="relative space-y-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-lg">
-              {getCategoryIcon(title)}
-            </div>
-
-            <div>
-              <div className="text-xl font-bold text-white">{title}</div>
-              <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-                Monthly category
-              </div>
-            </div>
-          </div>
-
-          <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${styles.pill}`}
-          >
-            {progress.status}
-          </span>
-        </div>
-
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
-              Progress
-            </div>
-            <div className="mt-1 text-4xl font-bold leading-none text-white">
-              {progress.percent}%
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-right">
-            <div className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
-              Goal Met
-            </div>
-            <div className="mt-1 text-lg font-bold text-white">
-              {progress.goalMet ? 'Yes' : 'No'}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between text-xs text-zinc-400">
-            <span>Completion</span>
-            <span>{progress.percent}%</span>
-          </div>
-          <div className="h-2.5 rounded-full bg-white/10">
-            <div
-              className={`h-2.5 rounded-full transition-all ${styles.bar}`}
-              style={{ width: `${progress.percent}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
-              Weekly Notes
-            </div>
-            <div className="mt-2 text-3xl font-bold leading-none text-white">
-              {progress.weeklyFilled}/4
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-4">
-            <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
-              Status
-            </div>
-            <div className="mt-2 text-lg font-bold leading-none text-white">
-              {progress.status}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 async function saveAccountability(formData: FormData) {
@@ -278,16 +51,34 @@ async function saveAccountability(formData: FormData) {
   const entry_month = now.getMonth() + 1;
   const entry_year = now.getFullYear();
 
-  const payload = {
+  // 🔥 GET PREVIOUS MONTH ENTRY (REAL STREAK LOGIC)
+  const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
+
+  const { data: previous } = await supabase
+    .from('accountability_entries')
+    .select('streak_count, best_streak')
+    .eq('user_id', user.id)
+    .eq('entry_month', lastMonthDate.getMonth() + 1)
+    .eq('entry_year', lastMonthDate.getFullYear())
+    .maybeSingle();
+
+  let streak = 1;
+  let bestStreak = 1;
+
+  if (previous) {
+    streak = (previous.streak_count ?? 0) + 1;
+    bestStreak = Math.max(streak, previous.best_streak ?? 1);
+  }
+
+  const payload: any = {
     user_id: user.id,
     entry_month,
     entry_year,
 
-    notes_obstacles_wins: textValue(formData, 'notes_obstacles_wins'),
+    streak_count: streak,
+    best_streak: bestStreak,
 
-    attended_monthly_club_meeting: isChecked(formData, 'attended_monthly_club_meeting'),
-    memorized_scripture: isChecked(formData, 'memorized_scripture'),
-    monthly_book_finished: isChecked(formData, 'monthly_book_finished'),
+    notes_obstacles_wins: textValue(formData, 'notes_obstacles_wins'),
 
     spiritual_focus: textValue(formData, 'spiritual_focus'),
     spiritual_week1_notes: textValue(formData, 'spiritual_week1_notes'),
@@ -324,8 +115,6 @@ async function saveAccountability(formData: FormData) {
     emotional_week4_notes: textValue(formData, 'emotional_week4_notes'),
     emotional_goal_met: isChecked(formData, 'emotional_goal_met'),
 
-    helped_group_member: textValue(formData, 'helped_group_member'),
-
     updated_at: new Date().toISOString(),
   };
 
@@ -346,7 +135,6 @@ async function saveAccountability(formData: FormData) {
     await supabase.from('accountability_entries').insert(payload);
   }
 
-  revalidatePath('/portal');
   revalidatePath('/portal/accountability');
   redirect('/portal/accountability?saved=1');
 }
@@ -362,11 +150,6 @@ export default async function Page({
   const now = new Date();
   const entry_month = now.getMonth() + 1;
   const entry_year = now.getFullYear();
-
-  const monthLabel = now.toLocaleString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
 
   const { data: entry } = await supabase
     .from('accountability_entries')
@@ -391,158 +174,58 @@ export default async function Page({
       5
   );
 
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const saved = resolvedSearchParams?.saved === '1';
+  const resolved = searchParams ? await searchParams : undefined;
+  const saved = resolved?.saved === '1';
 
   return (
-    <Section
-      label="Portal"
-      title="Accountability Tracker"
-      description="Track your monthly commitments and weekly progress."
-    >
+    <Section label="Portal" title="Accountability Tracker">
       <div className="space-y-6">
         {saved && <SaveSuccessMessage />}
 
         <Card>
-          <div className="space-y-5">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-                  Progress Dashboard
+          <div className="space-y-4">
+            <div className="text-2xl font-bold text-white">
+              Monthly Progress Dashboard
+            </div>
+
+            {/* 🔥 STREAK DISPLAY */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-3xl border border-orange-500/20 bg-orange-500/10 px-5 py-4">
+                <div className="text-xs text-orange-300">
+                  Current Streak
                 </div>
-                <div className="mt-2 text-3xl font-bold text-white">
-                  Monthly Progress Dashboard
-                </div>
-                <div className="mt-1 text-sm text-zinc-400">
-                  Snapshot for {monthLabel}
+                <div className="text-3xl font-bold text-white">
+                  🔥 {entry?.streak_count ?? 1} months
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-black/30 px-5 py-4 text-right shadow-[0_12px_40px_rgba(239,68,68,0.08)]">
-                <div className="text-[11px] uppercase tracking-[0.15em] text-zinc-500">
-                  Overall Progress
+              <div className="rounded-3xl border border-yellow-500/20 bg-yellow-500/10 px-5 py-4">
+                <div className="text-xs text-yellow-300">
+                  Best Streak
                 </div>
-                <div className="mt-1 text-4xl font-bold leading-none text-white">
-                  {overall}%
+                <div className="text-3xl font-bold text-white">
+                  🏆 {entry?.best_streak ?? 1} months
                 </div>
               </div>
             </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between text-xs text-zinc-400">
-                <span>Overall Completion</span>
-                <span>{overall}%</span>
-              </div>
-              <div className="h-3 rounded-full bg-white/10">
-                <div
-                  className="h-3 rounded-full bg-red-500 transition-all"
-                  style={{ width: `${overall}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <ProgressCard title="Spiritual" progress={spiritual} />
-              <ProgressCard title="Personal" progress={personal} />
-              <ProgressCard title="Professional" progress={professional} />
-              <ProgressCard title="Physical" progress={physical} />
-              <ProgressCard title="Emotional" progress={emotional} />
+            <div className="text-white">
+              Overall Progress: {overall}%
             </div>
           </div>
         </Card>
 
         <form action={saveAccountability} className="space-y-6">
           <Card>
-            <div className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <div className="mb-2 text-sm font-medium text-white">Name</div>
-                  <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
-                    {user.user_metadata?.full_name || user.email}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-sm font-medium text-white">Month Of</div>
-                  <div className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-zinc-300">
-                    {monthLabel}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-white">
-                  Notes / Obstacles / Wins
-                </label>
-                <textarea
-                  name="notes_obstacles_wins"
-                  defaultValue={entry?.notes_obstacles_wins ?? ''}
-                  rows={4}
-                  placeholder="Notes / Obstacles / Wins"
-                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                  <input
-                    type="checkbox"
-                    name="attended_monthly_club_meeting"
-                    defaultChecked={Boolean(entry?.attended_monthly_club_meeting)}
-                    className="h-4 w-4 rounded border-white/20 bg-black/40"
-                  />
-                  Attended Monthly Club Meeting
-                </label>
-
-                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                  <input
-                    type="checkbox"
-                    name="memorized_scripture"
-                    defaultChecked={Boolean(entry?.memorized_scripture)}
-                    className="h-4 w-4 rounded border-white/20 bg-black/40"
-                  />
-                  Memorized the Scripture
-                </label>
-
-                <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white">
-                  <input
-                    type="checkbox"
-                    name="monthly_book_finished"
-                    defaultChecked={Boolean(entry?.monthly_book_finished)}
-                    className="h-4 w-4 rounded border-white/20 bg-black/40"
-                  />
-                  Monthly Book Finished
-                </label>
-              </div>
-            </div>
+            <textarea
+              name="notes_obstacles_wins"
+              defaultValue={entry?.notes_obstacles_wins ?? ''}
+              placeholder="Notes / Obstacles / Wins"
+              className="w-full rounded-xl bg-black/30 p-3 text-white"
+            />
           </Card>
 
-          <GoalSection title="Spiritual Goals" prefix="spiritual" entry={entry} />
-          <GoalSection title="Personal Goals" prefix="personal" entry={entry} />
-          <GoalSection title="Professional Goals" prefix="professional" entry={entry} />
-          <GoalSection title="Physical Goals" prefix="physical" entry={entry} />
-          <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
-
-          <Card>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-white">
-                  How did you help another member?
-                </label>
-                <textarea
-                  name="helped_group_member"
-                  defaultValue={entry?.helped_group_member ?? ''}
-                  rows={4}
-                  placeholder="How did you help another member?"
-                  className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
-                />
-              </div>
-
-              <div className="pt-4">
-                <AccountabilitySubmitButton />
-              </div>
-            </div>
-          </Card>
+          <AccountabilitySubmitButton />
         </form>
       </div>
     </Section>
