@@ -284,6 +284,8 @@ function DashboardNudges({
   inProgressCount,
   notStartedCount,
   missingWeekThreeCount,
+  streakBroken,
+  lastSubmittedLabel,
 }: {
   overall: number;
   streakCount: number;
@@ -291,6 +293,8 @@ function DashboardNudges({
   inProgressCount: number;
   notStartedCount: number;
   missingWeekThreeCount: number;
+  streakBroken: boolean;
+  lastSubmittedLabel: string | null;
 }) {
   let headline = '⚠️ Falling behind';
   let headlineClass =
@@ -298,7 +302,13 @@ function DashboardNudges({
   let body =
     'You have unfinished categories this month. Keep your streak alive by filling in your next steps.';
 
-  if (completedCount === 5) {
+  if (streakBroken) {
+    headline = '💥 Your streak was broken';
+    headlineClass = 'border-red-500/30 bg-red-500/10 text-red-300';
+    body = lastSubmittedLabel
+      ? `You missed a month. Your last completed submission was ${lastSubmittedLabel}.`
+      : 'You missed a month and your streak has reset.';
+  } else if (completedCount === 5) {
     headline = '🏆 Monthly tracker completed';
     headlineClass = 'border-green-500/30 bg-green-500/10 text-green-300';
     body =
@@ -317,8 +327,12 @@ function DashboardNudges({
 
   const nudges: string[] = [];
 
-  if (streakCount > 1 && completedCount < 5) {
+  if (!streakBroken && streakCount > 1 && completedCount < 5) {
     nudges.push(`You are protecting a ${streakCount}-month streak.`);
+  }
+
+  if (streakBroken) {
+    nudges.push('Start strong this month to begin a new streak.');
   }
 
   if (notStartedCount > 0) {
@@ -499,6 +513,48 @@ export default async function Page({
     .eq('entry_year', entry_year)
     .maybeSingle();
 
+  const { data: lastEntry } = await supabase
+    .from('accountability_entries')
+    .select('entry_month, entry_year, streak_count, best_streak')
+    .eq('user_id', user.id)
+    .order('entry_year', { ascending: false })
+    .order('entry_month', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let streakBroken = false;
+  let displayStreak = entry?.streak_count ?? 1;
+  let displayBestStreak = entry?.best_streak ?? 1;
+  let lastSubmittedLabel: string | null = null;
+
+  if (lastEntry) {
+    const thisMonthIndex = entry_year * 12 + entry_month;
+    const lastEntryIndex = lastEntry.entry_year * 12 + lastEntry.entry_month;
+    const monthsSinceLastEntry = thisMonthIndex - lastEntryIndex;
+
+    lastSubmittedLabel = new Date(
+      lastEntry.entry_year,
+      lastEntry.entry_month - 1,
+      1
+    ).toLocaleString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
+
+    if (!entry) {
+      if (monthsSinceLastEntry > 1) {
+        streakBroken = true;
+        displayStreak = 0;
+      } else if (monthsSinceLastEntry === 1) {
+        displayStreak = lastEntry.streak_count ?? 1;
+      } else {
+        displayStreak = lastEntry.streak_count ?? 1;
+      }
+
+      displayBestStreak = lastEntry.best_streak ?? lastEntry.streak_count ?? 1;
+    }
+  }
+
   const spiritual = getGoalProgress(entry, 'spiritual');
   const personal = getGoalProgress(entry, 'personal');
   const professional = getGoalProgress(entry, 'professional');
@@ -542,11 +598,13 @@ export default async function Page({
 
         <DashboardNudges
           overall={overall}
-          streakCount={entry?.streak_count ?? 1}
+          streakCount={displayStreak}
           completedCount={completedCount}
           inProgressCount={inProgressCount}
           notStartedCount={notStartedCount}
           missingWeekThreeCount={missingWeekThreeCount}
+          streakBroken={streakBroken}
+          lastSubmittedLabel={lastSubmittedLabel}
         />
 
         <Card>
@@ -580,7 +638,7 @@ export default async function Page({
                   Current Streak
                 </div>
                 <div className="mt-1 text-3xl font-bold text-white">
-                  🔥 {entry?.streak_count ?? 1} months
+                  🔥 {displayStreak} months
                 </div>
               </div>
 
@@ -589,7 +647,7 @@ export default async function Page({
                   Best Streak
                 </div>
                 <div className="mt-1 text-3xl font-bold text-white">
-                  🏆 {entry?.best_streak ?? 1} months
+                  🏆 {displayBestStreak} months
                 </div>
               </div>
             </div>
