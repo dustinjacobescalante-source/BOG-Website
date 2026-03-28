@@ -90,14 +90,15 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
 
 function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) {
   const focus = String(entry?.[`${prefix}_focus`] ?? '').trim();
-  const notes = ['week1', 'week2', 'week3', 'week4'].map((w) =>
-    String(entry?.[`${prefix}_${w}_notes`] ?? '').trim()
-  );
-
-  const weeklyFilled = notes.filter(Boolean).length;
-  const totalFilled = [focus, ...notes].filter(Boolean).length;
+  const week1 = String(entry?.[`${prefix}_week1_notes`] ?? '').trim();
+  const week2 = String(entry?.[`${prefix}_week2_notes`] ?? '').trim();
+  const week3 = String(entry?.[`${prefix}_week3_notes`] ?? '').trim();
+  const week4 = String(entry?.[`${prefix}_week4_notes`] ?? '').trim();
   const goalMet = Boolean(entry?.[`${prefix}_goal_met`]);
 
+  const notes = [week1, week2, week3, week4];
+  const weeklyFilled = notes.filter(Boolean).length;
+  const totalFilled = [focus, ...notes].filter(Boolean).length;
   const percent = goalMet ? 100 : Math.round((totalFilled / 5) * 100);
 
   let status = 'Not Started';
@@ -107,11 +108,17 @@ function getGoalProgress(entry: Record<string, any> | null, prefix: GoalPrefix) 
     status = 'In Progress';
   }
 
+  const missingWeeks = notes
+    .map((value, index) => (!value ? `Week ${index + 1}` : null))
+    .filter(Boolean) as string[];
+
   return {
     weeklyFilled,
     percent,
     goalMet,
     status,
+    hasFocus: Boolean(focus),
+    missingWeeks,
   };
 }
 
@@ -120,7 +127,8 @@ function getCategoryStyle(progress: ReturnType<typeof getGoalProgress>) {
     return {
       pill: 'border-green-500/30 bg-green-500/10 text-green-300',
       bar: 'bg-green-400',
-      glow: 'shadow-[0_0_0_1px_rgba(34,197,94,0.08),0_12px_40px_rgba(34,197,94,0.08)]',
+      glow:
+        'shadow-[0_0_0_1px_rgba(34,197,94,0.08),0_12px_40px_rgba(34,197,94,0.08)]',
     };
   }
 
@@ -128,7 +136,8 @@ function getCategoryStyle(progress: ReturnType<typeof getGoalProgress>) {
     return {
       pill: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300',
       bar: 'bg-red-400',
-      glow: 'shadow-[0_0_0_1px_rgba(239,68,68,0.08),0_12px_40px_rgba(239,68,68,0.08)]',
+      glow:
+        'shadow-[0_0_0_1px_rgba(239,68,68,0.08),0_12px_40px_rgba(239,68,68,0.08)]',
     };
   }
 
@@ -265,6 +274,95 @@ function ProgressCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function DashboardNudges({
+  overall,
+  streakCount,
+  completedCount,
+  inProgressCount,
+  notStartedCount,
+  missingWeekThreeCount,
+}: {
+  overall: number;
+  streakCount: number;
+  completedCount: number;
+  inProgressCount: number;
+  notStartedCount: number;
+  missingWeekThreeCount: number;
+}) {
+  let headline = '⚠️ Falling behind';
+  let headlineClass =
+    'border-yellow-500/30 bg-yellow-500/10 text-yellow-300';
+  let body =
+    'You have unfinished categories this month. Keep your streak alive by filling in your next steps.';
+
+  if (completedCount === 5) {
+    headline = '🏆 Monthly tracker completed';
+    headlineClass = 'border-green-500/30 bg-green-500/10 text-green-300';
+    body =
+      'All five categories are complete. Strong work staying consistent this month.';
+  } else if (overall >= 80) {
+    headline = '🔥 You are on track';
+    headlineClass = 'border-green-500/30 bg-green-500/10 text-green-300';
+    body =
+      'Your tracker is in a strong place. Finish the remaining items and lock in the month.';
+  } else if (inProgressCount > 0 && notStartedCount === 0) {
+    headline = '📈 Good momentum';
+    headlineClass = 'border-sky-500/30 bg-sky-500/10 text-sky-300';
+    body =
+      'Every category has been started. Keep stacking weekly progress notes.';
+  }
+
+  const nudges: string[] = [];
+
+  if (streakCount > 1 && completedCount < 5) {
+    nudges.push(`You are protecting a ${streakCount}-month streak.`);
+  }
+
+  if (notStartedCount > 0) {
+    nudges.push(
+      `${notStartedCount} categor${notStartedCount === 1 ? 'y is' : 'ies are'} still not started.`
+    );
+  }
+
+  if (missingWeekThreeCount > 0) {
+    nudges.push(
+      `Week 3 is still blank in ${missingWeekThreeCount} categor${
+        missingWeekThreeCount === 1 ? 'y' : 'ies'
+      }.`
+    );
+  }
+
+  if (completedCount < 5 && completedCount > 0) {
+    nudges.push(`${completedCount}/5 categories are fully completed.`);
+  }
+
+  if (nudges.length === 0) {
+    nudges.push('Keep updating your weekly notes to maintain momentum.');
+  }
+
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className={`rounded-2xl border px-4 py-3 ${headlineClass}`}>
+          <div className="text-sm font-semibold">{headline}</div>
+          <div className="mt-1 text-sm opacity-90">{body}</div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {nudges.map((nudge) => (
+            <div
+              key={nudge}
+              className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-300"
+            >
+              {nudge}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -407,14 +505,28 @@ export default async function Page({
   const physical = getGoalProgress(entry, 'physical');
   const emotional = getGoalProgress(entry, 'emotional');
 
+  const progressList = [spiritual, personal, professional, physical, emotional];
+
   const overall = Math.round(
-    (spiritual.percent +
+    (
+      spiritual.percent +
       personal.percent +
       professional.percent +
       physical.percent +
-      emotional.percent) /
-      5
+      emotional.percent
+    ) / 5
   );
+
+  const completedCount = progressList.filter((item) => item.goalMet).length;
+  const inProgressCount = progressList.filter(
+    (item) => item.status === 'In Progress'
+  ).length;
+  const notStartedCount = progressList.filter(
+    (item) => item.status === 'Not Started'
+  ).length;
+  const missingWeekThreeCount = progressList.filter((item) =>
+    item.missingWeeks.includes('Week 3')
+  ).length;
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const saved = resolvedSearchParams?.saved === '1';
@@ -427,6 +539,15 @@ export default async function Page({
     >
       <div className="space-y-6">
         {saved && <SaveSuccessMessage />}
+
+        <DashboardNudges
+          overall={overall}
+          streakCount={entry?.streak_count ?? 1}
+          completedCount={completedCount}
+          inProgressCount={inProgressCount}
+          notStartedCount={notStartedCount}
+          missingWeekThreeCount={missingWeekThreeCount}
+        />
 
         <Card>
           <div className="space-y-5">
