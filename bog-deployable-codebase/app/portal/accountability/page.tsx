@@ -156,6 +156,23 @@ function getCategoryAccent(title: string) {
   }
 }
 
+function getCategoryIcon(title: string) {
+  switch (title) {
+    case 'Spiritual':
+      return '✝️';
+    case 'Personal':
+      return '🧠';
+    case 'Professional':
+      return '💼';
+    case 'Physical':
+      return '💪';
+    case 'Emotional':
+      return '🫀';
+    default:
+      return '•';
+  }
+}
+
 function ProgressCard({
   title,
   progress,
@@ -174,10 +191,16 @@ function ProgressCard({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_35%)]" />
       <div className="relative space-y-5">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-xl font-bold text-white">{title}</div>
-            <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-              Monthly category
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-lg">
+              {getCategoryIcon(title)}
+            </div>
+
+            <div>
+              <div className="text-xl font-bold text-white">{title}</div>
+              <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                Monthly category
+              </div>
             </div>
           </div>
 
