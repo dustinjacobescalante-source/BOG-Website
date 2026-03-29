@@ -26,9 +26,10 @@ type GoalSectionProps = {
   title: string;
   prefix: GoalPrefix;
   entry: Record<string, any> | null;
+  disabled?: boolean;
 };
 
-function GoalSection({ title, prefix, entry }: GoalSectionProps) {
+function GoalSection({ title, prefix, entry, disabled = false }: GoalSectionProps) {
   return (
     <Card>
       <div className="space-y-5">
@@ -49,8 +50,9 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
             name={`${prefix}_focus`}
             defaultValue={entry?.[`${prefix}_focus`] ?? ''}
             rows={3}
+            disabled={disabled}
             placeholder={`Enter your ${title.toLowerCase()} focus`}
-            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
+            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500 disabled:opacity-60"
           />
         </div>
 
@@ -67,8 +69,9 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
                 name={`${prefix}_${week}_notes`}
                 defaultValue={entry?.[`${prefix}_${week}_notes`] ?? ''}
                 rows={4}
+                disabled={disabled}
                 placeholder={`Week ${index + 1} progress`}
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500"
+                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500 disabled:opacity-60"
               />
             </div>
           ))}
@@ -79,6 +82,7 @@ function GoalSection({ title, prefix, entry }: GoalSectionProps) {
             type="checkbox"
             name={`${prefix}_goal_met`}
             defaultChecked={Boolean(entry?.[`${prefix}_goal_met`])}
+            disabled={disabled}
             className="h-4 w-4 rounded border-white/20 bg-black/40"
           />
           Goal met this month
@@ -408,6 +412,13 @@ function CompletionBanner({
   );
 }
 
+function formatMonthOption(month: number, year: number) {
+  return new Date(year, month - 1, 1).toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 async function saveAccountability(formData: FormData) {
   'use server';
 
@@ -519,16 +530,33 @@ async function saveAccountability(formData: FormData) {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: Promise<{ saved?: string }>;
+  searchParams?: Promise<{ saved?: string; month?: string; year?: string }>;
 }) {
   const supabase = await createClient();
   const user = await requireUser();
 
   const now = new Date();
-  const entry_month = now.getMonth() + 1;
-  const entry_year = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
 
-  const monthLabel = now.toLocaleString('en-US', {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const requestedMonth = Number(resolvedSearchParams?.month);
+  const requestedYear = Number(resolvedSearchParams?.year);
+
+  const entry_month =
+    Number.isFinite(requestedMonth) && requestedMonth >= 1 && requestedMonth <= 12
+      ? requestedMonth
+      : currentMonth;
+
+  const entry_year =
+    Number.isFinite(requestedYear) && requestedYear >= 2000
+      ? requestedYear
+      : currentYear;
+
+  const isCurrentMonthView =
+    entry_month === currentMonth && entry_year === currentYear;
+
+  const monthLabel = new Date(entry_year, entry_month - 1, 1).toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
   });
@@ -540,6 +568,13 @@ export default async function Page({
     .eq('entry_month', entry_month)
     .eq('entry_year', entry_year)
     .maybeSingle();
+
+  const { data: allEntries } = await supabase
+    .from('accountability_entries')
+    .select('entry_month, entry_year')
+    .eq('user_id', user.id)
+    .order('entry_year', { ascending: false })
+    .order('entry_month', { ascending: false });
 
   const { data: lastEntry } = await supabase
     .from('accountability_entries')
@@ -556,7 +591,7 @@ export default async function Page({
   let lastSubmittedLabel: string | null = null;
 
   if (lastEntry) {
-    const thisMonthIndex = entry_year * 12 + entry_month;
+    const thisMonthIndex = currentYear * 12 + currentMonth;
     const lastEntryIndex = lastEntry.entry_year * 12 + lastEntry.entry_month;
     const monthsSinceLastEntry = thisMonthIndex - lastEntryIndex;
 
@@ -569,7 +604,7 @@ export default async function Page({
       year: 'numeric',
     });
 
-    if (!entry) {
+    if (!isCurrentMonthView || !entry) {
       if (monthsSinceLastEntry > 1) {
         streakBroken = true;
         displayStreak = 0;
@@ -591,6 +626,8 @@ export default async function Page({
 
   const progressList = [spiritual, personal, professional, physical, emotional];
   const isComplete = isMonthComplete(progressList);
+  const isArchivedView = !isCurrentMonthView;
+  const formLocked = isArchivedView || isComplete;
 
   const overall = Math.round(
     (
@@ -613,7 +650,6 @@ export default async function Page({
     item.missingWeeks.includes('Week 3')
   ).length;
 
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const saved = resolvedSearchParams?.saved === '1';
 
   return (
@@ -623,7 +659,82 @@ export default async function Page({
       description="Track your monthly commitments and weekly progress."
     >
       <div className="space-y-6">
-        {saved && <SaveSuccessMessage />}
+        {saved && isCurrentMonthView && <SaveSuccessMessage />}
+
+        <Card>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                  Archive
+                </div>
+                <div className="mt-2 text-2xl font-bold text-white">
+                  Review Previous Months
+                </div>
+                <div className="mt-1 text-sm text-zinc-400">
+                  Switch between the current month and past tracker entries.
+                </div>
+              </div>
+
+              <form method="GET" className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                    Month
+                  </label>
+                  <select
+                    name="month"
+                    defaultValue={String(entry_month)}
+                    className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+                  >
+                    {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
+                      <option key={month} value={month} className="bg-zinc-900">
+                        {new Date(2026, month - 1, 1).toLocaleString('en-US', {
+                          month: 'long',
+                        })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                    Year
+                  </label>
+                  <select
+                    name="year"
+                    defaultValue={String(entry_year)}
+                    className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
+                  >
+                    {Array.from(
+                      new Set([
+                        currentYear,
+                        ...(allEntries ?? []).map((item) => item.entry_year),
+                      ])
+                    )
+                      .sort((a, b) => b - a)
+                      .map((year) => (
+                        <option key={year} value={year} className="bg-zinc-900">
+                          {year}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white hover:bg-white/5"
+                >
+                  View Month
+                </button>
+              </form>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-300">
+              Viewing: <span className="font-semibold text-white">{monthLabel}</span>
+              {isArchivedView ? ' • Read-only archive view' : ' • Current active month'}
+            </div>
+          </div>
+        </Card>
 
         <CompletionBanner isComplete={isComplete} />
 
@@ -707,9 +818,11 @@ export default async function Page({
         </Card>
 
         <form action={saveAccountability} className="space-y-6">
-          {isComplete && (
+          {formLocked && (
             <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">
-              This month is complete. Editing is locked.
+              {isArchivedView
+                ? 'This is a previous month. Archive entries are read-only.'
+                : 'This month is complete. Editing is locked.'}
             </div>
           )}
 
@@ -740,7 +853,7 @@ export default async function Page({
                   defaultValue={entry?.notes_obstacles_wins ?? ''}
                   rows={4}
                   placeholder="Notes / Obstacles / Wins"
-                  disabled={isComplete}
+                  disabled={formLocked}
                   className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500 disabled:opacity-60"
                 />
               </div>
@@ -751,7 +864,7 @@ export default async function Page({
                     type="checkbox"
                     name="attended_monthly_club_meeting"
                     defaultChecked={Boolean(entry?.attended_monthly_club_meeting)}
-                    disabled={isComplete}
+                    disabled={formLocked}
                     className="h-4 w-4 rounded border-white/20 bg-black/40"
                   />
                   Attended Monthly Club Meeting
@@ -762,7 +875,7 @@ export default async function Page({
                     type="checkbox"
                     name="memorized_scripture"
                     defaultChecked={Boolean(entry?.memorized_scripture)}
-                    disabled={isComplete}
+                    disabled={formLocked}
                     className="h-4 w-4 rounded border-white/20 bg-black/40"
                   />
                   Memorized the Scripture
@@ -773,7 +886,7 @@ export default async function Page({
                     type="checkbox"
                     name="monthly_book_finished"
                     defaultChecked={Boolean(entry?.monthly_book_finished)}
-                    disabled={isComplete}
+                    disabled={formLocked}
                     className="h-4 w-4 rounded border-white/20 bg-black/40"
                   />
                   Monthly Book Finished
@@ -782,11 +895,11 @@ export default async function Page({
             </div>
           </Card>
 
-          <GoalSection title="Spiritual Goals" prefix="spiritual" entry={entry} />
-          <GoalSection title="Personal Goals" prefix="personal" entry={entry} />
-          <GoalSection title="Professional Goals" prefix="professional" entry={entry} />
-          <GoalSection title="Physical Goals" prefix="physical" entry={entry} />
-          <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} />
+          <GoalSection title="Spiritual Goals" prefix="spiritual" entry={entry} disabled={formLocked} />
+          <GoalSection title="Personal Goals" prefix="personal" entry={entry} disabled={formLocked} />
+          <GoalSection title="Professional Goals" prefix="professional" entry={entry} disabled={formLocked} />
+          <GoalSection title="Physical Goals" prefix="physical" entry={entry} disabled={formLocked} />
+          <GoalSection title="Emotional Goals" prefix="emotional" entry={entry} disabled={formLocked} />
 
           <Card>
             <div className="space-y-4">
@@ -799,13 +912,13 @@ export default async function Page({
                   defaultValue={entry?.helped_group_member ?? ''}
                   rows={4}
                   placeholder="How did you help another member?"
-                  disabled={isComplete}
+                  disabled={formLocked}
                   className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-zinc-500 disabled:opacity-60"
                 />
               </div>
 
               <div className="pt-4">
-                {!isComplete && <AccountabilitySubmitButton />}
+                {!formLocked && <AccountabilitySubmitButton />}
               </div>
             </div>
           </Card>
