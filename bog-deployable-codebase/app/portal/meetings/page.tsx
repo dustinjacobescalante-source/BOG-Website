@@ -26,18 +26,60 @@ function formatMeetingDate(date?: string | null) {
   });
 }
 
-function isMeetingJoinable(meetingDate?: string | null) {
-  if (!meetingDate) return false;
+function getMeetingTimingState(meetingDate?: string | null) {
+  if (!meetingDate) {
+    return {
+      status: 'unscheduled' as const,
+      showJoin: false,
+      label: 'Unscheduled',
+      tone:
+        'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+    };
+  }
 
   const meetingMs = new Date(meetingDate).getTime();
   const nowMs = Date.now();
 
-  if (Number.isNaN(meetingMs)) return false;
+  if (Number.isNaN(meetingMs)) {
+    return {
+      status: 'unscheduled' as const,
+      showJoin: false,
+      label: 'Unscheduled',
+      tone:
+        'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+    };
+  }
 
   const earlyJoinWindow = 10 * 60 * 1000;
   const lateJoinWindow = 2 * 60 * 60 * 1000;
 
-  return nowMs >= meetingMs - earlyJoinWindow && nowMs <= meetingMs + lateJoinWindow;
+  if (nowMs < meetingMs - earlyJoinWindow) {
+    return {
+      status: 'upcoming' as const,
+      showJoin: false,
+      label: 'Starts Soon',
+      tone:
+        'border-amber-500/30 bg-amber-500/10 text-amber-300',
+    };
+  }
+
+  if (nowMs >= meetingMs - earlyJoinWindow && nowMs <= meetingMs + lateJoinWindow) {
+    return {
+      status: 'live' as const,
+      showJoin: true,
+      label: 'Live Now',
+      tone:
+        'border-red-500/30 bg-red-500/10 text-red-300',
+    };
+  }
+
+  return {
+    status: 'ended' as const,
+    showJoin: false,
+    label: 'Ended',
+    tone:
+      'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+  };
 }
 
 export default async function PortalMeetingsPage() {
@@ -68,9 +110,9 @@ export default async function PortalMeetingsPage() {
       return new Date(meeting.meeting_date).getTime() >= now;
     }) ?? publishedMeetings[0] ?? null;
 
-  const featuredMeetingJoinable = featuredMeeting
-    ? isMeetingJoinable(featuredMeeting.meeting_date)
-    : false;
+  const featuredMeetingState = featuredMeeting
+    ? getMeetingTimingState(featuredMeeting.meeting_date)
+    : null;
 
   return (
     <Section
@@ -127,11 +169,11 @@ export default async function PortalMeetingsPage() {
                     Featured Meeting
                   </div>
                   <div className="mt-2 text-lg font-bold text-white">
-                    {featuredMeeting ? 'Ready' : 'None Yet'}
+                    {featuredMeeting ? featuredMeetingState?.label ?? 'Ready' : 'None Yet'}
                   </div>
                   <div className="mt-2 text-xs leading-5 text-zinc-500">
                     {featuredMeeting
-                      ? 'A meeting is available to review now.'
+                      ? 'Meeting timing is now shown directly on the portal.'
                       : 'No published meetings are available yet.'}
                   </div>
                 </div>
@@ -158,8 +200,18 @@ export default async function PortalMeetingsPage() {
 
                 {featuredMeeting ? (
                   <>
-                    <div className="mt-3 text-2xl font-bold text-white">
-                      {featuredMeeting.title}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="text-2xl font-bold text-white">
+                        {featuredMeeting.title}
+                      </div>
+
+                      {featuredMeetingState && (
+                        <span
+                          className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${featuredMeetingState.tone}`}
+                        >
+                          {featuredMeetingState.label}
+                        </span>
+                      )}
                     </div>
 
                     <div className="mt-3 flex items-center gap-2 text-sm text-zinc-200">
@@ -174,7 +226,7 @@ export default async function PortalMeetingsPage() {
                     )}
 
                     <div className="mt-5 flex flex-wrap gap-3">
-                      {featuredMeetingJoinable && (
+                      {featuredMeetingState?.showJoin && (
                         <Link
                           href={`/portal/meetings/live?meetingId=${featuredMeeting.id}`}
                           className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
@@ -249,7 +301,7 @@ export default async function PortalMeetingsPage() {
         <div className="space-y-4">
           {publishedMeetings.length ? (
             publishedMeetings.map((meeting, index) => {
-              const joinable = isMeetingJoinable(meeting.meeting_date);
+              const meetingState = getMeetingTimingState(meeting.meeting_date);
 
               return (
                 <Card key={meeting.id}>
@@ -264,11 +316,11 @@ export default async function PortalMeetingsPage() {
                           Published
                         </span>
 
-                        {joinable && (
-                          <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300">
-                            Live Now
-                          </span>
-                        )}
+                        <span
+                          className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${meetingState.tone}`}
+                        >
+                          {meetingState.label}
+                        </span>
                       </div>
 
                       <div className="mt-3 text-2xl font-bold text-white transition group-hover:text-zinc-100">
@@ -287,7 +339,7 @@ export default async function PortalMeetingsPage() {
                     </div>
 
                     <div className="flex shrink-0 flex-wrap items-center gap-3">
-                      {joinable && (
+                      {meetingState.showJoin && (
                         <Link
                           href={`/portal/meetings/live?meetingId=${meeting.id}`}
                           className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
