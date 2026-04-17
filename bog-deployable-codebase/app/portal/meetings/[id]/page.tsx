@@ -8,6 +8,8 @@ import {
   MessageSquare,
   Paperclip,
   ShieldCheck,
+  Video,
+  PlayCircle,
 } from 'lucide-react';
 import { Section } from '@/components/section';
 import { Card } from '@/components/cards';
@@ -15,16 +17,75 @@ import { createClient } from '@/lib/supabase/server';
 import MeetingComments from '@/components/meetings/MeetingComments';
 import TestAttachmentUpload from '@/components/meetings/TestAttachmentUpload';
 
+const APP_TIME_ZONE = 'America/Chicago';
+
 function formatMeetingDate(date?: string | null) {
   if (!date) return 'No date set';
 
   return new Date(date).toLocaleString('en-US', {
+    timeZone: APP_TIME_ZONE,
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function getMeetingTimingState(meetingDate?: string | null) {
+  if (!meetingDate) {
+    return {
+      status: 'unscheduled' as const,
+      showJoin: false,
+      showReplay: false,
+      label: 'Unscheduled',
+      tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+    };
+  }
+
+  const meetingMs = new Date(meetingDate).getTime();
+  const nowMs = Date.now();
+
+  if (Number.isNaN(meetingMs)) {
+    return {
+      status: 'unscheduled' as const,
+      showJoin: false,
+      showReplay: false,
+      label: 'Unscheduled',
+      tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+    };
+  }
+
+  const earlyJoinWindow = 10 * 60 * 1000;
+  const lateJoinWindow = 2 * 60 * 60 * 1000;
+
+  if (nowMs < meetingMs - earlyJoinWindow) {
+    return {
+      status: 'upcoming' as const,
+      showJoin: false,
+      showReplay: false,
+      label: 'Starts Soon',
+      tone: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+    };
+  }
+
+  if (nowMs >= meetingMs - earlyJoinWindow && nowMs <= meetingMs + lateJoinWindow) {
+    return {
+      status: 'live' as const,
+      showJoin: true,
+      showReplay: false,
+      label: 'Live Now',
+      tone: 'border-red-500/30 bg-red-500/10 text-red-300',
+    };
+  }
+
+  return {
+    status: 'ended' as const,
+    showJoin: false,
+    showReplay: true,
+    label: 'Ended',
+    tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+  };
 }
 
 function AgendaBlock({
@@ -147,6 +208,8 @@ export default async function PortalMeetingDetailPage({
     },
   ].filter((block) => block.content);
 
+  const meetingState = getMeetingTimingState(meeting.meeting_date);
+
   return (
     <Section
       label="Portal"
@@ -178,8 +241,8 @@ export default async function PortalMeetingDetailPage({
                 </h2>
 
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-                  Use this page to review the agenda, open attachments, and
-                  leave comments tied directly to the meeting.
+                  Use this page to review the agenda, open attachments, join the
+                  live session when active, and keep replay access ready for later.
                 </p>
               </div>
 
@@ -198,13 +261,17 @@ export default async function PortalMeetingDetailPage({
 
                 <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                    Attachments
+                    Meeting Status
                   </div>
-                  <div className="mt-2 text-lg font-bold text-white">
-                    {attachmentsWithUrls.length}
+                  <div className="mt-2">
+                    <span
+                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${meetingState.tone}`}
+                    >
+                      {meetingState.label}
+                    </span>
                   </div>
                   <div className="mt-2 text-xs leading-5 text-zinc-500">
-                    Files connected to this meeting.
+                    Live access and replay are controlled by meeting timing.
                   </div>
                 </div>
 
@@ -228,8 +295,16 @@ export default async function PortalMeetingDetailPage({
                   Meeting Snapshot
                 </div>
 
-                <div className="mt-3 text-2xl font-bold text-white">
-                  {meeting.title}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="text-2xl font-bold text-white">
+                    {meeting.title}
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${meetingState.tone}`}
+                  >
+                    {meetingState.label}
+                  </span>
                 </div>
 
                 <div className="mt-4 space-y-2 text-sm text-zinc-200">
@@ -246,6 +321,16 @@ export default async function PortalMeetingDetailPage({
                 </div>
 
                 <div className="mt-5 flex flex-wrap gap-3">
+                  {meetingState.showJoin && (
+                    <Link
+                      href={`/portal/meetings/live?meetingId=${meeting.id}`}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-2 text-sm font-semibold text-white hover:border-red-400/40 hover:bg-red-500/20"
+                    >
+                      <Video className="h-4 w-4" />
+                      Join Meeting
+                    </Link>
+                  )}
+
                   <Link
                     href={`/print/meetings/${meeting.id}`}
                     target="_blank"
@@ -255,6 +340,49 @@ export default async function PortalMeetingDetailPage({
                     <FileText className="h-4 w-4" />
                     Print Agenda
                   </Link>
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-white/10 bg-black/25 px-5 py-5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Replay
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-4">
+                  <div className="flex items-start gap-3">
+                    <PlayCircle className="mt-0.5 h-5 w-5 text-zinc-300" />
+                    <div>
+                      <div className="text-sm font-semibold text-white">
+                        Replay system placeholder
+                      </div>
+                      <div className="mt-1 text-xs leading-5 text-zinc-500">
+                        Recorded meeting playback will live here once recording and
+                        storage are connected.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {meetingState.showReplay ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex cursor-not-allowed items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-zinc-400"
+                      >
+                        <PlayCircle className="h-4 w-4" />
+                        Watch Replay
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex cursor-not-allowed items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-zinc-400"
+                      >
+                        <PlayCircle className="h-4 w-4" />
+                        Replay Not Ready
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
