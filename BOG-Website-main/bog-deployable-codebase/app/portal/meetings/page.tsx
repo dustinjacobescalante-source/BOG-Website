@@ -26,18 +26,8 @@ function formatMeetingDate(date?: string | null) {
   });
 }
 
-function isMeetingJoinable(meetingDate?: string | null) {
-  if (!meetingDate) return false;
-
-  const meetingMs = new Date(meetingDate).getTime();
-  const nowMs = Date.now();
-
-  if (Number.isNaN(meetingMs)) return false;
-
-  const earlyJoinWindow = 10 * 60 * 1000;
-  const lateJoinWindow = 2 * 60 * 60 * 1000;
-
-  return nowMs >= meetingMs - earlyJoinWindow && nowMs <= meetingMs + lateJoinWindow;
+function isMeetingJoinable(_meetingDate?: string | null) {
+  return true;
 }
 
 export default async function PortalMeetingsPage() {
