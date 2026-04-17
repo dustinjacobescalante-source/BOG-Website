@@ -8,18 +8,26 @@ import {
   Clock3,
   FileText,
   ShieldCheck,
+  Video,
 } from 'lucide-react';
+
+const APP_TIME_ZONE = 'America/Chicago';
 
 function formatMeetingDate(date?: string | null) {
   if (!date) return 'No date set';
 
   return new Date(date).toLocaleString('en-US', {
+    timeZone: APP_TIME_ZONE,
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function isMeetingJoinable(_meetingDate?: string | null) {
+  return true;
 }
 
 export default async function PortalMeetingsPage() {
@@ -49,6 +57,10 @@ export default async function PortalMeetingsPage() {
       if (!meeting.meeting_date) return false;
       return new Date(meeting.meeting_date).getTime() >= now;
     }) ?? publishedMeetings[0] ?? null;
+
+  const featuredMeetingJoinable = featuredMeeting
+    ? isMeetingJoinable(featuredMeeting.meeting_date)
+    : false;
 
   return (
     <Section
@@ -151,13 +163,25 @@ export default async function PortalMeetingsPage() {
                       </div>
                     )}
 
-                    <Link
-                      href={`/portal/meetings/${featuredMeeting.id}`}
-                      className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white"
-                    >
-                      Open agenda
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {featuredMeetingJoinable && (
+                        <Link
+                          href={`/portal/meetings/live?meetingId=${featuredMeeting.id}`}
+                          className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
+                        >
+                          <Video className="h-4 w-4" />
+                          Join Meeting
+                        </Link>
+                      )}
+
+                      <Link
+                        href={`/portal/meetings/${featuredMeeting.id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.07]"
+                      >
+                        Open Agenda
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -214,13 +238,12 @@ export default async function PortalMeetingsPage() {
 
         <div className="space-y-4">
           {publishedMeetings.length ? (
-            publishedMeetings.map((meeting, index) => (
-              <Card key={meeting.id}>
-                <Link
-                  href={`/portal/meetings/${meeting.id}`}
-                  className="group block"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            publishedMeetings.map((meeting, index) => {
+              const joinable = isMeetingJoinable(meeting.meeting_date);
+
+              return (
+                <Card key={meeting.id}>
+                  <div className="group flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
@@ -230,6 +253,12 @@ export default async function PortalMeetingsPage() {
                         <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-green-300">
                           Published
                         </span>
+
+                        {joinable && (
+                          <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-300">
+                            Live Now
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-3 text-2xl font-bold text-white transition group-hover:text-zinc-100">
@@ -247,16 +276,29 @@ export default async function PortalMeetingsPage() {
                       </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center">
-                      <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-white transition group-hover:border-white/20 group-hover:bg-white/[0.04]">
+                    <div className="flex shrink-0 flex-wrap items-center gap-3">
+                      {joinable && (
+                        <Link
+                          href={`/portal/meetings/live?meetingId=${meeting.id}`}
+                          className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
+                        >
+                          <Video className="h-4 w-4" />
+                          Join Meeting
+                        </Link>
+                      )}
+
+                      <Link
+                        href={`/portal/meetings/${meeting.id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-white transition hover:border-white/20 hover:bg-white/[0.04]"
+                      >
                         View Agenda
                         <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                      </div>
+                      </Link>
                     </div>
                   </div>
-                </Link>
-              </Card>
-            ))
+                </Card>
+              );
+            })
           ) : (
             <Card>
               <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-center">

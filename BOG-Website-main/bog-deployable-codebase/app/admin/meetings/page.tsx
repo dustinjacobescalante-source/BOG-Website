@@ -2,14 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
-  CalendarDays,
   Eye,
   PlusCircle,
   Save,
   SquarePen,
   Trash2,
-  Clock3,
-  Archive,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +14,74 @@ import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
 import AccordionSection from "@/components/ui/AccordionSection";
+
+const APP_TIME_ZONE = "America/Chicago";
+
+function getTimeZoneOffsetMs(date: Date, timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const map = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  const asUtc = Date.UTC(
+    Number(map.year),
+    Number(map.month) - 1,
+    Number(map.day),
+    Number(map.hour),
+    Number(map.minute),
+    Number(map.second)
+  );
+
+  return asUtc - date.getTime();
+}
+
+function dateTimeLocalToTimeZoneIso(
+  value: string,
+  timeZone: string = APP_TIME_ZONE
+) {
+  if (!value) return null;
+
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+  );
+
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute, second = "00"] = match;
+
+  const utcGuessMs = Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second)
+  );
+
+  const utcGuess = new Date(utcGuessMs);
+  const firstOffset = getTimeZoneOffsetMs(utcGuess, timeZone);
+  let corrected = new Date(utcGuessMs - firstOffset);
+
+  const secondOffset = getTimeZoneOffsetMs(corrected, timeZone);
+  if (secondOffset !== firstOffset) {
+    corrected = new Date(utcGuessMs - secondOffset);
+  }
+
+  return corrected.toISOString();
+}
 
 async function saveMeeting(formData: FormData) {
   "use server";
@@ -47,16 +112,25 @@ async function saveMeeting(formData: FormData) {
     formData.get("post_meeting_notes") ?? ""
   ).trim();
 
-  const meeting_date = String(formData.get("meeting_date") ?? "");
-  const next_meeting_date = String(formData.get("next_meeting_date") ?? "");
+  const meeting_date_input = String(formData.get("meeting_date") ?? "");
+  const next_meeting_date_input = String(formData.get("next_meeting_date") ?? "");
   const status = String(formData.get("status") ?? "draft");
 
   if (!title) return;
 
+  const meeting_date = dateTimeLocalToTimeZoneIso(
+    meeting_date_input,
+    APP_TIME_ZONE
+  );
+  const next_meeting_date = dateTimeLocalToTimeZoneIso(
+    next_meeting_date_input,
+    APP_TIME_ZONE
+  );
+
   const result = await supabase.from("meetings").insert({
     title,
-    meeting_date: meeting_date || null,
-    next_meeting_date: next_meeting_date || null,
+    meeting_date,
+    next_meeting_date,
     status,
     arrival_silent_transition: arrival_silent_transition || null,
     opening_anchor: opening_anchor || null,
@@ -102,6 +176,7 @@ function formatDateTime(date?: string | null) {
   if (!date) return "Not scheduled";
 
   return new Date(date).toLocaleString("en-US", {
+    timeZone: APP_TIME_ZONE,
     month: "short",
     day: "numeric",
     year: "numeric",
