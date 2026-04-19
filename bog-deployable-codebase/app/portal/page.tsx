@@ -683,7 +683,7 @@ export default async function PortalPage() {
         <AdminSection
           eyebrow="Member Focus"
           title="Book + Sermon of the Month"
-          description="A cleaner monthly focus area for growth, discipline, and alignment."
+          description="This month in BOG."
         >
           <div className="space-y-5">
             <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(135deg,rgba(14,20,34,0.98),rgba(8,10,18,0.98))] p-5 sm:p-6">
