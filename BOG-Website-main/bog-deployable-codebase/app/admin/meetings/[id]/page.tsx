@@ -9,6 +9,9 @@ import {
   Trash2,
   Eye,
   SquarePen,
+  Radio,
+  MonitorPlay,
+  ShieldCheck,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -180,8 +183,10 @@ async function updateMeeting(id: string, formData: FormData) {
 
   revalidatePath("/admin/meetings");
   revalidatePath(`/admin/meetings/${id}`);
+  revalidatePath(`/admin/meetings/${id}/live`);
   revalidatePath("/portal/meetings");
   revalidatePath(`/portal/meetings/${id}`);
+  revalidatePath(`/portal/meetings/${id}/live`);
 }
 
 async function deleteAttachment(
@@ -332,6 +337,10 @@ export default async function AdminMeetingEditPage({
         actions={[
           { href: "/admin/meetings", label: "Back to Meetings" },
           { href: `/portal/meetings/${meeting.id}`, label: "View in Portal" },
+          {
+            href: `/admin/meetings/${meeting.id}/live`,
+            label: "Live Control",
+          },
         ]}
       />
 
@@ -430,6 +439,55 @@ export default async function AdminMeetingEditPage({
                 <Eye className="h-4 w-4" />
                 Open Portal View
               </Link>
+            </div>
+          </div>
+
+          <div className="rounded-[28px] border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.22),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_32%),rgba(11,16,28,0.94)] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+            <div className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              Live Meeting Control
+            </div>
+
+            <h3 className="mt-4 text-2xl font-black text-white">
+              Run this meeting from the admin side
+            </h3>
+
+            <p className="mt-3 text-sm leading-7 text-slate-300">
+              This gives admins a dedicated command entry instead of relying on
+              the portal join flow or old test routes. Use it to launch the live
+              meeting experience intentionally.
+            </p>
+
+            <div className="mt-5 grid grid-cols-1 gap-3">
+              <Link
+                href={`/admin/meetings/${meeting.id}/live`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-500/15 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Launch Admin Live Control
+              </Link>
+
+              <Link
+                href={`/portal/meetings/${meeting.id}/live`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] hover:text-white"
+              >
+                <MonitorPlay className="h-4 w-4" />
+                Open Member Live View
+              </Link>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div className="flex items-start gap-3">
+                <Radio className="mt-0.5 h-5 w-5 text-cyan-200" />
+                <div>
+                  <div className="text-sm font-semibold text-white">
+                    Next phase of the build
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">
+                    After this, we will create the actual admin live page so you
+                    have a proper home base for entering and running the room.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -704,6 +762,14 @@ export default async function AdminMeetingEditPage({
               >
                 <SquarePen className="h-4 w-4" />
                 Refresh this editor
+              </Link>
+
+              <Link
+                href={`/admin/meetings/${meeting.id}/live`}
+                className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/25 bg-cyan-500/10 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/15"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Open live control
               </Link>
 
               <Link
