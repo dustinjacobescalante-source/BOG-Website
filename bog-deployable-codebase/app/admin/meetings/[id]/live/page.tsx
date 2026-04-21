@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
-import { Video, Users, Radio, ShieldCheck } from "lucide-react";
+import { ShieldCheck, Radio, Users, Video } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
-import LiveMeetingRoom from "@/components/meetings/LiveMeetingRoom";
 
 export default async function AdminLiveMeetingPage({
   params,
@@ -48,7 +47,7 @@ export default async function AdminLiveMeetingPage({
       <AdminHero
         eyebrow="Live Meeting Command"
         title={meeting.title || "Live Meeting"}
-        description="You are now in control of the live meeting room."
+        description="Admin control center for this live meeting."
         actions={[
           {
             href: `/admin/meetings/${meeting.id}`,
@@ -56,49 +55,50 @@ export default async function AdminLiveMeetingPage({
           },
           {
             href: `/portal/meetings/${meeting.id}/live`,
-            label: "Open Member View",
+            label: "Open Live Room",
           },
         ]}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_0.7fr] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6">
 
-        {/* LIVE ROOM */}
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-4">
-          <LiveMeetingRoom
-            meetingId={meeting.id}
-            userName={profile.full_name || "Admin"}
-            isAdmin
-          />
+        {/* MAIN CONTROL */}
+        <div className="rounded-3xl border border-cyan-400/20 bg-black/40 p-6">
+          <div className="text-[10px] uppercase tracking-widest text-cyan-300">
+            Admin Control
+          </div>
+
+          <h2 className="text-2xl font-bold text-white mt-3 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5" />
+            You are running this meeting
+          </h2>
+
+          <p className="text-slate-300 mt-3">
+            Use this page as your command center. Launch the live room, monitor
+            activity, and control the meeting flow.
+          </p>
+
+          <a
+            href={`/portal/meetings/${meeting.id}/live`}
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-white hover:bg-cyan-600 transition"
+          >
+            <Radio className="w-4 h-4" />
+            Enter Live Room
+          </a>
         </div>
 
-        {/* CONTROL PANEL */}
+        {/* STATUS PANEL */}
         <div className="space-y-4">
-
-          <div className="rounded-3xl border border-red-500/20 bg-black/40 p-6">
-            <div className="text-[10px] uppercase tracking-widest text-red-400">
-              Admin Status
-            </div>
-
-            <h3 className="text-xl font-bold text-white mt-2 flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5" />
-              You are controlling this meeting
-            </h3>
-
-            <p className="text-sm text-slate-300 mt-2">
-              You have full control over audio, video, and room presence.
-            </p>
-          </div>
 
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
             <div className="text-[10px] uppercase tracking-widest text-slate-400">
-              Live Indicators
+              Live Status
             </div>
 
-            <div className="mt-4 space-y-3 text-sm text-white">
+            <div className="mt-4 space-y-3 text-white text-sm">
               <div className="flex items-center gap-2">
                 <Radio className="w-4 h-4 text-green-400" />
-                Room Active
+                Ready to go live
               </div>
 
               <div className="flex items-center gap-2">
