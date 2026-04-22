@@ -43,11 +43,29 @@ export default async function AdminLiveMeetingPage({
     redirect("/admin/meetings");
   }
 
-  // 🔑 Get LiveKit token
+  const cookieHeader = requestHeadersToCookieString();
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/livekit/token?room=${meeting.id}`,
-    { cache: "no-store" }
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/livekit/token`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+      },
+      body: JSON.stringify({
+        meetingId: meeting.id,
+      }),
+    }
   );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(
+      `Failed to load LiveKit token: ${res.status} ${errorText}`
+    );
+  }
 
   const tokenData = await res.json();
 
@@ -66,8 +84,8 @@ export default async function AdminLiveMeetingPage({
       />
 
       <div className="mt-6 rounded-3xl border border-cyan-400/20 bg-black/40 p-4">
-        <div className="mb-3 flex items-center gap-2 text-cyan-300 text-xs uppercase tracking-widest">
-          <ShieldCheck className="w-4 h-4" />
+        <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-cyan-300">
+          <ShieldCheck className="h-4 w-4" />
           Admin Live Room
         </div>
 
@@ -75,4 +93,15 @@ export default async function AdminLiveMeetingPage({
       </div>
     </AdminPageShell>
   );
+}
+
+import { cookies } from "next/headers";
+
+function requestHeadersToCookieString() {
+  const cookieStore = cookies();
+
+  return cookieStore
+    .getAll()
+    .map((cookie) => `${cookie.name}=${cookie.value}`)
+    .join("; ");
 }
