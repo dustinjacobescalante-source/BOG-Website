@@ -56,7 +56,6 @@ export default async function AdminLiveMeetingPage({
     meetingId: meeting.id,
   }),
 });
-  );
 
   if (!res.ok) {
     const errorText = await res.text();
