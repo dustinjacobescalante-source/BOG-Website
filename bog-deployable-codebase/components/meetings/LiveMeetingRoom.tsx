@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  ControlBar,
-  GridLayout,
   LiveKitRoom,
-  ParticipantTile,
   RoomAudioRenderer,
+  useLocalParticipant,
   useParticipants,
   useTracks,
 } from "@livekit/components-react";
@@ -21,13 +19,24 @@ type TokenResponse = {
   error?: string;
 };
 
-function LiveRoomStage() {
-  const trackRefs = useTracks([
-    { source: Track.Source.Camera, withPlaceholder: true },
-  ]);
+function AdminControls() {
+  const { localParticipant, isMicrophoneEnabled, isCameraEnabled } =
+    useLocalParticipant();
   const participants = useParticipants();
 
   const participantCount = useMemo(() => participants.length, [participants]);
+
+  async function toggleMic() {
+    await localParticipant?.setMicrophoneEnabled(!isMicrophoneEnabled);
+  }
+
+  async function toggleCamera() {
+    await localParticipant?.setCameraEnabled(!isCameraEnabled);
+  }
+
+  function leaveRoom() {
+    window.location.href = "/admin/meetings";
+  }
 
   return (
     <div className="space-y-4">
@@ -37,7 +46,7 @@ function LiveRoomStage() {
             Admin Controls
           </div>
           <div className="mt-1 text-sm text-slate-200">
-            Use the controls below to mute, unmute, toggle camera, and leave the room.
+            Run the room from here.
           </div>
         </div>
 
@@ -46,28 +55,61 @@ function LiveRoomStage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-        <div className="h-[62vh] min-h-[520px] p-3">
-          <GridLayout tracks={trackRefs} className="h-full">
-            <ParticipantTile />
-          </GridLayout>
-        </div>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={toggleMic}
+          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          {isMicrophoneEnabled ? "Mute Mic" : "Unmute Mic"}
+        </button>
 
-        <div className="border-t border-white/10 bg-black/80 p-3" data-lk-theme="default">
-          <ControlBar
-            variation="minimal"
-            controls={{
-              microphone: true,
-              camera: true,
-              screenShare: false,
-              chat: false,
-              leave: true,
-            }}
-          />
-        </div>
+        <button
+          type="button"
+          onClick={toggleCamera}
+          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          {isCameraEnabled ? "Turn Camera Off" : "Turn Camera On"}
+        </button>
+
+        <button
+          type="button"
+          onClick={leaveRoom}
+          className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
+        >
+          Leave Room
+        </button>
       </div>
+    </div>
+  );
+}
 
-      <RoomAudioRenderer />
+function VideoStage() {
+  const cameraTracks = useTracks([{ source: Track.Source.Camera, withPlaceholder: false }]);
+
+  const mainTrack = cameraTracks[0];
+
+  if (!mainTrack) {
+    return (
+      <div className="flex h-[62vh] min-h-[520px] items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-sm text-slate-300">
+        Waiting for camera...
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+      <video
+        ref={(el) => {
+          if (el && mainTrack.publication?.track) {
+            mainTrack.publication.track.attach(el);
+          }
+        }}
+        className="h-[62vh] min-h-[520px] w-full object-cover"
+        autoPlay
+        playsInline
+        muted
+      />
     </div>
   );
 }
@@ -158,7 +200,7 @@ export default function LiveMeetingRoom({
   }
 
   return (
-    <div data-lk-theme="default">
+    <div data-lk-theme="default" className="space-y-4">
       <LiveKitRoom
         token={tokenData.token}
         serverUrl={tokenData.url}
@@ -167,7 +209,9 @@ export default function LiveMeetingRoom({
         audio
         className="w-full"
       >
-        <LiveRoomStage />
+        <AdminControls />
+        <VideoStage />
+        <RoomAudioRenderer />
       </LiveKitRoom>
     </div>
   );
