@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  ControlBar,
+  GridLayout,
   LiveKitRoom,
-  VideoConference,
+  ParticipantTile,
   RoomAudioRenderer,
+  useParticipants,
+  useTracks,
 } from "@livekit/components-react";
+import { Track } from "livekit-client";
 
 type TokenResponse = {
   token?: string;
@@ -15,6 +20,57 @@ type TokenResponse = {
   participantName?: string;
   error?: string;
 };
+
+function LiveRoomStage() {
+  const trackRefs = useTracks([
+    { source: Track.Source.Camera, withPlaceholder: true },
+  ]);
+  const participants = useParticipants();
+
+  const participantCount = useMemo(() => participants.length, [participants]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/15 bg-cyan-500/5 px-4 py-3">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300">
+            Admin Controls
+          </div>
+          <div className="mt-1 text-sm text-slate-200">
+            Use the controls below to mute, unmute, toggle camera, and leave the room.
+          </div>
+        </div>
+
+        <div className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-semibold text-white">
+          Participants: {participantCount}
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+        <div className="h-[62vh] min-h-[520px] p-3">
+          <GridLayout tracks={trackRefs} className="h-full">
+            <ParticipantTile />
+          </GridLayout>
+        </div>
+
+        <div className="border-t border-white/10 bg-black/80 p-3" data-lk-theme="default">
+          <ControlBar
+            variation="minimal"
+            controls={{
+              microphone: true,
+              camera: true,
+              screenShare: false,
+              chat: false,
+              leave: true,
+            }}
+          />
+        </div>
+      </div>
+
+      <RoomAudioRenderer />
+    </div>
+  );
+}
 
 export default function LiveMeetingRoom({
   meetingId,
@@ -102,18 +158,16 @@ export default function LiveMeetingRoom({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+    <div data-lk-theme="default">
       <LiveKitRoom
         token={tokenData.token}
         serverUrl={tokenData.url}
         connect
         video
         audio
-        data-lk-theme="default"
-        className="h-[70vh] min-h-[560px] w-full"
+        className="w-full"
       >
-        <VideoConference />
-        <RoomAudioRenderer />
+        <LiveRoomStage />
       </LiveKitRoom>
     </div>
   );
