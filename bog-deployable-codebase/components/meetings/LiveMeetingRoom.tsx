@@ -6,10 +6,9 @@ import {
   RoomAudioRenderer,
   useLocalParticipant,
   useParticipants,
-  useRoomContext,
   useTracks,
 } from "@livekit/components-react";
-import { RemoteParticipant, Track } from "livekit-client";
+import { Track } from "livekit-client";
 
 type TokenResponse = {
   token?: string;
@@ -118,56 +117,12 @@ function VideoStage() {
 }
 
 function ParticipantControls() {
-  const room = useRoomContext();
   const participants = useParticipants();
   const { localParticipant } = useLocalParticipant();
 
   const remoteParticipants = participants.filter(
     (participant) => participant.identity !== localParticipant.identity
   );
-
-  async function kickParticipant(participant: RemoteParticipant) {
-    try {
-      await room.removeParticipant(participant.identity);
-    } catch (error) {
-      console.error("Failed to kick participant:", error);
-    }
-  }
-
-  async function muteParticipant(participant: RemoteParticipant) {
-    try {
-      const audioPublication = Array.from(
-        participant.trackPublications.values()
-      ).find((pub) => pub.source === Track.Source.Microphone);
-
-      if (!audioPublication?.trackSid) return;
-
-      await room.localParticipant.performRpc({
-        destinationIdentity: participant.identity,
-        method: "admin-mute-request",
-        payload: JSON.stringify({
-          participantIdentity: participant.identity,
-          trackSid: audioPublication.trackSid,
-        }),
-        responseTimeout: 3000,
-      });
-    } catch (error) {
-      console.error("Mute request failed:", error);
-    }
-  }
-
-  async function endMeetingForEveryone() {
-    try {
-      await Promise.all(
-        remoteParticipants.map((participant) =>
-          room.removeParticipant(participant.identity)
-        )
-      );
-      window.location.href = "/admin/meetings";
-    } catch (error) {
-      console.error("Failed to end meeting:", error);
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -199,16 +154,18 @@ function ParticipantControls() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => muteParticipant(participant as RemoteParticipant)}
-                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/15"
+                    disabled
+                    className="cursor-not-allowed rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs font-semibold text-amber-300/70"
+                    title="Server-side admin mute is next."
                   >
                     Mute User
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => kickParticipant(participant as RemoteParticipant)}
-                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/15"
+                    disabled
+                    className="cursor-not-allowed rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-semibold text-red-300/70"
+                    title="Server-side kick is next."
                   >
                     Kick User
                   </button>
@@ -221,8 +178,9 @@ function ParticipantControls() {
 
       <button
         type="button"
-        onClick={endMeetingForEveryone}
-        className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
+        disabled
+        className="cursor-not-allowed rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm font-semibold text-red-300/70"
+        title="Server-side end meeting is next."
       >
         End Meeting For Everyone
       </button>
