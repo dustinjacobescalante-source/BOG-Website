@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
+import LiveMeetingRoom from "@/components/meetings/LiveMeetingRoom";
 
 export default async function AdminLiveMeetingPage({
   params,
@@ -47,7 +48,7 @@ export default async function AdminLiveMeetingPage({
       <AdminHero
         eyebrow="Live Meeting Command"
         title={meeting.title || "Live Meeting"}
-        description="Admin live room is being prepared."
+        description="Admin live room is ready."
         actions={[
           {
             href: `/admin/meetings/${meeting.id}`,
@@ -62,9 +63,10 @@ export default async function AdminLiveMeetingPage({
           Admin Live Room
         </div>
 
-       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-  <LiveMeetingRoom meetingId={meeting.id} />
-</div>
+        <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+          <LiveMeetingRoom meetingId={meeting.id} />
+        </div>
+      </div>
     </AdminPageShell>
   );
 }
