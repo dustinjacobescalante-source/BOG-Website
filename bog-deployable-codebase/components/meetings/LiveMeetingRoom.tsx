@@ -116,13 +116,62 @@ function VideoStage() {
   );
 }
 
-function ParticipantControls() {
+function ParticipantControls({ meetingId }: { meetingId: string }) {
   const participants = useParticipants();
   const { localParticipant } = useLocalParticipant();
 
   const remoteParticipants = participants.filter(
     (participant) => participant.identity !== localParticipant.identity
   );
+
+  async function kickParticipant(identity: string) {
+    try {
+      const res = await fetch("/api/admin/livekit/room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "kick",
+          roomName: meetingId,
+          participantIdentity: identity,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+    } catch (err) {
+      console.error("Kick failed:", err);
+      alert("Failed to kick user");
+    }
+  }
+
+  async function endMeeting() {
+    try {
+      const res = await fetch("/api/admin/livekit/room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "end",
+          roomName: meetingId,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+
+      window.location.href = "/admin/meetings";
+    } catch (err) {
+      console.error("End meeting failed:", err);
+      alert("Failed to end meeting");
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -151,25 +200,13 @@ function ParticipantControls() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled
-                    className="cursor-not-allowed rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs font-semibold text-amber-300/70"
-                    title="Server-side admin mute is next."
-                  >
-                    Mute User
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled
-                    className="cursor-not-allowed rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-semibold text-red-300/70"
-                    title="Server-side kick is next."
-                  >
-                    Kick User
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => kickParticipant(participant.identity)}
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/15"
+                >
+                  Kick User
+                </button>
               </div>
             ))}
           </div>
@@ -178,9 +215,8 @@ function ParticipantControls() {
 
       <button
         type="button"
-        disabled
-        className="cursor-not-allowed rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm font-semibold text-red-300/70"
-        title="Server-side end meeting is next."
+        onClick={endMeeting}
+        className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
       >
         End Meeting For Everyone
       </button>
@@ -285,7 +321,7 @@ export default function LiveMeetingRoom({
       >
         <AdminControls />
         <VideoStage />
-        <ParticipantControls />
+        <ParticipantControls meetingId={meetingId} />
         <RoomAudioRenderer />
       </LiveKitRoom>
     </div>
