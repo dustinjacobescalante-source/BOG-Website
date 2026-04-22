@@ -1,42 +1,53 @@
-'use client';
+"use client";
 
-import {
-  LiveKitRoom,
-  VideoConference,
-  RoomAudioRenderer,
-} from '@livekit/components-react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { LiveKitRoom } from "@livekit/components-react";
 
-export default function LiveMeetingRoom({ tokenData }: any) {
-  const router = useRouter();
+export default function LiveMeetingRoom({
+  meetingId,
+}: {
+  meetingId: string;
+}) {
+  const [token, setToken] = useState<string | null>(null);
 
-  if (!tokenData?.token || !tokenData?.url) {
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const res = await fetch("/api/livekit/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            meetingId,
+          }),
+        });
+
+        const data = await res.json();
+        setToken(data.token);
+      } catch (err) {
+        console.error("Failed to fetch token", err);
+      }
+    };
+
+    fetchToken();
+  }, [meetingId]);
+
+  if (!token) {
     return (
-      <div className="p-6 text-center text-red-400">
-        Failed to load meeting connection.
+      <div className="flex h-[500px] items-center justify-center text-white">
+        Connecting to live room...
       </div>
     );
   }
 
   return (
-    <div className="p-3 sm:p-4">
-      <div className="overflow-hidden rounded-[24px] border border-white/10 bg-black">
-        <LiveKitRoom
-          token={tokenData.token}
-          serverUrl={tokenData.url}
-          connect={true}
-          video
-          audio
-          data-lk-theme="default"
-          className="h-[70vh] min-h-[560px] w-full"
-          onDisconnected={() => {
-            router.push('/portal/meetings');
-          }}
-        >
-          <VideoConference />
-          <RoomAudioRenderer />
-        </LiveKitRoom>
-      </div>
-    </div>
+    <LiveKitRoom
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL!}
+      connect
+      video
+      audio
+    />
   );
 }
