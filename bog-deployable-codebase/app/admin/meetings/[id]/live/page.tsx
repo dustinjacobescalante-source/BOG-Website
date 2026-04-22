@@ -43,7 +43,7 @@ export default async function AdminLiveMeetingPage({
     redirect("/admin/meetings");
   }
 
-  const cookieHeader = requestHeadersToCookieString();
+  const cookieHeader = await requestHeadersToCookieString();
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_SITE_URL}/api/livekit/token`,
@@ -97,8 +97,8 @@ export default async function AdminLiveMeetingPage({
 
 import { cookies } from "next/headers";
 
-function requestHeadersToCookieString() {
-  const cookieStore = cookies();
+async function requestHeadersToCookieString() {
+  const cookieStore = await cookies();
 
   return cookieStore
     .getAll()
