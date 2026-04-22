@@ -81,7 +81,7 @@ if (!meetingId) {
       token: await token.toJwt(),
       url: livekitUrl,
       roomName,
-      meetingTitle: meeting.title,
+     meetingTitle: meeting?.title ?? "BOG Meeting",
       participantName: displayName,
     });
   } catch (error) {
