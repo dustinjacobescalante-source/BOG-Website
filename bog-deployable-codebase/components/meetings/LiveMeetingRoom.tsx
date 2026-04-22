@@ -6,9 +6,10 @@ import {
   RoomAudioRenderer,
   useLocalParticipant,
   useParticipants,
+  useRoomContext,
   useTracks,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { RemoteParticipant, Track } from "livekit-client";
 
 type TokenResponse = {
   token?: string;
@@ -85,7 +86,9 @@ function AdminControls() {
 }
 
 function VideoStage() {
-  const cameraTracks = useTracks([{ source: Track.Source.Camera, withPlaceholder: false }]);
+  const cameraTracks = useTracks([
+    { source: Track.Source.Camera, withPlaceholder: false },
+  ]);
 
   const mainTrack = cameraTracks[0];
 
@@ -110,6 +113,119 @@ function VideoStage() {
         playsInline
         muted
       />
+    </div>
+  );
+}
+
+function ParticipantControls() {
+  const room = useRoomContext();
+  const participants = useParticipants();
+  const { localParticipant } = useLocalParticipant();
+
+  const remoteParticipants = participants.filter(
+    (participant) => participant.identity !== localParticipant.identity
+  );
+
+  async function kickParticipant(participant: RemoteParticipant) {
+    try {
+      await room.removeParticipant(participant.identity);
+    } catch (error) {
+      console.error("Failed to kick participant:", error);
+    }
+  }
+
+  async function muteParticipant(participant: RemoteParticipant) {
+    try {
+      const audioPublication = Array.from(
+        participant.trackPublications.values()
+      ).find((pub) => pub.source === Track.Source.Microphone);
+
+      if (!audioPublication?.trackSid) return;
+
+      await room.localParticipant.performRpc({
+        destinationIdentity: participant.identity,
+        method: "admin-mute-request",
+        payload: JSON.stringify({
+          participantIdentity: participant.identity,
+          trackSid: audioPublication.trackSid,
+        }),
+        responseTimeout: 3000,
+      });
+    } catch (error) {
+      console.error("Mute request failed:", error);
+    }
+  }
+
+  async function endMeetingForEveryone() {
+    try {
+      await Promise.all(
+        remoteParticipants.map((participant) =>
+          room.removeParticipant(participant.identity)
+        )
+      );
+      window.location.href = "/admin/meetings";
+    } catch (error) {
+      console.error("Failed to end meeting:", error);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+        <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+          Participant Controls
+        </div>
+
+        {remoteParticipants.length === 0 ? (
+          <div className="text-sm text-slate-300">
+            No other participants in the room yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {remoteParticipants.map((participant) => (
+              <div
+                key={participant.identity}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+              >
+                <div>
+                  <div className="text-sm font-semibold text-white">
+                    {participant.name || participant.identity}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {participant.identity}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => muteParticipant(participant as RemoteParticipant)}
+                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/15"
+                  >
+                    Mute User
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => kickParticipant(participant as RemoteParticipant)}
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/15"
+                  >
+                    Kick User
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={endMeetingForEveryone}
+        className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
+      >
+        End Meeting For Everyone
+      </button>
     </div>
   );
 }
@@ -211,6 +327,7 @@ export default function LiveMeetingRoom({
       >
         <AdminControls />
         <VideoStage />
+        <ParticipantControls />
         <RoomAudioRenderer />
       </LiveKitRoom>
     </div>
