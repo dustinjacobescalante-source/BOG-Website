@@ -45,19 +45,17 @@ export default async function AdminLiveMeetingPage({
 
   const cookieHeader = await requestHeadersToCookieString();
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/livekit/token`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: cookieHeader,
-      },
-      body: JSON.stringify({
-        meetingId: meeting.id,
-      }),
-    }
+  const res = await fetch(`/api/livekit/token`, {
+  method: "POST",
+  cache: "no-store",
+  headers: {
+    "Content-Type": "application/json",
+    Cookie: cookieHeader,
+  },
+  body: JSON.stringify({
+    meetingId: meeting.id,
+  }),
+});
   );
 
   if (!res.ok) {
