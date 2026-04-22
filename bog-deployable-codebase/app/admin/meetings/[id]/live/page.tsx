@@ -62,11 +62,9 @@ export default async function AdminLiveMeetingPage({
           Admin Live Room
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-slate-200">
-          Live room shell is ready. Next we will connect the token fetch inside
-          the client component so this page stops crashing and loads the camera
-          feed correctly.
-        </div>
+       <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+  <LiveMeetingRoom meetingId={meeting.id} />
+</div>
       </div>
     </AdminPageShell>
   );
