@@ -11,8 +11,9 @@ export async function POST(req: Request) {
 
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
+    const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
-    if (!apiKey || !apiSecret) {
+    if (!apiKey || !apiSecret || !livekitUrl) {
       return NextResponse.json(
         { error: "LiveKit env vars missing" },
         { status: 500 }
@@ -30,11 +31,18 @@ export async function POST(req: Request) {
       roomJoin: true,
       canPublish: true,
       canSubscribe: true,
+      canPublishData: true,
     });
 
     const token = await at.toJwt();
 
-    return NextResponse.json({ token });
+    return NextResponse.json({
+      token,
+      url: livekitUrl,
+      roomName: meetingId,
+      meetingTitle: "BOG Meeting",
+      participantName: identity,
+    });
   } catch (err) {
     console.error("TOKEN ERROR:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
