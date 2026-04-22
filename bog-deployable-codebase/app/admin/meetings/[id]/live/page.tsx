@@ -4,7 +4,6 @@ import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
-import LiveMeetingRoom from "@/components/meetings/LiveMeetingRoom";
 
 export default async function AdminLiveMeetingPage({
   params,
@@ -43,35 +42,12 @@ export default async function AdminLiveMeetingPage({
     redirect("/admin/meetings");
   }
 
-  const cookieHeader = await requestHeadersToCookieString();
-
-  const res = await fetch(`/api/livekit/token`, {
-  method: "POST",
-  cache: "no-store",
-  headers: {
-    "Content-Type": "application/json",
-    Cookie: cookieHeader,
-  },
-  body: JSON.stringify({
-    meetingId: meeting.id,
-  }),
-});
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(
-      `Failed to load LiveKit token: ${res.status} ${errorText}`
-    );
-  }
-
-  const tokenData = await res.json();
-
   return (
     <AdminPageShell>
       <AdminHero
         eyebrow="Live Meeting Command"
         title={meeting.title || "Live Meeting"}
-        description="You are running this meeting. Stay sharp."
+        description="Admin live room is being prepared."
         actions={[
           {
             href: `/admin/meetings/${meeting.id}`,
@@ -80,25 +56,18 @@ export default async function AdminLiveMeetingPage({
         ]}
       />
 
-      <div className="mt-6 rounded-3xl border border-cyan-400/20 bg-black/40 p-4">
+      <div className="mt-6 rounded-3xl border border-cyan-400/20 bg-black/40 p-6">
         <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-cyan-300">
           <ShieldCheck className="h-4 w-4" />
           Admin Live Room
         </div>
 
-        <LiveMeetingRoom tokenData={tokenData} />
+        <div className="rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-slate-200">
+          Live room shell is ready. Next we will connect the token fetch inside
+          the client component so this page stops crashing and loads the camera
+          feed correctly.
+        </div>
       </div>
     </AdminPageShell>
   );
-}
-
-import { cookies } from "next/headers";
-
-async function requestHeadersToCookieString() {
-  const cookieStore = await cookies();
-
-  return cookieStore
-    .getAll()
-    .map((cookie) => `${cookie.name}=${cookie.value}`)
-    .join("; ");
 }
