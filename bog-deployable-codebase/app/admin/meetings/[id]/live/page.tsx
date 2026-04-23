@@ -64,7 +64,7 @@ export default async function AdminLiveMeetingPage({
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <LiveMeetingRoom meetingId={meeting.id} />
+          <LiveMeetingRoom meetingId={meeting.id} isAdmin={true} />
         </div>
       </div>
     </AdminPageShell>
