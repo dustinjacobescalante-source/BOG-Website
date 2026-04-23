@@ -64,7 +64,7 @@ export default async function PortalMeetingLivePage({
         </div>
 
         <div className="rounded-[28px] border border-white/10 bg-[rgba(10,14,25,0.92)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-6">
-          <LiveMeetingRoom meetingId={meeting.id} />
+          <LiveMeetingRoom meetingId={meeting.id} isAdmin={false} />
         </div>
       </section>
     </PortalShell>
