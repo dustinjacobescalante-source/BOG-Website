@@ -19,6 +19,20 @@ type TokenResponse = {
   error?: string;
 };
 
+function parseMetadata(metadata?: string): Record<string, unknown> | null {
+  if (!metadata) return null;
+
+  try {
+    const parsed = JSON.parse(metadata);
+    if (parsed && typeof parsed === "object") {
+      return parsed as Record<string, unknown>;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function getParticipantRole(
   participant: {
     identity?: string;
@@ -27,20 +41,58 @@ function getParticipantRole(
   },
   fallbackIsAdmin = false
 ) {
-  const identity = participant.identity?.toLowerCase() ?? "";
-  const name = participant.name?.toLowerCase() ?? "";
-  const metadata = participant.metadata?.toLowerCase() ?? "";
-
-  if (
-    fallbackIsAdmin ||
-    identity.includes("admin") ||
-    name.includes("admin") ||
-    metadata.includes("admin")
-  ) {
+  if (fallbackIsAdmin) {
     return "Admin";
   }
 
-  return "Member";
+  const parsedMetadata = parseMetadata(participant.metadata);
+
+  const metadataRole =
+    typeof parsedMetadata?.role === "string"
+      ? parsedMetadata.role.toLowerCase()
+      : typeof parsedMetadata?.userRole === "string"
+      ? parsedMetadata.userRole.toLowerCase()
+      : typeof parsedMetadata?.participantRole === "string"
+      ? parsedMetadata.participantRole.toLowerCase()
+      : "";
+
+  return metadataRole === "admin" ? "Admin" : "Member";
+}
+
+function getParticipantDisplayName(
+  participant: {
+    identity?: string;
+    name?: string;
+    metadata?: string;
+    isLocal?: boolean;
+  }
+) {
+  if (participant.name && participant.name.trim().length > 0) {
+    return participant.name.trim();
+  }
+
+  const parsedMetadata = parseMetadata(participant.metadata);
+
+  const metadataName =
+    typeof parsedMetadata?.full_name === "string"
+      ? parsedMetadata.full_name
+      : typeof parsedMetadata?.fullName === "string"
+      ? parsedMetadata.fullName
+      : typeof parsedMetadata?.name === "string"
+      ? parsedMetadata.name
+      : typeof parsedMetadata?.participantName === "string"
+      ? parsedMetadata.participantName
+      : "";
+
+  if (metadataName && metadataName.trim().length > 0) {
+    return metadataName.trim();
+  }
+
+  if (participant.identity && participant.identity.trim().length > 0) {
+    return participant.identity.trim();
+  }
+
+  return participant.isLocal ? "You" : "Participant";
 }
 
 function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
@@ -121,6 +173,7 @@ function VideoTile({
   const participant = trackRef.participant;
   const isLocal = participant.isLocal;
   const role = getParticipantRole(participant, isLocal ? localIsAdmin : false);
+  const displayName = getParticipantDisplayName(participant);
 
   return (
     <div
@@ -163,9 +216,7 @@ function VideoTile({
 
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
           <div className="rounded-full border border-white/10 bg-black/60 px-3 py-2 text-xs font-semibold text-white sm:text-sm">
-            {participant.name ||
-              participant.identity ||
-              (isLocal ? "You" : "Participant")}
+            {displayName}
             {isLocal ? " (You)" : ""}
           </div>
         </div>
@@ -304,7 +355,7 @@ function ParticipantControls({ meetingId }: { meetingId: string }) {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="text-sm font-semibold text-white">
-                      {participant.name || participant.identity}
+                      {getParticipantDisplayName(participant)}
                     </div>
 
                     <span className="rounded-full border border-white/10 bg-black/40 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
