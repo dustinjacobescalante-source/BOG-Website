@@ -115,7 +115,7 @@ function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
   }
 
   return (
-    <div className="sticky bottom-4 z-30 flex justify-center px-2 sm:px-4">
+   <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex justify-center px-2 sm:px-4">
       <div className="flex w-full max-w-fit flex-wrap items-center justify-center gap-3 rounded-[24px] border border-white/10 bg-black/75 px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:px-4">
         <div className="hidden rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-2 text-xs font-semibold text-cyan-200 sm:block">
           {isAdmin ? "Admin Room" : "Member Room"}
