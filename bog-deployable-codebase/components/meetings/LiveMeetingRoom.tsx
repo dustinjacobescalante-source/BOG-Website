@@ -84,6 +84,24 @@ function AdminControls() {
   );
 }
 
+function MemberControls() {
+  function leaveRoom() {
+    window.location.href = "/portal/meetings";
+  }
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      <button
+        type="button"
+        onClick={leaveRoom}
+        className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
+      >
+        Leave Room
+      </button>
+    </div>
+  );
+}
+
 function VideoStage() {
   const cameraTracks = useTracks([
     { source: Track.Source.Camera, withPlaceholder: false },
@@ -226,8 +244,10 @@ function ParticipantControls({ meetingId }: { meetingId: string }) {
 
 export default function LiveMeetingRoom({
   meetingId,
+  isAdmin = false,
 }: {
   meetingId: string;
+  isAdmin?: boolean;
 }) {
   const [tokenData, setTokenData] = useState<TokenResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -319,9 +339,9 @@ export default function LiveMeetingRoom({
         audio
         className="w-full"
       >
-        <AdminControls />
+        {isAdmin ? <AdminControls /> : <MemberControls />}
         <VideoStage />
-        <ParticipantControls meetingId={meetingId} />
+        {isAdmin ? <ParticipantControls meetingId={meetingId} /> : null}
         <RoomAudioRenderer />
       </LiveKitRoom>
     </div>
