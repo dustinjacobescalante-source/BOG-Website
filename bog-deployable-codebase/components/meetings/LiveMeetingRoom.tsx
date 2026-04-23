@@ -19,7 +19,7 @@ type TokenResponse = {
   error?: string;
 };
 
-function AdminControls() {
+function RoomControls({ isAdmin }: { isAdmin: boolean }) {
   const { localParticipant, isMicrophoneEnabled, isCameraEnabled } =
     useLocalParticipant();
   const participants = useParticipants();
@@ -35,7 +35,7 @@ function AdminControls() {
   }
 
   function leaveRoom() {
-    window.location.href = "/admin/meetings";
+    window.location.href = isAdmin ? "/admin/meetings" : "/portal/meetings";
   }
 
   return (
@@ -43,10 +43,10 @@ function AdminControls() {
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/15 bg-cyan-500/5 px-4 py-3">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300">
-            Admin Controls
+            {isAdmin ? "Admin Controls" : "Meeting Controls"}
           </div>
           <div className="mt-1 text-sm text-slate-200">
-            Run the room from here.
+            {isAdmin ? "Run the room from here." : "Manage your mic and camera."}
           </div>
         </div>
 
@@ -84,32 +84,44 @@ function AdminControls() {
   );
 }
 
-function MemberControls() {
-  function leaveRoom() {
-    window.location.href = "/portal/meetings";
-  }
+function VideoTile({
+  trackRef,
+}: {
+  trackRef: ReturnType<typeof useTracks>[number];
+}) {
+  const participant = trackRef.participant;
+  const isLocal = participant.isLocal;
 
   return (
-    <div className="flex flex-wrap gap-3">
-      <button
-        type="button"
-        onClick={leaveRoom}
-        className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500/15"
-      >
-        Leave Room
-      </button>
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+      <div className="relative">
+        <video
+          ref={(el) => {
+            if (el && trackRef.publication?.track) {
+              trackRef.publication.track.attach(el);
+            }
+          }}
+          className="h-[38vh] min-h-[260px] w-full object-cover"
+          autoPlay
+          playsInline
+          muted={isLocal}
+        />
+
+        <div className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+          {participant.name || participant.identity || (isLocal ? "You" : "Participant")}
+          {isLocal ? " (You)" : ""}
+        </div>
+      </div>
     </div>
   );
 }
 
 function VideoStage() {
   const cameraTracks = useTracks([
-    { source: Track.Source.Camera, withPlaceholder: false },
+    { source: Track.Source.Camera, withPlaceholder: true },
   ]);
 
-  const mainTrack = cameraTracks[0];
-
-  if (!mainTrack) {
+  if (!cameraTracks.length) {
     return (
       <div className="flex h-[62vh] min-h-[520px] items-center justify-center rounded-2xl border border-white/10 bg-black/40 text-sm text-slate-300">
         Waiting for camera...
@@ -118,18 +130,13 @@ function VideoStage() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-      <video
-        ref={(el) => {
-          if (el && mainTrack.publication?.track) {
-            mainTrack.publication.track.attach(el);
-          }
-        }}
-        className="h-[62vh] min-h-[520px] w-full object-cover"
-        autoPlay
-        playsInline
-        muted
-      />
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {cameraTracks.map((trackRef) => (
+        <VideoTile
+          key={`${trackRef.participant.identity}-${trackRef.source}`}
+          trackRef={trackRef}
+        />
+      ))}
     </div>
   );
 }
@@ -339,7 +346,7 @@ export default function LiveMeetingRoom({
         audio
         className="w-full"
       >
-        {isAdmin ? <AdminControls /> : <MemberControls />}
+        <RoomControls isAdmin={isAdmin} />
         <VideoStage />
         {isAdmin ? <ParticipantControls meetingId={meetingId} /> : null}
         <RoomAudioRenderer />
