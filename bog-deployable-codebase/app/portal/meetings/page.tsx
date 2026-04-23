@@ -32,8 +32,7 @@ function getMeetingTimingState(meetingDate?: string | null) {
       status: 'unscheduled' as const,
       showJoin: false,
       label: 'Unscheduled',
-      tone:
-        'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+      tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
     };
   }
 
@@ -45,8 +44,7 @@ function getMeetingTimingState(meetingDate?: string | null) {
       status: 'unscheduled' as const,
       showJoin: false,
       label: 'Unscheduled',
-      tone:
-        'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+      tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
     };
   }
 
@@ -58,8 +56,7 @@ function getMeetingTimingState(meetingDate?: string | null) {
       status: 'upcoming' as const,
       showJoin: false,
       label: 'Starts Soon',
-      tone:
-        'border-amber-500/30 bg-amber-500/10 text-amber-300',
+      tone: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
     };
   }
 
@@ -68,8 +65,7 @@ function getMeetingTimingState(meetingDate?: string | null) {
       status: 'live' as const,
       showJoin: true,
       label: 'Live Now',
-      tone:
-        'border-red-500/30 bg-red-500/10 text-red-300',
+      tone: 'border-red-500/30 bg-red-500/10 text-red-300',
     };
   }
 
@@ -77,8 +73,7 @@ function getMeetingTimingState(meetingDate?: string | null) {
     status: 'ended' as const,
     showJoin: false,
     label: 'Ended',
-    tone:
-      'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
+    tone: 'border-zinc-500/30 bg-zinc-500/10 text-zinc-300',
   };
 }
 
@@ -228,7 +223,7 @@ export default async function PortalMeetingsPage() {
                     <div className="mt-5 flex flex-wrap gap-3">
                       {featuredMeetingState?.showJoin && (
                         <Link
-                          href={`/portal/meetings/live?meetingId=${featuredMeeting.id}`}
+                          href={`/portal/meetings/${featuredMeeting.id}/live`}
                           className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
                         >
                           <Video className="h-4 w-4" />
@@ -341,7 +336,7 @@ export default async function PortalMeetingsPage() {
                     <div className="flex shrink-0 flex-wrap items-center gap-3">
                       {meetingState.showJoin && (
                         <Link
-                          href={`/portal/meetings/live?meetingId=${meeting.id}`}
+                          href={`/portal/meetings/${meeting.id}/live`}
                           className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/15 px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400/40 hover:bg-red-500/20"
                         >
                           <Video className="h-4 w-4" />
