@@ -55,8 +55,13 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
   }
 
   function getRankLabel(rank?: string | null) {
-    if (!rank) return 'Omega';
-    return rank.charAt(0).toUpperCase() + rank.slice(1);
+  const cleanRank = rank || 'lone_wolf';
+
+  return cleanRank
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
   }
 
   return (
@@ -163,9 +168,12 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
                     className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none"
                   >
                     <option value="all">All Ranks</option>
+                    <option value="lone_wolf">Lone Wolf</option>
                     <option value="omega">Omega</option>
                     <option value="alpha">Alpha</option>
                     <option value="beta">Beta</option>
+                    <option value="gamma">Gamma</option>
+                    <option value="delta">Delta</option>
                   </select>
                 </div>
               </div>
