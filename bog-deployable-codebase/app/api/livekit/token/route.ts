@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("full_name, role, is_active")
+      .select("full_name, role, rank, is_active")
       .eq("id", user.id)
       .single();
 
@@ -56,6 +56,8 @@ export async function POST(req: Request) {
     }
 
     const participantRole = profile.role === "admin" ? "admin" : "member";
+    const participantRank = profile.rank || "lone_wolf";
+
     const safeDisplayName =
       profile.full_name?.trim() ||
       user.user_metadata?.full_name ||
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
       metadata: JSON.stringify({
         user_id: user.id,
         role: participantRole,
+        rank: participantRank,
         full_name: safeDisplayName,
         email: user.email ?? null,
       }),
@@ -92,6 +95,7 @@ export async function POST(req: Request) {
       roomName: meetingId,
       meetingTitle: "BOG Meeting",
       participantName: safeDisplayName,
+      participantRank,
     });
   } catch (err) {
     console.error("TOKEN ERROR:", err);
