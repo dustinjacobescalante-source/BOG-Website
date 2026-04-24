@@ -116,11 +116,12 @@ function getParticipantDisplayName(
 
 function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
   const {
-  localParticipant,
-  isMicrophoneEnabled,
-  isCameraEnabled,
-  isScreenShareEnabled,
-} = useLocalParticipant();
+    localParticipant,
+    isMicrophoneEnabled,
+    isCameraEnabled,
+    isScreenShareEnabled,
+  } = useLocalParticipant();
+
   const participants = useParticipants();
 
   const participantCount = useMemo(() => participants.length, [participants]);
@@ -133,10 +134,10 @@ function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
     await localParticipant?.setCameraEnabled(!isCameraEnabled);
   }
 
-async function toggleScreenShare() {
-  await localParticipant?.setScreenShareEnabled(!isScreenShareEnabled);
-}
-  
+  async function toggleScreenShare() {
+    await localParticipant?.setScreenShareEnabled(!isScreenShareEnabled);
+  }
+
   function leaveRoom() {
     window.location.href = isAdmin ? "/admin/meetings" : "/portal/meetings";
   }
@@ -176,20 +177,20 @@ async function toggleScreenShare() {
           {isCameraEnabled ? "Turn Camera Off" : "Turn Camera On"}
         </button>
 
-{isAdmin ? (
-  <button
-    type="button"
-    onClick={toggleScreenShare}
-    className={`rounded-full px-4 py-3 text-sm font-semibold transition ${
-      isScreenShareEnabled
-        ? "border border-cyan-400/30 bg-cyan-500/15 text-cyan-200 hover:bg-cyan-500/20"
-        : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
-    }`}
-  >
-    {isScreenShareEnabled ? "Stop Share" : "Share Screen"}
-  </button>
-) : null}
-        
+        {isAdmin ? (
+          <button
+            type="button"
+            onClick={toggleScreenShare}
+            className={`rounded-full px-4 py-3 text-sm font-semibold transition ${
+              isScreenShareEnabled
+                ? "border border-cyan-400/30 bg-cyan-500/15 text-cyan-200 hover:bg-cyan-500/20"
+                : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
+            }`}
+          >
+            {isScreenShareEnabled ? "Stop Share" : "Share Screen"}
+          </button>
+        ) : null}
+
         <button
           type="button"
           onClick={leaveRoom}
@@ -206,10 +207,14 @@ function VideoTile({
   trackRef,
   isActiveSpeaker,
   localIsAdmin,
+  isScreenShare = false,
+  isFeatured = false,
 }: {
   trackRef: ReturnType<typeof useTracks>[number];
   isActiveSpeaker: boolean;
   localIsAdmin: boolean;
+  isScreenShare?: boolean;
+  isFeatured?: boolean;
 }) {
   const participant = trackRef.participant;
   const isLocal = participant.isLocal;
@@ -220,7 +225,9 @@ function VideoTile({
   return (
     <div
       className={`overflow-hidden rounded-[24px] border bg-black transition ${
-        isActiveSpeaker
+        isScreenShare
+          ? "border-cyan-400/50 ring-2 ring-cyan-400/30"
+          : isActiveSpeaker
           ? "border-cyan-400/60 ring-2 ring-cyan-400/40"
           : "border-white/10"
       }`}
@@ -232,7 +239,13 @@ function VideoTile({
               trackRef.publication.track.attach(el);
             }
           }}
-          className="h-[32vh] min-h-[240px] w-full bg-black object-cover sm:h-[38vh] lg:h-[42vh]"
+          className={`w-full bg-black ${
+            isScreenShare
+              ? "h-auto max-h-[72vh] min-h-[260px] object-contain"
+              : isFeatured
+              ? "h-[46vh] min-h-[300px] object-cover"
+              : "h-[32vh] min-h-[220px] object-cover sm:h-[34vh] lg:h-[36vh]"
+          }`}
           autoPlay
           playsInline
           muted={isLocal}
@@ -249,7 +262,11 @@ function VideoTile({
             {role}
           </span>
 
-          {isActiveSpeaker ? (
+          {isScreenShare ? (
+            <span className="rounded-full border border-cyan-400/30 bg-cyan-500/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+              Screen Share
+            </span>
+          ) : isActiveSpeaker ? (
             <span className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-200">
               Speaking
             </span>
@@ -273,21 +290,30 @@ function VideoTile({
 }
 
 function VideoStage({ isAdmin }: { isAdmin: boolean }) {
-  const cameraTracks = useTracks([
-  { source: Track.Source.ScreenShare, withPlaceholder: false },
-  { source: Track.Source.Camera, withPlaceholder: true },
-]);
+  const tracks = useTracks([
+    { source: Track.Source.ScreenShare, withPlaceholder: false },
+    { source: Track.Source.Camera, withPlaceholder: true },
+  ]);
+
   const participants = useParticipants();
+
+  const screenShareTracks = tracks.filter(
+    (trackRef) => trackRef.source === Track.Source.ScreenShare
+  );
+
+  const cameraTracks = tracks.filter(
+    (trackRef) => trackRef.source === Track.Source.Camera
+  );
 
   const activeSpeakerSid = useMemo(() => {
     const sorted = [...participants].sort((a, b) => b.audioLevel - a.audioLevel);
     return sorted[0]?.sid ?? null;
   }, [participants]);
 
-  const orderedTracks = useMemo(() => {
-    const tracks = [...cameraTracks];
+  const orderedCameraTracks = useMemo(() => {
+    const sortedTracks = [...cameraTracks];
 
-    tracks.sort((a, b) => {
+    sortedTracks.sort((a, b) => {
       const aIsActive = a.participant.sid === activeSpeakerSid;
       const bIsActive = b.participant.sid === activeSpeakerSid;
 
@@ -300,10 +326,10 @@ function VideoStage({ isAdmin }: { isAdmin: boolean }) {
       return 0;
     });
 
-    return tracks;
+    return sortedTracks;
   }, [cameraTracks, activeSpeakerSid]);
 
-  if (!orderedTracks.length) {
+  if (!tracks.length) {
     return (
       <div className="flex h-[62vh] min-h-[420px] items-center justify-center rounded-[24px] border border-white/10 bg-black/40 px-6 text-center text-sm text-slate-300">
         Waiting for camera...
@@ -311,9 +337,41 @@ function VideoStage({ isAdmin }: { isAdmin: boolean }) {
     );
   }
 
+  if (screenShareTracks.length > 0) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
+          {screenShareTracks.map((trackRef) => (
+            <VideoTile
+              key={`${trackRef.participant.identity}-${trackRef.source}`}
+              trackRef={trackRef}
+              isActiveSpeaker={false}
+              localIsAdmin={isAdmin}
+              isScreenShare
+              isFeatured
+            />
+          ))}
+        </div>
+
+        {orderedCameraTracks.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {orderedCameraTracks.map((trackRef) => (
+              <VideoTile
+                key={`${trackRef.participant.identity}-${trackRef.source}`}
+                trackRef={trackRef}
+                isActiveSpeaker={trackRef.participant.sid === activeSpeakerSid}
+                localIsAdmin={isAdmin}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-      {orderedTracks.map((trackRef) => (
+      {orderedCameraTracks.map((trackRef) => (
         <VideoTile
           key={`${trackRef.participant.identity}-${trackRef.source}`}
           trackRef={trackRef}
