@@ -208,184 +208,190 @@ function DoctrineCard() {
     "Execute the priority first",
     "Build leaders at every level",
   ];
-  
-  return (
-    <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(8,11,19,0.97),rgba(6,8,14,0.99))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.34)] sm:p-6 lg:p-7">
-      <div
-        className="absolute inset-0 opacity-[0.11]"
-        style={{
-          backgroundImage: "url('/assets/boggraf.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(112deg,rgba(7,10,16,0.97)_0%,rgba(7,10,16,0.90)_32%,rgba(7,10,16,0.94)_62%,rgba(7,10,16,0.985)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.12),transparent_26%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.10),transparent_24%)]" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
-      <div className="relative grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-        <div className="space-y-5">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-300">
-              <Target className="h-3.5 w-3.5" />
-              BOG Vision
+  return (
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(8,11,19,0.97),rgba(6,8,14,0.99))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.34)] sm:p-6 lg:p-7">
+        <div
+          className="absolute inset-0 opacity-[0.11]"
+          style={{
+            backgroundImage: "url('/assets/boggraf.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(112deg,rgba(7,10,16,0.97)_0%,rgba(7,10,16,0.90)_32%,rgba(7,10,16,0.94)_62%,rgba(7,10,16,0.985)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.12),transparent_26%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.10),transparent_24%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+        <div className="relative grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+          <div className="space-y-5">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-300">
+                <Target className="h-3.5 w-3.5" />
+                BOG Vision
+              </div>
+
+              <h3 className="mt-4 text-3xl font-black tracking-[-0.045em] text-white sm:text-4xl lg:text-[2.85rem] lg:leading-[0.94]">
+                Run into the storm.
+              </h3>
+
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300 sm:text-base">
+                Give men a purpose, a productive routine, and the opportunity to
+                serve others. Build steady progress through discipline, ownership,
+                and action.
+              </p>
             </div>
 
-            <h3 className="mt-4 text-3xl font-black tracking-[-0.045em] text-white sm:text-4xl lg:text-[2.85rem] lg:leading-[0.94]">
-              Run into the storm.
-            </h3>
+            <div className="grid gap-4">
+              <div className="rounded-[24px] border border-white/10 bg-black/25 px-5 py-4 backdrop-blur-sm">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-zinc-200">
+                    <Crosshair className="h-4.5 w-4.5" />
+                  </div>
 
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300 sm:text-base">
-              Give men a purpose, a productive routine, and the opportunity to
-              serve others. Build steady progress through discipline, ownership,
-              and action.
-            </p>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                      Mission Statement
+                    </div>
+                    <p className="mt-2 text-sm leading-7 text-zinc-200">
+                      We will strive to make progress. We will take action to grow
+                      mentally, physically, spiritually, and emotionally.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-4">
+                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                  <Flame className="h-3.5 w-3.5 text-red-400" />
+                  Growth Pillars
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {growthPillars.map((pillar) => (
+                    <VisionPill key={pillar} text={pillar} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-red-500/20 bg-[linear-gradient(135deg,rgba(127,29,29,0.16),rgba(18,18,24,0.48))] px-5 py-4">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-200/80">
+                  The Standard
+                </div>
+                <p className="mt-2 text-sm leading-7 text-zinc-200">
+                  Don’t drift. Change yourself or change your environment. If you
+                  cannot find what you are looking for, create it.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-4">
-            <div className="rounded-[24px] border border-white/10 bg-black/25 px-5 py-4 backdrop-blur-sm">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-zinc-200">
-                  <Crosshair className="h-4.5 w-4.5" />
-                </div>
-
-                <div className="min-w-0">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                    Mission Statement
-                  </div>
-                  <p className="mt-2 text-sm leading-7 text-zinc-200">
-                    We will strive to make progress. We will take action to grow
-                    mentally, physically, spiritually, and emotionally.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-4">
+          <div className="space-y-5">
+            <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-5">
               <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                <Flame className="h-3.5 w-3.5 text-red-400" />
-                Growth Pillars
+                <HeartHandshake className="h-3.5 w-3.5 text-red-400" />
+                What We Value
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2.5">
-                {growthPillars.map((pillar) => (
-                  <VisionPill key={pillar} text={pillar} />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {values.map((value) => (
+                  <div
+                    key={value}
+                    className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200"
+                  >
+                    {value}
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-red-500/20 bg-[linear-gradient(135deg,rgba(127,29,29,0.16),rgba(18,18,24,0.48))] px-5 py-4">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-red-200/80">
-                The Standard
+            <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-5">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                <Swords className="h-3.5 w-3.5 text-red-400" />
+                Operating Principles
               </div>
-              <p className="mt-2 text-sm leading-7 text-zinc-200">
-                Don’t drift. Change yourself or change your environment. If you
-                cannot find what you are looking for, create it.
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div className="space-y-5">
-          <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-5">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              <HeartHandshake className="h-3.5 w-3.5 text-red-400" />
-              What We Value
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {values.map((value) => (
-                <div
-                  key={value}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200"
-                >
-                  {value}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[24px] border border-white/10 bg-black/20 px-5 py-5">
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              <Swords className="h-3.5 w-3.5 text-red-400" />
-              Operating Principles
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {principles.map((principle) => (
-                <div
-                  key={principle}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200"
-                >
-                  {principle}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-          </section>
-
-    <section className="grid gap-5 xl:grid-cols-3">
-      <div className="rounded-[28px] border border-red-500/20 bg-[linear-gradient(135deg,rgba(127,29,29,0.16),rgba(12,14,22,0.96))] p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-red-200">
-          Core Tensions
-        </div>
-
-        <div className="mt-4 space-y-2.5">
-          {coreTensions.map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-zinc-200"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Leadership Balance
-        </div>
-
-        <div className="mt-4 space-y-3">
-          {balancePrinciples.map((principle) => (
-            <div
-              key={principle.title}
-              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4"
-            >
-              <div className="text-sm font-bold text-white">
-                {principle.title}
+              <div className="mt-4 space-y-3">
+                {principles.map((principle) => (
+                  <div
+                    key={principle}
+                    className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-medium text-zinc-200"
+                  >
+                    {principle}
+                  </div>
+                ))}
               </div>
-              <p className="mt-2 text-xs text-zinc-400">
-                {principle.text}
-              </p>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Ownership Standard
+      <section className="grid gap-5 xl:grid-cols-3">
+        <div className="rounded-[28px] border border-red-500/20 bg-[linear-gradient(135deg,rgba(127,29,29,0.16),rgba(12,14,22,0.96))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-red-200">
+            <Swords className="h-3.5 w-3.5" />
+            Core Tensions
+          </div>
+
+          <div className="mt-4 space-y-2.5">
+            {coreTensions.map((item) => (
+              <div
+                key={item}
+                className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-zinc-200"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-4 space-y-3">
-          {ownershipStandards.map((standard) => (
-            <div
-              key={standard}
-              className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-zinc-200"
-            >
-              <span className="text-red-400">✓</span>
-              {standard}
-            </div>
-          ))}
+        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <HeartHandshake className="h-3.5 w-3.5 text-red-400" />
+            Leadership Balance
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {balancePrinciples.map((principle) => (
+              <div
+                key={principle.title}
+                className="rounded-2xl border border-white/10 bg-black/25 px-4 py-4"
+              >
+                <div className="text-sm font-bold text-white">
+                  {principle.title}
+                </div>
+                <p className="mt-2 text-xs leading-6 text-zinc-400">
+                  {principle.text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-    </section>
+
+        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <Shield className="h-3.5 w-3.5 text-red-400" />
+            Ownership Standard
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {ownershipStandards.map((standard) => (
+              <div
+                key={standard}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-zinc-200"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-red-500/25 bg-red-500/10 text-[10px] text-red-200">
+                  ✓
+                </span>
+                {standard}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
