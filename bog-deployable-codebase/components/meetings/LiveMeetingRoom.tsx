@@ -33,6 +33,25 @@ function parseMetadata(metadata?: string): Record<string, unknown> | null {
   }
 }
 
+function formatRank(rank?: string | null) {
+  const cleanRank = rank || "lone_wolf";
+
+  return cleanRank
+    .replace(/_/g, " ")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function getParticipantRank(participant: { metadata?: string }) {
+  const parsedMetadata = parseMetadata(participant.metadata);
+
+  const metadataRank =
+    typeof parsedMetadata?.rank === "string" ? parsedMetadata.rank : "lone_wolf";
+
+  return formatRank(metadataRank);
+}
+
 function getParticipantRole(
   participant: {
     identity?: string;
@@ -115,7 +134,7 @@ function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
   }
 
   return (
-   <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex justify-center px-2 sm:px-4">
+    <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex justify-center px-2 sm:px-4">
       <div className="flex w-full max-w-fit flex-wrap items-center justify-center gap-3 rounded-[24px] border border-white/10 bg-black/75 px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:px-4">
         <div className="hidden rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-2 text-xs font-semibold text-cyan-200 sm:block">
           {isAdmin ? "Admin Room" : "Member Room"}
@@ -174,6 +193,7 @@ function VideoTile({
   const isLocal = participant.isLocal;
   const role = getParticipantRole(participant, isLocal ? localIsAdmin : false);
   const displayName = getParticipantDisplayName(participant);
+  const displayRank = getParticipantRank(participant);
 
   return (
     <div
@@ -215,9 +235,14 @@ function VideoTile({
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
-          <div className="rounded-full border border-white/10 bg-black/60 px-3 py-2 text-xs font-semibold text-white sm:text-sm">
-            {displayName}
-            {isLocal ? " (You)" : ""}
+          <div className="rounded-2xl border border-white/10 bg-black/65 px-3 py-2 text-white">
+            <div className="text-xs font-semibold sm:text-sm">
+              {displayName}
+              {isLocal ? " (You)" : ""}
+            </div>
+            <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              Rank {displayRank}
+            </div>
           </div>
         </div>
       </div>
@@ -360,6 +385,10 @@ function ParticipantControls({ meetingId }: { meetingId: string }) {
 
                     <span className="rounded-full border border-white/10 bg-black/40 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
                       {getParticipantRole(participant)}
+                    </span>
+
+                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                      {getParticipantRank(participant)}
                     </span>
                   </div>
 
