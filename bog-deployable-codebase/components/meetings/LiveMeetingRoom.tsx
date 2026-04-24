@@ -115,8 +115,12 @@ function getParticipantDisplayName(
 }
 
 function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
-  const { localParticipant, isMicrophoneEnabled, isCameraEnabled } =
-    useLocalParticipant();
+  const {
+  localParticipant,
+  isMicrophoneEnabled,
+  isCameraEnabled,
+  isScreenShareEnabled,
+} = useLocalParticipant();
   const participants = useParticipants();
 
   const participantCount = useMemo(() => participants.length, [participants]);
@@ -129,6 +133,10 @@ function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
     await localParticipant?.setCameraEnabled(!isCameraEnabled);
   }
 
+async function toggleScreenShare() {
+  await localParticipant?.setScreenShareEnabled(!isScreenShareEnabled);
+}
+  
   function leaveRoom() {
     window.location.href = isAdmin ? "/admin/meetings" : "/portal/meetings";
   }
@@ -168,6 +176,20 @@ function FloatingControls({ isAdmin }: { isAdmin: boolean }) {
           {isCameraEnabled ? "Turn Camera Off" : "Turn Camera On"}
         </button>
 
+{isAdmin ? (
+  <button
+    type="button"
+    onClick={toggleScreenShare}
+    className={`rounded-full px-4 py-3 text-sm font-semibold transition ${
+      isScreenShareEnabled
+        ? "border border-cyan-400/30 bg-cyan-500/15 text-cyan-200 hover:bg-cyan-500/20"
+        : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
+    }`}
+  >
+    {isScreenShareEnabled ? "Stop Share" : "Share Screen"}
+  </button>
+) : null}
+        
         <button
           type="button"
           onClick={leaveRoom}
@@ -252,8 +274,9 @@ function VideoTile({
 
 function VideoStage({ isAdmin }: { isAdmin: boolean }) {
   const cameraTracks = useTracks([
-    { source: Track.Source.Camera, withPlaceholder: true },
-  ]);
+  { source: Track.Source.ScreenShare, withPlaceholder: false },
+  { source: Track.Source.Camera, withPlaceholder: true },
+]);
   const participants = useParticipants();
 
   const activeSpeakerSid = useMemo(() => {
