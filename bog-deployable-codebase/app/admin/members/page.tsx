@@ -383,7 +383,7 @@ export default async function AdminMembersPage() {
                         defaultValue={member.rank ?? "lone_wolf"}
                         className="w-full rounded-2xl border border-white/10 bg-[#0e1014] px-4 py-3 text-sm text-white outline-none transition focus:border-white/20"
                       >
-                        <option value="lone_wolf">lone wolf</option>
+                        <option value="lone wolf">lone wolf</option>
                         <option value="omega">omega</option>
                         <option value="alpha">alpha</option>
                         <option value="beta">beta</option>
