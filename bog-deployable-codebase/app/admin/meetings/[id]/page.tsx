@@ -11,7 +11,8 @@ import {
   SquarePen,
   Radio,
   MonitorPlay,
-  ShieldCheck,
+    ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -184,9 +185,11 @@ async function updateMeeting(id: string, formData: FormData) {
   revalidatePath("/admin/meetings");
   revalidatePath(`/admin/meetings/${id}`);
   revalidatePath(`/admin/meetings/${id}/live`);
-  revalidatePath("/portal/meetings");
+    revalidatePath("/portal/meetings");
   revalidatePath(`/portal/meetings/${id}`);
   revalidatePath(`/portal/meetings/${id}/live`);
+
+  redirect(`/admin/meetings/${id}?saved=1`);
 }
 
 async function deleteAttachment(
@@ -267,10 +270,14 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 export default async function AdminMeetingEditPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string }>;
 }) {
   const { id } = await params;
+  const { saved } = await searchParams;
+  const wasSaved = saved === "1";
   const supabase = await createClient();
 
   const {
@@ -528,11 +535,27 @@ export default async function AdminMeetingEditPage({
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <AdminSection
-          eyebrow="Agenda Editor"
-          title="Update Meeting"
-          description="Adjust agenda content, schedule, and status from one clean editing surface."
-        >
-          <form action={updateMeeting.bind(null, id)} className="space-y-4">
+  eyebrow="Agenda Editor"
+  title="Update Meeting"
+  description="Adjust agenda content, schedule, and status from one clean editing surface."
+>
+  {wasSaved ? (
+    <div className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+      <div className="flex items-start gap-3">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
+        <div>
+          <div className="font-semibold text-emerald-100">
+            Meeting saved successfully.
+          </div>
+          <p className="mt-1 text-emerald-200/80">
+            Your updates have been saved and the meeting views were refreshed.
+          </p>
+        </div>
+      </div>
+    </div>
+  ) : null}
+
+  <form action={updateMeeting.bind(null, id)} className="space-y-4">
             <div>
               <FieldLabel>Title</FieldLabel>
               <input
