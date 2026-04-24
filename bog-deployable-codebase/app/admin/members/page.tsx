@@ -340,7 +340,7 @@ export default async function AdminMembersPage() {
                       </span>
 
                       <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                        {(member.rank ?? "omega").toUpperCase()}
+                        {(member.rank ?? "lone_wolf").replace("_", " ").toUpperCase()}
                       </span>
                     </div>
 
@@ -380,9 +380,10 @@ export default async function AdminMembersPage() {
                       </label>
                       <select
                         name="rank"
-                        defaultValue={member.rank ?? "omega"}
+                        defaultValue={member.rank ?? "lone_wolf"}
                         className="w-full rounded-2xl border border-white/10 bg-[#0e1014] px-4 py-3 text-sm text-white outline-none transition focus:border-white/20"
                       >
+                        <option value="lone_wolf">lone wolf</option>
                         <option value="omega">omega</option>
                         <option value="alpha">alpha</option>
                         <option value="beta">beta</option>
