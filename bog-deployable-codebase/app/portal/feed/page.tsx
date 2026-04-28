@@ -420,10 +420,11 @@ export default async function MemberFeedPage() {
                   <div className="bg-black">
                     {post.media_type === "image" ? (
                       <img
-                        src={post.signedUrl}
-                        alt={post.caption || "Member feed post"}
-                        className="h-80 w-full object-cover"
-                      />
+                       <img
+  src={post.signedUrl}
+  alt={post.caption || "Member feed post"}
+  className="max-h-[520px] w-full bg-black object-contain"
+/>
                     ) : (
                       <video
                         src={post.signedUrl}
