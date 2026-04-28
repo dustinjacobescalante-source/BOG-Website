@@ -11,6 +11,7 @@ import {
   FileText,
   Users,
   MessageSquare,
+  Camera,
   LogOut,
   Shield,
   ChevronRight,
@@ -41,6 +42,11 @@ const navItems = [
     label: "Meetings",
     href: "/portal/meetings",
     icon: CalendarDays,
+  },
+  {
+    label: "Brotherhood Feed",
+    href: "/portal/feed",
+    icon: Camera,
   },
   {
     label: "Documents",
@@ -230,7 +236,6 @@ export default function PortalShell({
 
   return (
     <>
-      {/* Mobile top bar */}
       <div className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(11,15,23,0.96),rgba(7,10,16,0.98))] backdrop-blur-xl xl:hidden">
         <div className="mx-auto w-full max-w-[1760px] px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-3">
@@ -259,7 +264,6 @@ export default function PortalShell({
         </div>
       </div>
 
-      {/* Mobile overlay */}
       <div
         className={`fixed inset-0 z-40 bg-black/70 backdrop-blur-md transition xl:hidden ${
           mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
@@ -267,7 +271,6 @@ export default function PortalShell({
         onClick={() => setMobileMenuOpen(false)}
       />
 
-      {/* Mobile slide-out menu */}
       <aside
         className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm p-4 transition-transform duration-300 xl:hidden ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
@@ -300,7 +303,6 @@ export default function PortalShell({
 
       <div className="mx-auto w-full max-w-[1760px] px-4 pb-10 pt-4 sm:px-6 lg:px-8 lg:pb-14 lg:pt-5 xl:px-8 2xl:px-10">
         <div className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)] xl:gap-6">
-          {/* Desktop sidebar only */}
           <aside className="hidden xl:sticky xl:top-6 xl:block xl:self-start">
             <PortalSidebarContent
               pathname={pathname}
