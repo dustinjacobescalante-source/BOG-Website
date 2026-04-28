@@ -6,15 +6,12 @@ import {
   ImageIcon,
   ShieldCheck,
   Trash2,
-  Upload,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
-
-const MAX_FILE_SIZE_MB = 1000;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+import MemberFeedUploader from "@/components/feed/MemberFeedUploader";
 
 type FeedPost = {
   id: string;
@@ -50,92 +47,6 @@ function getInitials(name?: string | null) {
   );
 }
 
-function sanitizeFileName(fileName: string) {
-  return fileName
-    .toLowerCase()
-    .replace(/[^a-z0-9.\-_]/g, "-")
-    .replace(/-+/g, "-");
-}
-
-async function createFeedPost(formData: FormData) {
-  "use server";
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_active")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.is_active) {
-    redirect("/pending");
-  }
-
-  const caption = String(formData.get("caption") ?? "").trim();
-  const file = formData.get("media");
-
-  if (!(file instanceof File)) {
-    return;
-  }
-
-  if (!file.name || file.size === 0) {
-    return;
-  }
-
-  if (file.size > MAX_FILE_SIZE_BYTES) {
-    return;
-  }
-
-  const isImage = file.type.startsWith("image/");
-  const isVideo = file.type.startsWith("video/");
-
-  if (!isImage && !isVideo) {
-    return;
-  }
-
-  const mediaType = isImage ? "image" : "video";
-  const safeFileName = sanitizeFileName(file.name);
-  const filePath = `${user.id}/${Date.now()}-${safeFileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("member-feed")
-    .upload(filePath, file, {
-      contentType: file.type,
-      upsert: false,
-    });
-
-  if (uploadError) {
-    console.error("member feed upload error:", uploadError);
-    return;
-  }
-
-  const { error: insertError } = await supabase.from("member_feed_posts").insert({
-    user_id: user.id,
-    caption: caption || null,
-    media_url: filePath,
-    media_path: filePath,
-    media_type: mediaType,
-  });
-
-  if (insertError) {
-    console.error("member feed insert error:", insertError);
-
-    await supabase.storage.from("member-feed").remove([filePath]);
-    return;
-  }
-
-  revalidatePath("/portal/feed");
-}
-
 async function deleteFeedPost(postId: string, mediaPath: string) {
   "use server";
 
@@ -165,16 +76,12 @@ async function deleteFeedPost(postId: string, mediaPath: string) {
     .eq("id", postId)
     .single();
 
-  if (!post) {
-    return;
-  }
+  if (!post) return;
 
   const isOwner = post.user_id === user.id;
   const isAdmin = profile.role === "admin";
 
-  if (!isOwner && !isAdmin) {
-    return;
-  }
+  if (!isOwner && !isAdmin) return;
 
   const { error: deletePostError } = await supabase
     .from("member_feed_posts")
@@ -276,43 +183,7 @@ export default async function MemberFeedPage() {
           title="Share an Update"
           description="Post a photo or video that motivates the men around you. Training, discipline, service, faith, family leadership, or accountability work."
         >
-          <form action={createFeedPost} className="space-y-4">
-            <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-5">
-              <label className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                Caption
-              </label>
-              <textarea
-                name="caption"
-                rows={4}
-                placeholder="What are you posting? What standard are you keeping?"
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-white/20"
-              />
-
-              <label className="mt-5 mb-2 block text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                Photo or Video
-              </label>
-              <input
-                name="media"
-                type="file"
-                accept="image/*,video/*"
-                required
-                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-zinc-300 file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-white/20"
-              />
-
-              <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-400">
-                Max file size: {MAX_FILE_SIZE_MB}MB. Approved active members can
-                post. Admins can remove posts if needed.
-              </div>
-
-              <button
-                type="submit"
-                className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
-              >
-                <Upload className="h-4 w-4" />
-                Post to Feed
-              </button>
-            </div>
-          </form>
+          <MemberFeedUploader userId={user.id} />
         </AdminSection>
 
         <div className="rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.14),transparent_34%),linear-gradient(180deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
@@ -366,9 +237,7 @@ export default async function MemberFeedPage() {
         {postsWithSignedUrls.length === 0 ? (
           <div className="rounded-[28px] border border-white/10 bg-black/25 p-8 text-center">
             <Camera className="mx-auto h-8 w-8 text-zinc-500" />
-            <h3 className="mt-4 text-xl font-bold text-white">
-              No posts yet.
-            </h3>
+            <h3 className="mt-4 text-xl font-bold text-white">No posts yet.</h3>
             <p className="mt-2 text-sm text-zinc-500">
               Be the first to post proof of action.
             </p>
@@ -405,7 +274,13 @@ export default async function MemberFeedPage() {
                     </div>
 
                     {canDelete ? (
-                      <form action={deleteFeedPost.bind(null, post.id, post.media_path)}>
+                      <form
+                        action={deleteFeedPost.bind(
+                          null,
+                          post.id,
+                          post.media_path
+                        )}
+                      >
                         <button
                           type="submit"
                           className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/15"
@@ -420,16 +295,16 @@ export default async function MemberFeedPage() {
                   <div className="bg-black">
                     {post.media_type === "image" ? (
                       <img
-  src={post.signedUrl}
-  alt={post.caption || "Member feed post"}
-  className="max-h-[520px] w-full bg-black object-contain"
-/>
+                        src={post.signedUrl}
+                        alt={post.caption || "Member feed post"}
+                        className="max-h-[520px] w-full bg-black object-contain"
+                      />
                     ) : (
                       <video
                         src={post.signedUrl}
                         controls
                         playsInline
-                        className="h-80 w-full bg-black object-contain"
+                        className="max-h-[520px] w-full bg-black object-contain"
                       />
                     )}
                   </div>
