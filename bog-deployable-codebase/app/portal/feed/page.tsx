@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
 
-const MAX_FILE_SIZE_MB = 100;
+const MAX_FILE_SIZE_MB = 1000;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 type FeedPost = {
