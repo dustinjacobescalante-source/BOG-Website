@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { notifyActiveMembers } from "@/lib/member-notifications";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
@@ -117,54 +118,6 @@ function toDateTimeLocalValue(
   return `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}`;
 }
 
-async function sendMeetingPublishedEmails(
-  supabase: any,
-  title: string,
-  meetingId: string
-) {
-  try {
-    const { data: members } = await supabase
-      .from("profiles")
-      .select("email, full_name")
-      .eq("is_active", true);
-
-    if (!members?.length) return;
-
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://www.thebuffalodogs.com";
-
-    for (const member of members) {
-      if (!member.email) continue;
-
-     notifyActiveMembers
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: member.email,
-          subject: `New BOG Meeting Published: ${title}`,
-          html: `
-            <div style="font-family:Arial;padding:24px;color:#111;">
-              <h2>New Meeting Published</h2>
-              <p>${member.full_name || "Brother"}, a new meeting has been posted.</p>
-              <p><strong>${title}</strong></p>
-              <p>
-                <a href="${siteUrl}/portal/meetings/${meetingId}">
-                  Open Meeting
-                </a>
-              </p>
-            </div>
-          `,
-        }),
-      });
-    }
-  } catch (error) {
-    console.error("meeting publish email error:", error);
-  }
-}
-
 async function updateMeeting(id: string, formData: FormData) {
   "use server";
 
@@ -180,12 +133,42 @@ async function updateMeeting(id: string, formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim();
   const meeting_date_input = String(formData.get("meeting_date") ?? "");
-  const next_meeting_date_input = String(formData.get("next_meeting_date") ?? "");
+  const next_meeting_date_input = String(
+    formData.get("next_meeting_date") ?? ""
+  );
   const status = String(formData.get("status") ?? "draft");
 
-  const meeting_date = dateTimeLocalToTimeZoneIso(meeting_date_input);
-  const next_meeting_date =
-    dateTimeLocalToTimeZoneIso(next_meeting_date_input);
+  const arrival_silent_transition = String(
+    formData.get("arrival_silent_transition") ?? ""
+  ).trim();
+  const opening_anchor = String(formData.get("opening_anchor") ?? "").trim();
+  const code_standard_reaffirmation = String(
+    formData.get("code_standard_reaffirmation") ?? ""
+  ).trim();
+  const ownership_round = String(formData.get("ownership_round") ?? "").trim();
+  const council_reflection = String(
+    formData.get("council_reflection") ?? ""
+  ).trim();
+  const practical_alignment_block = String(
+    formData.get("practical_alignment_block") ?? ""
+  ).trim();
+  const open_business = String(formData.get("open_business") ?? "").trim();
+  const commitment_declarations = String(
+    formData.get("commitment_declarations") ?? ""
+  ).trim();
+  const closing_anchor = String(formData.get("closing_anchor") ?? "").trim();
+  const post_meeting_notes = String(
+    formData.get("post_meeting_notes") ?? ""
+  ).trim();
+
+  const meeting_date = dateTimeLocalToTimeZoneIso(
+    meeting_date_input,
+    APP_TIME_ZONE
+  );
+  const next_meeting_date = dateTimeLocalToTimeZoneIso(
+    next_meeting_date_input,
+    APP_TIME_ZONE
+  );
 
   const { error } = await supabase
     .from("meetings")
@@ -194,42 +177,41 @@ async function updateMeeting(id: string, formData: FormData) {
       meeting_date,
       next_meeting_date,
       status,
-      arrival_silent_transition:
-        String(formData.get("arrival_silent_transition") ?? "") || null,
-      opening_anchor:
-        String(formData.get("opening_anchor") ?? "") || null,
-      code_standard_reaffirmation:
-        String(formData.get("code_standard_reaffirmation") ?? "") || null,
-      ownership_round:
-        String(formData.get("ownership_round") ?? "") || null,
-      council_reflection:
-        String(formData.get("council_reflection") ?? "") || null,
-      practical_alignment_block:
-        String(formData.get("practical_alignment_block") ?? "") || null,
-      open_business:
-        String(formData.get("open_business") ?? "") || null,
-      commitment_declarations:
-        String(formData.get("commitment_declarations") ?? "") || null,
-      closing_anchor:
-        String(formData.get("closing_anchor") ?? "") || null,
-      post_meeting_notes:
-        String(formData.get("post_meeting_notes") ?? "") || null,
+      arrival_silent_transition: arrival_silent_transition || null,
+      opening_anchor: opening_anchor || null,
+      code_standard_reaffirmation: code_standard_reaffirmation || null,
+      ownership_round: ownership_round || null,
+      council_reflection: council_reflection || null,
+      practical_alignment_block: practical_alignment_block || null,
+      open_business: open_business || null,
+      commitment_declarations: commitment_declarations || null,
+      closing_anchor: closing_anchor || null,
+      post_meeting_notes: post_meeting_notes || null,
     })
     .eq("id", id);
 
   if (error) {
-    console.error(error);
+    console.error("updateMeeting error:", error);
     return;
   }
 
   if (previousStatus !== "published" && status === "published") {
-    await sendMeetingPublishedEmails(supabase, title, id);
+    await notifyActiveMembers({
+      type: "meetings",
+      subject: "New BOG Meeting Posted",
+      heading: "New Meeting Posted",
+      message: `A new BOG meeting has been posted: ${title}.`,
+      buttonLabel: "View Meeting",
+      buttonUrl: `/portal/meetings/${id}`,
+    });
   }
 
   revalidatePath("/admin/meetings");
   revalidatePath(`/admin/meetings/${id}`);
+  revalidatePath(`/admin/meetings/${id}/live`);
   revalidatePath("/portal/meetings");
   revalidatePath(`/portal/meetings/${id}`);
+  revalidatePath(`/portal/meetings/${id}/live`);
 
   redirect(`/admin/meetings/${id}?saved=1`);
 }
@@ -577,27 +559,28 @@ export default async function AdminMeetingEditPage({
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <AdminSection
-  eyebrow="Agenda Editor"
-  title="Update Meeting"
-  description="Adjust agenda content, schedule, and status from one clean editing surface."
->
-  {wasSaved ? (
-    <div className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-      <div className="flex items-start gap-3">
-        <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
-        <div>
-          <div className="font-semibold text-emerald-100">
-            Meeting saved successfully.
-          </div>
-          <p className="mt-1 text-emerald-200/80">
-            Your updates have been saved and the meeting views were refreshed.
-          </p>
-        </div>
-      </div>
-    </div>
-  ) : null}
+          eyebrow="Agenda Editor"
+          title="Update Meeting"
+          description="Adjust agenda content, schedule, and status from one clean editing surface."
+        >
+          {wasSaved ? (
+            <div className="mb-4 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
+                <div>
+                  <div className="font-semibold text-emerald-100">
+                    Meeting saved successfully.
+                  </div>
+                  <p className="mt-1 text-emerald-200/80">
+                    Your updates have been saved and the meeting views were
+                    refreshed.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
-  <form action={updateMeeting.bind(null, id)} className="space-y-4">
+          <form action={updateMeeting.bind(null, id)} className="space-y-4">
             <div>
               <FieldLabel>Title</FieldLabel>
               <input
