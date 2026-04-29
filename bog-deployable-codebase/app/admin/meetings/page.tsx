@@ -8,11 +8,10 @@ import {
   Save,
   SquarePen,
   Trash2,
-  Clock3,
-  Archive,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { notifyActiveMembers } from "@/lib/member-notifications";
 import AdminPageShell from "@/components/admin/AdminPageShell";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
@@ -53,26 +52,41 @@ async function saveMeeting(formData: FormData) {
 
   if (!title) return;
 
-  const result = await supabase.from("meetings").insert({
-    title,
-    meeting_date: meeting_date || null,
-    next_meeting_date: next_meeting_date || null,
-    status,
-    arrival_silent_transition: arrival_silent_transition || null,
-    opening_anchor: opening_anchor || null,
-    code_standard_reaffirmation: code_standard_reaffirmation || null,
-    ownership_round: ownership_round || null,
-    council_reflection: council_reflection || null,
-    practical_alignment_block: practical_alignment_block || null,
-    open_business: open_business || null,
-    commitment_declarations: commitment_declarations || null,
-    closing_anchor: closing_anchor || null,
-    post_meeting_notes: post_meeting_notes || null,
-  });
+  const result = await supabase
+    .from("meetings")
+    .insert({
+      title,
+      meeting_date: meeting_date || null,
+      next_meeting_date: next_meeting_date || null,
+      status,
+      arrival_silent_transition: arrival_silent_transition || null,
+      opening_anchor: opening_anchor || null,
+      code_standard_reaffirmation: code_standard_reaffirmation || null,
+      ownership_round: ownership_round || null,
+      council_reflection: council_reflection || null,
+      practical_alignment_block: practical_alignment_block || null,
+      open_business: open_business || null,
+      commitment_declarations: commitment_declarations || null,
+      closing_anchor: closing_anchor || null,
+      post_meeting_notes: post_meeting_notes || null,
+    })
+    .select("id, title, status, meeting_date")
+    .single();
 
   if (result.error) {
     console.error("saveMeeting error:", result.error);
     return;
+  }
+
+  if (result.data?.status === "published") {
+    await notifyActiveMembers({
+      type: "meetings",
+      subject: "New BOG Meeting Posted",
+      heading: "New Meeting Posted",
+      message: `A new BOG meeting has been posted: ${result.data.title}.`,
+      buttonLabel: "View Meeting",
+      buttonUrl: `/portal/meetings/${result.data.id}`,
+    });
   }
 
   revalidatePath("/admin/meetings");
@@ -188,9 +202,6 @@ export default async function AdminMeetingsPage() {
   const draftCount = allMeetings.filter(
     (meeting) => meeting.status === "draft"
   ).length;
-  const archivedCount = allMeetings.filter(
-    (meeting) => meeting.status === "archived"
-  ).length;
   const totalMeetings = allMeetings.length;
   const featuredMeeting = allMeetings[0] ?? null;
 
@@ -279,7 +290,9 @@ export default async function AdminMeetingsPage() {
             </h3>
             <p className="mt-3 text-sm leading-7 text-slate-300">
               {draftCount > 0
-                ? `${draftCount} draft meeting${draftCount === 1 ? "" : "s"} still waiting for final review or publication.`
+                ? `${draftCount} draft meeting${
+                    draftCount === 1 ? "" : "s"
+                  } still waiting for final review or publication.`
                 : "No meeting drafts are currently waiting for action."}
             </p>
 
@@ -306,7 +319,8 @@ export default async function AdminMeetingsPage() {
 
                 {featuredMeeting.next_meeting_date && (
                   <div className="mt-1 text-sm text-slate-400">
-                    Next Meeting: {formatDateTime(featuredMeeting.next_meeting_date)}
+                    Next Meeting:{" "}
+                    {formatDateTime(featuredMeeting.next_meeting_date)}
                   </div>
                 )}
 
