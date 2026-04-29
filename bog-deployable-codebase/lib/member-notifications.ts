@@ -164,13 +164,33 @@ export async function notifyActiveMembers({
 
   if (recipients.length === 0) return;
 
-  const resend = new Resend(apiKey);
-
   const finalButtonUrl = buttonUrl
     ? buttonUrl.startsWith("http")
       ? buttonUrl
       : `${siteUrl}${buttonUrl}`
     : siteUrl;
+
+  const notificationRows = recipients.map((member) => ({
+    user_id: member.id,
+    type,
+    title: heading,
+    message,
+    link_url: buttonUrl || null,
+    is_read: false,
+  }));
+
+  const { error: notificationError } = await supabase
+    .from("member_notifications")
+    .insert(notificationRows);
+
+  if (notificationError) {
+    console.error(
+      "notifyActiveMembers: member_notifications insert failed",
+      notificationError
+    );
+  }
+
+  const resend = new Resend(apiKey);
 
   const html = buildEmailHtml({
     heading,
