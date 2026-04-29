@@ -137,7 +137,7 @@ async function sendMeetingPublishedEmails(
     for (const member of members) {
       if (!member.email) continue;
 
-      await fetch(`${siteUrl}/api/send-email`, {
+     notifyActiveMembers
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -233,8 +233,6 @@ async function updateMeeting(id: string, formData: FormData) {
 
   redirect(`/admin/meetings/${id}?saved=1`);
 }
-
-/* KEEP THE REST OF YOUR ORIGINAL FILE BELOW THIS LINE EXACTLY AS IT WAS */
 
 async function deleteAttachment(
   attachmentId: string,
