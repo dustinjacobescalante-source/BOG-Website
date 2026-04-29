@@ -12,6 +12,7 @@ import {
   Users,
   MessageSquare,
   Camera,
+  Bell,
   LogOut,
   Shield,
   ChevronRight,
@@ -47,6 +48,11 @@ const navItems = [
     label: "Brotherhood Feed",
     href: "/portal/feed",
     icon: Camera,
+  },
+  {
+    label: "Notifications",
+    href: "/portal/notifications",
+    icon: Bell,
   },
   {
     label: "Documents",
