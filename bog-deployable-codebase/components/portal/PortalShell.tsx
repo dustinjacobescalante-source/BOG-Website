@@ -29,54 +29,20 @@ type PortalShellProps = {
 };
 
 const navItems = [
-  {
-    label: "Dashboard",
-    href: "/portal",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Accountability",
-    href: "/portal/accountability",
-    icon: CheckSquare,
-  },
-  {
-    label: "Meetings",
-    href: "/portal/meetings",
-    icon: CalendarDays,
-  },
-  {
-    label: "Brotherhood Feed",
-    href: "/portal/feed",
-    icon: Camera,
-  },
-  {
-    label: "Notifications",
-    href: "/portal/notifications",
-    icon: Bell,
-  },
-  {
-    label: "Documents",
-    href: "/portal/documents",
-    icon: FileText,
-  },
-  {
-    label: "Directory",
-    href: "/portal/directory",
-    icon: Users,
-  },
-  {
-    label: "Discussions",
-    href: "/portal/discussions",
-    icon: MessageSquare,
-  },
+  { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
+  { label: "Accountability", href: "/portal/accountability", icon: CheckSquare },
+  { label: "Meetings", href: "/portal/meetings", icon: CalendarDays },
+  { label: "Brotherhood Feed", href: "/portal/feed", icon: Camera },
+  { label: "Notifications", href: "/portal/notifications", icon: Bell },
+  { label: "Documents", href: "/portal/documents", icon: FileText },
+  { label: "Directory", href: "/portal/directory", icon: Users },
+  { label: "Discussions", href: "/portal/discussions", icon: MessageSquare },
 ];
 
 function getInitials(name?: string | null) {
   if (!name) return "B";
-
   const parts = name.trim().split(/\s+/).slice(0, 2);
   const initials = parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
-
   return initials || "B";
 }
 
@@ -94,6 +60,7 @@ function PortalSidebarContent({
   initials,
   displayRank,
   displayRole,
+  unreadCount,
   isSigningOut,
   onSignOut,
 }: {
@@ -101,6 +68,7 @@ function PortalSidebarContent({
   initials: string;
   displayRank: string;
   displayRole: string;
+  unreadCount: number;
   isSigningOut: boolean;
   onSignOut: () => Promise<void>;
 }) {
@@ -139,6 +107,8 @@ function PortalSidebarContent({
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href);
             const Icon = item.icon;
+            const showUnreadBadge =
+              item.href === "/portal/notifications" && unreadCount > 0;
 
             return (
               <Link
@@ -146,7 +116,7 @@ function PortalSidebarContent({
                 href={item.href}
                 className={`group relative flex items-center justify-between rounded-2xl border px-3.5 py-3 text-sm transition-all duration-200 ${
                   active
-                    ? "border-white/20 bg-white/[0.10] text-white scale-[1.02] shadow-[0_10px_30px_rgba(255,255,255,0.05)]"
+                    ? "scale-[1.02] border-white/20 bg-white/[0.10] text-white shadow-[0_10px_30px_rgba(255,255,255,0.05)]"
                     : "border-transparent bg-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.04] hover:text-white"
                 }`}
               >
@@ -159,25 +129,37 @@ function PortalSidebarContent({
 
                 <div className="relative flex min-w-0 items-center gap-3">
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                    className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all ${
                       active
                         ? "border-white/15 bg-black/30 text-white"
                         : "border-white/5 bg-black/15 text-zinc-400 group-hover:border-white/10 group-hover:bg-black/25 group-hover:text-white"
                     }`}
                   >
                     <Icon className="h-4 w-4" />
+
+                    {showUnreadBadge ? (
+                      <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-black bg-red-600 px-1 text-[10px] font-black text-white shadow-[0_0_14px_rgba(239,68,68,0.7)]">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    ) : null}
                   </div>
 
                   <span className="truncate font-medium">{item.label}</span>
                 </div>
 
-                <ChevronRight
-                  className={`relative h-4 w-4 shrink-0 transition-all ${
-                    active
-                      ? "translate-x-0 text-white/70"
-                      : "text-zinc-600 group-hover:translate-x-0.5 group-hover:text-zinc-300"
-                  }`}
-                />
+                {showUnreadBadge ? (
+                  <span className="relative rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black text-white">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                ) : (
+                  <ChevronRight
+                    className={`relative h-4 w-4 shrink-0 transition-all ${
+                      active
+                        ? "translate-x-0 text-white/70"
+                        : "text-zinc-600 group-hover:translate-x-0.5 group-hover:text-zinc-300"
+                    }`}
+                  />
+                )}
               </Link>
             );
           })}
@@ -219,6 +201,7 @@ export default function PortalShell({
 
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const displayRank = getDisplayRank(rank);
   const displayRole = role?.trim() || "member";
@@ -227,6 +210,49 @@ export default function PortalShell({
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadUnreadCount() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        if (active) setUnreadCount(0);
+        return;
+      }
+
+      const { count, error } = await supabase
+        .from("member_notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+
+      if (!error && active) {
+        setUnreadCount(count ?? 0);
+      }
+    }
+
+    loadUnreadCount();
+
+    const channel = supabase
+      .channel("member-notification-count")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "member_notifications" },
+        () => {
+          loadUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, pathname]);
 
   async function handleSignOut() {
     try {
@@ -263,9 +289,18 @@ export default function PortalShell({
               </div>
             </div>
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white">
-              {initials}
-            </div>
+            <Link
+              href="/portal/notifications"
+              className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-bold text-white"
+              aria-label="Open notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-black bg-red-600 px-1 text-[10px] font-black text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              ) : null}
+            </Link>
           </div>
         </div>
       </div>
@@ -302,6 +337,7 @@ export default function PortalShell({
           initials={initials}
           displayRank={displayRank}
           displayRole={displayRole}
+          unreadCount={unreadCount}
           isSigningOut={isSigningOut}
           onSignOut={handleSignOut}
         />
@@ -315,6 +351,7 @@ export default function PortalShell({
               initials={initials}
               displayRank={displayRank}
               displayRole={displayRole}
+              unreadCount={unreadCount}
               isSigningOut={isSigningOut}
               onSignOut={handleSignOut}
             />
