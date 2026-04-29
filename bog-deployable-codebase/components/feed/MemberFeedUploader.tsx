@@ -123,9 +123,19 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
         throw insertError;
       }
 
-      setCaption("");
-      setFile(null);
-      setStatusMessage("Post uploaded successfully.");
+     await fetch("/api/member-feed/notify", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    caption: caption.trim(),
+  }),
+});
+
+setCaption("");
+setFile(null);
+setStatusMessage("Post uploaded successfully.");
 
       const fileInput = document.getElementById(
         "member-feed-media"
