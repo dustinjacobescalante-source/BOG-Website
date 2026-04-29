@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { Bell, Mail, ShieldCheck } from "lucide-react";
+import {
+  Bell,
+  Mail,
+  ShieldCheck,
+  CheckCircle2,
+  ExternalLink,
+} from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import AdminHero from "@/components/admin/AdminHero";
@@ -24,19 +30,7 @@ async function updateNotificationPreferences(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_active")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.is_active) {
-    redirect("/pending");
-  }
+  if (!user) redirect("/auth/sign-in");
 
   const preferences = {
     user_id: user.id,
@@ -48,14 +42,25 @@ async function updateNotificationPreferences(formData: FormData) {
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
+  await supabase
     .from("member_notification_preferences")
     .upsert(preferences, { onConflict: "user_id" });
 
-  if (error) {
-    console.error("notification preferences update error:", error);
-    return;
-  }
+  revalidatePath("/portal/notifications");
+}
+
+async function markRead(formData: FormData) {
+  "use server";
+
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+
+  if (!id) return;
+
+  await supabase
+    .from("member_notifications")
+    .update({ is_read: true })
+    .eq("id", id);
 
   revalidatePath("/portal/notifications");
 }
@@ -95,9 +100,7 @@ export default async function PortalNotificationsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
+  if (!user) redirect("/auth/sign-in");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -105,17 +108,20 @@ export default async function PortalNotificationsPage() {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.is_active) {
-    redirect("/pending");
-  }
+  if (!profile?.is_active) redirect("/pending");
 
   const { data: existingPreferences } = await supabase
     .from("member_notification_preferences")
-    .select(
-      "user_id, feed_posts, meetings, documents, discussions, discussion_replies"
-    )
+    .select("*")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  const { data: notifications } = await supabase
+    .from("member_notifications")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(25);
 
   const preferences = (existingPreferences ?? {
     user_id: user.id,
@@ -130,112 +136,163 @@ export default async function PortalNotificationsPage() {
     <div className="w-full space-y-6">
       <AdminHero
         eyebrow="Member Portal"
-        title="Notification Settings"
-        description="Choose which BOG updates should be sent to your email."
+        title="Notification Center"
+        description="Alerts, updates, and your BOG email preferences."
         actions={[
           { href: "/portal", label: "Back to Dashboard" },
           { href: "/portal/feed", label: "Brotherhood Feed" },
         ]}
       />
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.14),transparent_34%),linear-gradient(180deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
-          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-red-200">
-            <Bell className="h-3.5 w-3.5" />
-            Stay in the Loop
-          </div>
-
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            Control the noise.
-            <br />
-            Keep the signal.
-          </h2>
-
-          <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Notifications are meant to keep you connected to important BOG
-            movement without turning the portal into another noisy app.
-          </p>
-
-          <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4">
-            <div className="flex items-start gap-3">
-              <Mail className="mt-0.5 h-5 w-5 text-red-300" />
-              <div>
-                <div className="text-sm font-semibold text-white">
-                  Delivery Email
-                </div>
-                <p className="mt-1 break-words text-sm leading-6 text-zinc-400">
-                  {profile.email || user.email || "No email found"}
-                </p>
-              </div>
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
+        <div className="space-y-6">
+          <div className="rounded-[30px] border border-white/10 bg-[rgba(10,14,24,0.94)] p-6">
+            <div className="flex items-center gap-3">
+              <Bell className="h-5 w-5 text-red-400" />
+              <h2 className="text-xl font-bold text-white">
+                Recent Notifications
+              </h2>
             </div>
-          </div>
 
-          <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-300" />
-              <div>
-                <div className="text-sm font-semibold text-white">
-                  Active member preferences
+            <div className="mt-5 space-y-3">
+              {notifications?.length ? (
+                notifications.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-white">
+                          {item.title}
+                        </div>
+
+                        <p className="mt-1 text-sm leading-6 text-zinc-400">
+                          {item.message}
+                        </p>
+
+                        <div className="mt-2 text-xs text-zinc-500">
+                          {new Date(item.created_at).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        {item.link_url ? (
+                          <a
+                            href={item.link_url}
+                            className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            Open
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        ) : null}
+
+                        {!item.is_read ? (
+                          <form action={markRead}>
+                            <input
+                              type="hidden"
+                              name="id"
+                              value={item.id}
+                            />
+                            <button
+                              type="submit"
+                              className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-300"
+                            >
+                              Mark Read
+                            </button>
+                          </form>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 text-xs text-emerald-300">
+                            <CheckCircle2 className="h-4 w-4" />
+                            Read
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
+                  No notifications yet.
                 </div>
-                <p className="mt-1 text-sm leading-6 text-zinc-400">
-                  These settings only control email alerts. Portal access and
-                  member visibility are not affected.
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </div>
 
-        <AdminSection
-          eyebrow="Email Preferences"
-          title="Choose Your Alerts"
-          description="Turn alerts on or off for the updates you care about."
-        >
-          <form action={updateNotificationPreferences} className="space-y-4">
-            <ToggleRow
-              name="feed_posts"
-              title="Brotherhood Feed Posts"
-              description="Email me when a member posts a new photo or video in the Brotherhood Feed."
-              defaultChecked={preferences.feed_posts}
-            />
+        <div className="space-y-6">
+          <div className="rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.14),transparent_34%),linear-gradient(180deg,rgba(15,18,28,0.96),rgba(8,10,18,0.98))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.38)]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-red-200">
+              <Mail className="h-3.5 w-3.5" />
+              Email Delivery
+            </div>
 
-            <ToggleRow
-              name="meetings"
-              title="New Meetings Posted"
-              description="Email me when a new meeting is published for members."
-              defaultChecked={preferences.meetings}
-            />
+            <p className="mt-4 text-sm text-zinc-300">
+              {profile.email || user.email}
+            </p>
 
-            <ToggleRow
-              name="documents"
-              title="New Documents Added"
-              description="Email me when a new member document or resource is added."
-              defaultChecked={preferences.documents}
-            />
+            <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-4">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-300" />
+                <p className="text-sm leading-6 text-zinc-400">
+                  These settings control email alerts only. Your portal access
+                  is not affected.
+                </p>
+              </div>
+            </div>
+          </div>
 
-            <ToggleRow
-              name="discussions"
-              title="New Discussion Threads"
-              description="Email me when a member starts a new discussion thread."
-              defaultChecked={preferences.discussions}
-            />
+          <AdminSection
+            eyebrow="Email Preferences"
+            title="Choose Your Alerts"
+            description="Turn alerts on or off anytime."
+          >
+            <form action={updateNotificationPreferences} className="space-y-4">
+              <ToggleRow
+                name="feed_posts"
+                title="Brotherhood Feed Posts"
+                description="New member photo/video posts."
+                defaultChecked={preferences.feed_posts}
+              />
 
-            <ToggleRow
-              name="discussion_replies"
-              title="Discussion Replies"
-              description="Email me when members respond to discussion threads."
-              defaultChecked={preferences.discussion_replies}
-            />
+              <ToggleRow
+                name="meetings"
+                title="Meetings"
+                description="When new meetings are published."
+                defaultChecked={preferences.meetings}
+              />
 
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
-            >
-              <Bell className="h-4 w-4" />
-              Save Notification Settings
-            </button>
-          </form>
-        </AdminSection>
+              <ToggleRow
+                name="documents"
+                title="Documents"
+                description="When new resources are uploaded."
+                defaultChecked={preferences.documents}
+              />
+
+              <ToggleRow
+                name="discussions"
+                title="Discussion Threads"
+                description="When members start new threads."
+                defaultChecked={preferences.discussions}
+              />
+
+              <ToggleRow
+                name="discussion_replies"
+                title="Replies"
+                description="When members reply in discussions."
+                defaultChecked={preferences.discussion_replies}
+              />
+
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
+              >
+                <Bell className="h-4 w-4" />
+                Save Preferences
+              </button>
+            </form>
+          </AdminSection>
+        </div>
       </section>
     </div>
   );
