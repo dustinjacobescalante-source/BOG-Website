@@ -8,11 +8,11 @@ import {
   CalendarRange,
   UserCog,
   FileText,
+  Camera,
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
   Activity,
-  Radio,
   Sparkles,
   Layers3,
 } from "lucide-react";
@@ -140,6 +140,13 @@ export default async function AdminPage() {
         "Create, edit, publish, and maintain meeting agendas and attachments.",
       href: "/admin/meetings",
       icon: <CalendarRange className="h-5 w-5" />,
+    },
+    {
+      title: "Brotherhood Feed",
+      description:
+        "Moderate member photo/video posts and manage feed activity.",
+      href: "/admin/feed",
+      icon: <Camera className="h-5 w-5" />,
     },
     {
       title: "Manage Documents",
