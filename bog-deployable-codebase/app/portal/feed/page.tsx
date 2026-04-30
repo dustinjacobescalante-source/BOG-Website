@@ -6,6 +6,9 @@ import {
   ImageIcon,
   ShieldCheck,
   Trash2,
+  ExternalLink,
+  Youtube,
+  Link as LinkIcon,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -17,9 +20,12 @@ type FeedPost = {
   id: string;
   user_id: string;
   caption: string | null;
-  media_url: string;
-  media_path: string;
-  media_type: "image" | "video";
+  media_url: string | null;
+  media_path: string | null;
+  media_type: "image" | "video" | null;
+  link_url: string | null;
+  link_provider: string | null;
+  link_embed_url: string | null;
   created_at: string;
 };
 
@@ -47,7 +53,7 @@ function getInitials(name?: string | null) {
   );
 }
 
-async function deleteFeedPost(postId: string, mediaPath: string) {
+async function deleteFeedPost(postId: string, mediaPath: string | null) {
   "use server";
 
   const supabase = await createClient();
@@ -56,9 +62,7 @@ async function deleteFeedPost(postId: string, mediaPath: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
+  if (!user) redirect("/auth/sign-in");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -66,9 +70,7 @@ async function deleteFeedPost(postId: string, mediaPath: string) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.is_active) {
-    redirect("/pending");
-  }
+  if (!profile?.is_active) redirect("/pending");
 
   const { data: post } = await supabase
     .from("member_feed_posts")
@@ -115,9 +117,7 @@ export default async function MemberFeedPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
+  if (!user) redirect("/auth/sign-in");
 
   const { data: currentProfile } = await supabase
     .from("profiles")
@@ -125,15 +125,15 @@ export default async function MemberFeedPage() {
     .eq("id", user.id)
     .single();
 
-  if (!currentProfile?.is_active) {
-    redirect("/pending");
-  }
+  if (!currentProfile?.is_active) redirect("/pending");
 
   const isAdmin = currentProfile.role === "admin";
 
   const { data: posts } = await supabase
     .from("member_feed_posts")
-    .select("id, user_id, caption, media_url, media_path, media_type, created_at")
+    .select(
+      "id, user_id, caption, media_url, media_path, media_type, link_url, link_provider, link_embed_url, created_at"
+    )
     .order("created_at", { ascending: false });
 
   const feedPosts = (posts ?? []) as FeedPost[];
@@ -153,6 +153,14 @@ export default async function MemberFeedPage() {
 
   const postsWithSignedUrls = await Promise.all(
     feedPosts.map(async (post) => {
+      if (!post.media_path) {
+        return {
+          ...post,
+          signedUrl: "",
+          profile: profileMap.get(post.user_id),
+        };
+      }
+
       const { data } = await supabase.storage
         .from("member-feed")
         .createSignedUrl(post.media_path, 60 * 60);
@@ -170,7 +178,7 @@ export default async function MemberFeedPage() {
       <AdminHero
         eyebrow="Member Portal"
         title="Brotherhood Feed"
-        description="Post photos and videos that build momentum, accountability, and brotherhood. No likes. No noise. Just proof of action."
+        description="Post photos, videos, YouTube clips, and links that build momentum, accountability, and brotherhood."
         actions={[
           { href: "/portal", label: "Back to Dashboard" },
           { href: "/portal/discussions", label: "Open Discussions" },
@@ -181,7 +189,7 @@ export default async function MemberFeedPage() {
         <AdminSection
           eyebrow="Post Proof"
           title="Share an Update"
-          description="Post a photo or video that motivates the men around you. Training, discipline, service, faith, family leadership, or accountability work."
+          description="Upload media or share a YouTube/Facebook link that motivates the men around you."
         >
           <MemberFeedUploader userId={user.id} />
         </AdminSection>
@@ -200,14 +208,14 @@ export default async function MemberFeedPage() {
 
           <p className="mt-4 text-sm leading-7 text-zinc-300">
             This feed is not for attention. It is for accountability. Post the
-            work. Encourage the room. Show the standard.
+            work. Share the lesson. Show the standard.
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
               <ImageIcon className="h-5 w-5 text-red-300" />
               <div className="mt-3 text-sm font-semibold text-white">
-                Photos
+                Photos & Uploads
               </div>
               <p className="mt-1 text-xs leading-5 text-zinc-500">
                 Workouts, meals, books, service, family leadership, or daily
@@ -218,11 +226,11 @@ export default async function MemberFeedPage() {
             <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
               <Film className="h-5 w-5 text-red-300" />
               <div className="mt-3 text-sm font-semibold text-white">
-                Videos
+                Video Links
               </div>
               <p className="mt-1 text-xs leading-5 text-zinc-500">
-                Training clips, encouragement, progress updates, or action
-                moments.
+                YouTube embeds and Facebook/video links that support the
+                standard.
               </p>
             </div>
           </div>
@@ -232,7 +240,7 @@ export default async function MemberFeedPage() {
       <AdminSection
         eyebrow="Live Brotherhood Feed"
         title="Latest Posts"
-        description="A clean feed of member photos and videos. No comments. No likes. Just accountability."
+        description="A clean feed of member photos, videos, and shared links. No comments. No likes. Just accountability."
       >
         {postsWithSignedUrls.length === 0 ? (
           <div className="rounded-[28px] border border-white/10 bg-black/25 p-8 text-center">
@@ -248,6 +256,7 @@ export default async function MemberFeedPage() {
               const authorName = post.profile?.full_name || "BOG Member";
               const authorRole = post.profile?.role || "member";
               const canDelete = isAdmin || post.user_id === user.id;
+              const isLinkPost = Boolean(post.link_url);
 
               return (
                 <article
@@ -293,7 +302,51 @@ export default async function MemberFeedPage() {
                   </div>
 
                   <div className="bg-black">
-                    {post.media_type === "image" ? (
+                    {isLinkPost ? (
+                      post.link_embed_url ? (
+                        <div className="aspect-video w-full bg-black">
+                          <iframe
+                            src={post.link_embed_url}
+                            title={post.caption || "Shared video"}
+                            className="h-full w-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          />
+                        </div>
+                      ) : (
+                        <a
+                          href={post.link_url || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block p-5"
+                        >
+                          <div className="rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.14),transparent_34%),linear-gradient(180deg,rgba(12,15,24,0.98),rgba(4,5,9,0.98))] p-5 transition hover:border-red-500/30">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-red-300">
+                                {post.link_provider === "youtube" ? (
+                                  <Youtube className="h-5 w-5" />
+                                ) : (
+                                  <LinkIcon className="h-5 w-5" />
+                                )}
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="text-sm font-bold text-white">
+                                  Shared Video Link
+                                </div>
+                                <div className="mt-1 break-all text-xs leading-5 text-zinc-500">
+                                  {post.link_url}
+                                </div>
+                                <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300">
+                                  Open Link
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                      )
+                    ) : post.media_type === "image" ? (
                       <img
                         src={post.signedUrl}
                         alt={post.caption || "Member feed post"}
