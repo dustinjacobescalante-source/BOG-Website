@@ -1,57 +1,57 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { MessageSquarePlus } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { MessageSquarePlus } from "lucide-react";
 
 const supabase = createClient();
 
 export default function CreateThreadForm() {
   const router = useRouter();
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!title.trim() || !content.trim()) {
-      setMessage('Enter a title and discussion content.');
+      setMessage("Enter a title and discussion content.");
       return;
     }
 
     try {
       setSubmitting(true);
-      setMessage('');
+      setMessage("");
 
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setMessage('You must be signed in.');
+        setMessage("You must be signed in.");
         return;
       }
 
       const { data: thread, error: threadError } = await supabase
-        .from('discussion_threads')
+        .from("discussion_threads")
         .insert({
           title: title.trim(),
           created_by: user.id,
         })
-        .select('id')
+        .select("id")
         .single();
 
       if (threadError || !thread) {
-        setMessage(threadError?.message || 'Could not create thread.');
+        setMessage(threadError?.message || "Could not create thread.");
         return;
       }
 
       const { error: postError } = await supabase
-        .from('discussion_posts')
+        .from("discussion_posts")
         .insert({
           thread_id: thread.id,
           body: content.trim(),
@@ -59,19 +59,30 @@ export default function CreateThreadForm() {
         });
 
       if (postError) {
-        setMessage('Thread created, but first post failed.');
+        setMessage("Thread created, but first post failed.");
         return;
       }
 
-      setTitle('');
-      setContent('');
-      setMessage('Discussion started.');
+      await fetch("/api/discussions/notify-thread", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          threadId: thread.id,
+          title: title.trim(),
+        }),
+      });
+
+      setTitle("");
+      setContent("");
+      setMessage("Discussion started.");
 
       setTimeout(() => {
         router.refresh();
       }, 300);
     } catch {
-      setMessage('Something went wrong.');
+      setMessage("Something went wrong.");
     } finally {
       setSubmitting(false);
     }
@@ -82,11 +93,9 @@ export default function CreateThreadForm() {
       onSubmit={handleSubmit}
       className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,14,24,0.96),rgba(6,8,14,1))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:p-7"
     >
-      {/* subtle glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.12),transparent_25%)]" />
 
       <div className="relative space-y-5">
-        {/* Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600/20 text-red-400">
             <MessageSquarePlus className="h-5 w-5" />
@@ -102,7 +111,6 @@ export default function CreateThreadForm() {
           </div>
         </div>
 
-        {/* Title */}
         <input
           type="text"
           placeholder="Clear, direct title..."
@@ -111,7 +119,6 @@ export default function CreateThreadForm() {
           className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-red-500/40 focus:bg-black/50"
         />
 
-        {/* Content */}
         <textarea
           placeholder="Add context, ask better questions, or share something useful..."
           value={content}
@@ -120,7 +127,6 @@ export default function CreateThreadForm() {
           className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 text-sm leading-6 text-white placeholder:text-zinc-500 outline-none transition focus:border-red-500/40 focus:bg-black/50"
         />
 
-        {/* Footer */}
         <div className="flex items-center justify-between gap-3">
           <div className="text-xs text-zinc-500">
             Keep it clear. Keep it useful.
@@ -131,13 +137,11 @@ export default function CreateThreadForm() {
             disabled={submitting}
             className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
           >
-            {submitting ? 'Posting...' : 'Post Discussion'}
+            {submitting ? "Posting..." : "Post Discussion"}
           </button>
         </div>
 
-        {message && (
-          <div className="text-sm text-zinc-400">{message}</div>
-        )}
+        {message && <div className="text-sm text-zinc-400">{message}</div>}
       </div>
     </form>
   );
