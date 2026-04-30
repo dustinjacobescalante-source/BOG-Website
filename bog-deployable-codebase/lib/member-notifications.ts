@@ -115,11 +115,6 @@ export async function notifyActiveMembers({
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.thebuffalodogs.com";
 
-  if (!apiKey) {
-    console.error("notifyActiveMembers: Missing RESEND_API_KEY");
-    return;
-  }
-
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
 
@@ -140,8 +135,7 @@ export async function notifyActiveMembers({
         )
       `
     )
-    .eq("is_active", true)
-    .not("email", "is", null);
+    .eq("is_active", true);
 
   if (error) {
     console.error("notifyActiveMembers: profile query failed", error);
@@ -150,7 +144,6 @@ export async function notifyActiveMembers({
 
   const recipients =
     members?.filter((member) => {
-      if (!member.email) return false;
       if (excludeUserId && member.id === excludeUserId) return false;
 
       const preferences = Array.isArray(member.member_notification_preferences)
@@ -162,7 +155,10 @@ export async function notifyActiveMembers({
       return preferences[type] !== false;
     }) ?? [];
 
-  if (recipients.length === 0) return;
+  if (recipients.length === 0) {
+    console.log("notifyActiveMembers: no recipients", { type });
+    return;
+  }
 
   const finalButtonUrl = buttonUrl
     ? buttonUrl.startsWith("http")
@@ -188,6 +184,25 @@ export async function notifyActiveMembers({
       "notifyActiveMembers: member_notifications insert failed",
       notificationError
     );
+  } else {
+    console.log("notifyActiveMembers: portal notifications created", {
+      type,
+      count: notificationRows.length,
+    });
+  }
+
+  if (!apiKey) {
+    console.error(
+      "notifyActiveMembers: Missing RESEND_API_KEY. Portal notifications were still created."
+    );
+    return;
+  }
+
+  const emailRecipients = recipients.filter((member) => Boolean(member.email));
+
+  if (emailRecipients.length === 0) {
+    console.log("notifyActiveMembers: no email recipients", { type });
+    return;
   }
 
   const resend = new Resend(apiKey);
@@ -199,8 +214,8 @@ export async function notifyActiveMembers({
     finalButtonUrl,
   });
 
-  await Promise.allSettled(
-    recipients.map((member) =>
+  const emailResults = await Promise.allSettled(
+    emailRecipients.map((member) =>
       resend.emails.send({
         from: "BOG <onboarding@resend.dev>",
         to: member.email,
@@ -209,4 +224,19 @@ export async function notifyActiveMembers({
       })
     )
   );
+
+  const failed = emailResults.filter((result) => result.status === "rejected");
+
+  if (failed.length > 0) {
+    console.error("notifyActiveMembers: some emails failed", {
+      type,
+      failedCount: failed.length,
+      totalCount: emailRecipients.length,
+    });
+  } else {
+    console.log("notifyActiveMembers: emails sent", {
+      type,
+      count: emailRecipients.length,
+    });
+  }
 }
