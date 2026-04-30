@@ -60,13 +60,31 @@ export default function DocumentUpload() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      await supabase.from('documents').insert({
-        title: title || file.name,
+      const finalTitle = title.trim() || file.name;
+
+      const { error: insertError } = await supabase.from('documents').insert({
+        title: finalTitle,
         category: 'other',
         description,
         file_url: publicUrlData.publicUrl,
         file_path: filePath,
         uploaded_by: user?.id ?? null,
+      });
+
+      if (insertError) {
+        setMessage(insertError.message);
+        setMessageType('error');
+        return;
+      }
+
+      await fetch('/api/documents/notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: finalTitle,
+        }),
       });
 
       setTitle('');
@@ -114,7 +132,6 @@ export default function DocumentUpload() {
             />
           </div>
 
-          {/* DROP ZONE */}
           <label className="group relative block cursor-pointer rounded-2xl border border-dashed border-white/20 bg-black/30 px-6 py-14 text-center text-sm text-zinc-400 transition-all duration-300 hover:border-red-500/50 hover:bg-black/40">
             <input
               type="file"
@@ -157,7 +174,6 @@ export default function DocumentUpload() {
             </div>
           </label>
 
-          {/* BUTTON + MESSAGE */}
           <div className="flex flex-col items-center gap-3">
             <button
               type="submit"
