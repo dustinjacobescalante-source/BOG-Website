@@ -1,36 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
-export default function ReplyForm({
-  threadId,
-}: {
-  threadId: string;
-}) {
+export default function ReplyForm({ threadId }: { threadId: string }) {
   const router = useRouter();
 
-  const [body, setBody] = useState('');
+  const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!body.trim()) {
-      setMessage('Please write a reply before posting.');
-      setMessageType('error');
+      setMessage("Please write a reply before posting.");
+      setMessageType("error");
       return;
     }
 
     try {
       setSubmitting(true);
-      setMessage('');
-      setMessageType('');
+      setMessage("");
+      setMessageType("");
 
       const {
         data: { user },
@@ -38,44 +34,51 @@ export default function ReplyForm({
       } = await supabase.auth.getUser();
 
       if (authError || !user) {
-        setMessage('You must be signed in to reply.');
-        setMessageType('error');
+        setMessage("You must be signed in to reply.");
+        setMessageType("error");
         return;
       }
 
-      const { error } = await supabase.from('discussion_posts').insert({
+      const { error } = await supabase.from("discussion_posts").insert({
         thread_id: threadId,
         body: body.trim(),
         user_id: user.id,
       });
 
       if (error) {
-        setMessage(error.message || 'Could not post reply.');
-        setMessageType('error');
+        setMessage(error.message || "Could not post reply.");
+        setMessageType("error");
         return;
       }
 
-      setBody('');
-      setMessage('Reply posted.');
-      setMessageType('success');
+      await fetch("/api/discussions/notify-reply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          threadId,
+          preview: body.trim().slice(0, 160),
+        }),
+      });
+
+      setBody("");
+      setMessage("Reply posted.");
+      setMessageType("success");
 
       setTimeout(() => {
         router.refresh();
       }, 250);
     } catch {
-      setMessage('Something went wrong while posting your reply.');
-      setMessageType('error');
+      setMessage("Something went wrong while posting your reply.");
+      setMessageType("error");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
-      {/* TEXTAREA ONLY — NO HEADER */}
+    <form onSubmit={handleSubmit} className="space-y-4">
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
@@ -90,13 +93,13 @@ export default function ReplyForm({
           disabled={submitting}
           className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting ? 'Posting...' : 'Post Reply'}
+          {submitting ? "Posting..." : "Post Reply"}
         </button>
 
         {message ? (
           <div
             className={`text-sm ${
-              messageType === 'error' ? 'text-red-400' : 'text-green-400'
+              messageType === "error" ? "text-red-400" : "text-green-400"
             }`}
           >
             {message}
