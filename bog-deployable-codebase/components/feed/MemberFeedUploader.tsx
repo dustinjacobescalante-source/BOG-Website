@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 
 const MAX_FILE_SIZE_MB = 1000;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const LARGE_FILE_WARNING_MB = 150;
+const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000;
 
 function sanitizeFileName(fileName: string) {
   return fileName
@@ -16,12 +18,39 @@ function sanitizeFileName(fileName: string) {
     .replace(/-+/g, "-");
 }
 
+function getFileSizeMb(file: File) {
+  return file.size / 1024 / 1024;
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(
+        new Error(
+          "Upload timed out. On mobile, try a shorter video, use Wi-Fi, keep the screen awake, or upload from desktop."
+        )
+      );
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        window.clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
 export default function MemberFeedUploader({ userId }: { userId: string }) {
   const router = useRouter();
   const supabase = createClient();
 
   const [caption, setCaption] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [fileWarning, setFileWarning] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,6 +58,7 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
   function resetMessages() {
     setStatusMessage(null);
     setErrorMessage(null);
+    setFileWarning(null);
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -56,13 +86,22 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
       return;
     }
 
+    const sizeMb = getFileSizeMb(selectedFile);
+
+    if (isVideo && sizeMb >= LARGE_FILE_WARNING_MB) {
+      setFileWarning(
+        "Large phone videos can take several minutes. Use Wi-Fi, keep this page open, and do not lock your screen during upload."
+      );
+    }
+
     setFile(selectedFile);
   }
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    resetMessages();
+    setStatusMessage(null);
+    setErrorMessage(null);
 
     if (!file) {
       setErrorMessage("Please choose a photo or video first.");
@@ -71,7 +110,7 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
 
     try {
       setIsUploading(true);
-      setStatusMessage("Preparing upload...");
+      setStatusMessage("Preparing upload. Keep this page open...");
 
       const {
         data: { user },
@@ -92,21 +131,29 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
       const mediaType = isImage ? "image" : "video";
       const safeFileName = sanitizeFileName(file.name);
       const filePath = `${user.id}/${Date.now()}-${safeFileName}`;
+      const sizeMb = getFileSizeMb(file);
 
-      setStatusMessage("Uploading media...");
+      setStatusMessage(
+        isVideo
+          ? `Uploading video (${sizeMb.toFixed(
+              1
+            )}MB). This may take several minutes on mobile...`
+          : `Uploading photo (${sizeMb.toFixed(1)}MB)...`
+      );
 
-      const { error: uploadError } = await supabase.storage
-        .from("member-feed")
-        .upload(filePath, file, {
+      const uploadResult = await withTimeout(
+        supabase.storage.from("member-feed").upload(filePath, file, {
           contentType: file.type,
           upsert: false,
-        });
+        }),
+        UPLOAD_TIMEOUT_MS
+      );
 
-      if (uploadError) {
-        throw uploadError;
+      if (uploadResult.error) {
+        throw uploadResult.error;
       }
 
-      setStatusMessage("Saving post...");
+      setStatusMessage("Upload complete. Saving post...");
 
       const { error: insertError } = await supabase
         .from("member_feed_posts")
@@ -123,19 +170,22 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
         throw insertError;
       }
 
-     await fetch("/api/member-feed/notify", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    caption: caption.trim(),
-  }),
-});
+      setStatusMessage("Post saved. Notifying members...");
 
-setCaption("");
-setFile(null);
-setStatusMessage("Post uploaded successfully.");
+      await fetch("/api/member-feed/notify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          caption: caption.trim(),
+        }),
+      });
+
+      setCaption("");
+      setFile(null);
+      setFileWarning(null);
+      setStatusMessage("Post uploaded successfully.");
 
       const fileInput = document.getElementById(
         "member-feed-media"
@@ -190,15 +240,23 @@ setStatusMessage("Post uploaded successfully.");
 
         {file ? (
           <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-300">
-            Selected: <span className="font-semibold text-white">{file.name}</span>
+            Selected:{" "}
+            <span className="font-semibold text-white">{file.name}</span>
             <br />
-            Size: {(file.size / 1024 / 1024).toFixed(1)}MB
+            Size: {getFileSizeMb(file).toFixed(1)}MB
+          </div>
+        ) : null}
+
+        {fileWarning ? (
+          <div className="mt-4 flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{fileWarning}</span>
           </div>
         ) : null}
 
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-400">
-          Max file size: {MAX_FILE_SIZE_MB}MB. Approved active members can post.
-          Admins can remove posts if needed.
+          Max file size: {MAX_FILE_SIZE_MB}MB. For mobile videos, use Wi-Fi,
+          keep the screen awake, and stay on this page until the upload finishes.
         </div>
 
         {statusMessage ? (
