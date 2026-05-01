@@ -166,34 +166,26 @@ export async function notifyActiveMembers({
       : `${siteUrl}${buttonUrl}`
     : siteUrl;
 
-  const notificationRows = recipients.map((member) => ({
-    user_id: member.id,
+  await Promise.allSettled(
+    recipients.map((member) =>
+      supabase.rpc("create_member_notification", {
+        target_user_id: member.id,
+        notification_type: type,
+        notification_title: heading,
+        notification_message: message,
+        notification_link_url: buttonUrl || null,
+      })
+    )
+  );
+
+  console.log("notifyActiveMembers: portal notification RPC attempted", {
     type,
-    title: heading,
-    message,
-    link_url: buttonUrl || null,
-    is_read: false,
-  }));
-
-  const { error: notificationError } = await supabase
-    .from("member_notifications")
-    .insert(notificationRows);
-
-  if (notificationError) {
-    console.error(
-      "notifyActiveMembers: member_notifications insert failed",
-      notificationError
-    );
-  } else {
-    console.log("notifyActiveMembers: portal notifications created", {
-      type,
-      count: notificationRows.length,
-    });
-  }
+    count: recipients.length,
+  });
 
   if (!apiKey) {
     console.error(
-      "notifyActiveMembers: Missing RESEND_API_KEY. Portal notifications were still created."
+      "notifyActiveMembers: Missing RESEND_API_KEY. Portal notifications were still attempted."
     );
     return;
   }
