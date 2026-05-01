@@ -166,17 +166,32 @@ export async function notifyActiveMembers({
       : `${siteUrl}${buttonUrl}`
     : siteUrl;
 
-  await Promise.allSettled(
-    recipients.map((member) =>
-      supabase.rpc("create_member_notification", {
-        target_user_id: member.id,
-        notification_type: type,
-        notification_title: heading,
-        notification_message: message,
-        notification_link_url: buttonUrl || null,
-      })
-    )
-  );
+  const rpcResults = await Promise.all(
+  recipients.map(async (member) => {
+    const result = await supabase.rpc("create_member_notification", {
+      target_user_id: member.id,
+      notification_type: type,
+      notification_title: heading,
+      notification_message: message,
+      notification_link_url: buttonUrl || null,
+    });
+
+    if (result.error) {
+      console.error("RPC FAILED", {
+        memberId: member.id,
+        email: member.email,
+        error: result.error,
+      });
+    } else {
+      console.log("RPC SUCCESS", {
+        memberId: member.id,
+        email: member.email,
+      });
+    }
+
+    return result;
+  })
+);
 
   console.log("notifyActiveMembers: portal notification RPC attempted", {
     type,
