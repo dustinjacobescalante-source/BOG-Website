@@ -143,17 +143,24 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
   }
 
   async function notifyMembers() {
-    await fetch("/api/member-feed/notify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        caption: caption.trim(),
-      }),
-    });
-  }
+    const notifyResponse = await fetch("/api/member-feed/notify", {
+  method: "POST",
+  credentials: "same-origin",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    caption: caption.trim(),
+  }),
+});
 
+if (!notifyResponse.ok) {
+  const text = await notifyResponse.text();
+  console.error("Feed notify failed:", notifyResponse.status, text);
+} else {
+  console.log("Feed notify success");
+}
+  
   async function handleLinkPost(userIdValue: string) {
     const cleanUrl = linkUrl.trim();
 
