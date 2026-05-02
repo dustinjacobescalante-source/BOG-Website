@@ -313,10 +313,10 @@ export default function PortalShell({
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm p-4 transition-transform duration-300 xl:hidden ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+  className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm overflow-y-auto overscroll-contain p-4 pb-24 transition-transform duration-300 xl:hidden ${
+    mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+  }`}
+>
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
             Member Navigation
