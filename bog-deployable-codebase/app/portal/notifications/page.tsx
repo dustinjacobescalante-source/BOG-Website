@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -32,19 +33,18 @@ async function updateNotificationPreferences(formData: FormData) {
 
   if (!user) redirect("/auth/sign-in");
 
-  const preferences = {
-    user_id: user.id,
-    feed_posts: formData.get("feed_posts") === "on",
-    meetings: formData.get("meetings") === "on",
-    documents: formData.get("documents") === "on",
-    discussions: formData.get("discussions") === "on",
-    discussion_replies: formData.get("discussion_replies") === "on",
-    updated_at: new Date().toISOString(),
-  };
-
-  await supabase
-    .from("member_notification_preferences")
-    .upsert(preferences, { onConflict: "user_id" });
+  await supabase.from("member_notification_preferences").upsert(
+    {
+      user_id: user.id,
+      feed_posts: formData.get("feed_posts") === "on",
+      meetings: formData.get("meetings") === "on",
+      documents: formData.get("documents") === "on",
+      discussions: formData.get("discussions") === "on",
+      discussion_replies: formData.get("discussion_replies") === "on",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
 
   revalidatePath("/portal/notifications");
 }
@@ -61,6 +61,19 @@ async function markRead(formData: FormData) {
     .from("member_notifications")
     .update({ is_read: true })
     .eq("id", id);
+
+  revalidatePath("/portal/notifications");
+}
+
+async function deleteNotification(formData: FormData) {
+  "use server";
+
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+
+  if (!id) return;
+
+  await supabase.from("member_notifications").delete().eq("id", id);
 
   revalidatePath("/portal/notifications");
 }
@@ -176,11 +189,11 @@ export default async function PortalNotificationsPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex shrink-0 flex-col gap-2">
                         {item.link_url ? (
                           <a
                             href={item.link_url}
-                            className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-white"
+                            className="inline-flex items-center justify-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-white"
                           >
                             Open
                             <ExternalLink className="h-3.5 w-3.5" />
@@ -189,24 +202,31 @@ export default async function PortalNotificationsPage() {
 
                         {!item.is_read ? (
                           <form action={markRead}>
-                            <input
-                              type="hidden"
-                              name="id"
-                              value={item.id}
-                            />
+                            <input type="hidden" name="id" value={item.id} />
                             <button
                               type="submit"
-                              className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-300"
+                              className="w-full rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-300"
                             >
                               Mark Read
                             </button>
                           </form>
                         ) : (
-                          <div className="inline-flex items-center gap-1 text-xs text-emerald-300">
+                          <div className="inline-flex items-center justify-center gap-1 text-xs text-emerald-300">
                             <CheckCircle2 className="h-4 w-4" />
                             Read
                           </div>
                         )}
+
+                        <form action={deleteNotification}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <button
+                            type="submit"
+                            className="inline-flex w-full items-center justify-center gap-1 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/15"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        </form>
                       </div>
                     </div>
                   </div>
