@@ -1,4 +1,5 @@
 import AdminCommandNotes from "@/components/admin/AdminCommandNotes";
+import AdminAnnouncementComposer from "@/components/admin/AdminAnnouncementComposer";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
@@ -27,6 +28,7 @@ import { createClient } from "@/lib/supabase/server";
 
 function formatTimestamp(value?: string | null) {
   if (!value) return "Unknown";
+
   return new Date(value).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -43,9 +45,7 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/sign-in");
-  }
+  if (!user) redirect("/auth/sign-in");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -109,19 +109,19 @@ export default async function AdminPage() {
     {
       label: "Pending Reviews",
       value: pendingReviews.toString(),
-      subtext: "Scholarship applications currently waiting on admin action.",
+      subtext: "Scholarship applications waiting on admin action.",
       icon: <ScrollText className="h-5 w-5" />,
     },
     {
       label: "Published Meetings",
       value: publishedMeetings.toString(),
-      subtext: "Meeting agendas visible to the brotherhood right now.",
+      subtext: "Meeting agendas visible to the brotherhood.",
       icon: <CalendarRange className="h-5 w-5" />,
     },
     {
       label: "Access Level",
       value: adminRank,
-      subtext: "Your current administrative authority inside the portal.",
+      subtext: "Your current administrative authority.",
       icon: <ShieldCheck className="h-5 w-5" />,
     },
   ];
@@ -151,14 +151,14 @@ export default async function AdminPage() {
     {
       title: "Manage Documents",
       description:
-        "Upload, organize, pin, and maintain the key files members rely on.",
+        "Upload, organize, pin, and maintain key files members rely on.",
       href: "/admin/documents",
       icon: <FileText className="h-5 w-5" />,
     },
     {
       title: "Scholarship Control",
       description:
-        "Review scholarship submissions and keep the process moving forward.",
+        "Review scholarship submissions and keep the process moving.",
       href: "/admin/scholarship",
       icon: <BadgeCheck className="h-5 w-5" />,
     },
@@ -192,7 +192,7 @@ export default async function AdminPage() {
       <AdminHero
         eyebrow="BOG Admin Command"
         title="Lead the platform. Control the standard."
-        description="Manage approvals, meetings, documents, and member-facing structure from one clean administrative command center."
+        description="Manage approvals, meetings, documents, notifications, and member-facing structure from one command center."
         actions={[
           { href: "/admin/members", label: "Manage Members" },
           { href: "/portal", label: "View Member Portal" },
@@ -200,33 +200,28 @@ export default async function AdminPage() {
       />
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.45fr_0.95fr]">
-        <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.2),transparent_36%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.12),transparent_28%),linear-gradient(180deg,rgba(13,16,27,0.96),rgba(9,11,18,0.98))] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_30px_90px_rgba(0,0,0,0.5)] sm:p-8">
-          <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:58px_58px]" />
-
+        <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.2),transparent_36%),radial-gradient(circle_at_top_right,rgba(239,68,68,0.12),transparent_28%),linear-gradient(180deg,rgba(13,16,27,0.96),rgba(9,11,18,0.98))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.5)] sm:p-8">
           <div className="relative">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-200">
               <Layers3 className="h-3.5 w-3.5" />
               Brotherhood Operations
             </div>
 
-            <div className="max-w-3xl">
-              <h2 className="text-4xl font-black leading-none tracking-tight text-white sm:text-5xl xl:text-6xl">
-                Run approvals.
-                <br />
-                Publish clearly.
-                <br />
-                Keep the structure tight.
-              </h2>
+            <h2 className="text-4xl font-black leading-none tracking-tight text-white sm:text-5xl xl:text-6xl">
+              Run approvals.
+              <br />
+              Publish clearly.
+              <br />
+              Keep structure tight.
+            </h2>
 
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                This is your admin command center. Oversee the roster, move key
-                actions forward, and keep the portal aligned with the standard
-                the brotherhood is building toward.
-              </p>
-            </div>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300">
+              Oversee the roster, move key actions forward, and keep the portal
+              aligned with the standard.
+            </p>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4 backdrop-blur-sm">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
                 <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
                   <Activity className="h-3.5 w-3.5" />
                   Command Status
@@ -234,40 +229,31 @@ export default async function AdminPage() {
                 <div className="mt-2 text-2xl font-black text-white">
                   Active
                 </div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Admin access is live and available for platform control.
-                </p>
               </div>
 
-              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4 backdrop-blur-sm">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  Pending Review Queue
+                  Pending Queue
                 </div>
                 <div className="mt-2 text-2xl font-black text-white">
                   {pendingReviews}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Items currently waiting for scholarship review action.
-                </p>
               </div>
 
-              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4 backdrop-blur-sm">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  Published Meeting Control
+                  Live Meetings
                 </div>
                 <div className="mt-2 text-2xl font-black text-white">
                   {publishedMeetings}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Meeting agendas currently visible to members in the portal.
-                </p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          <div className="rounded-[30px] border border-red-400/20 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.16),transparent_34%),linear-gradient(180deg,rgba(17,19,29,0.96),rgba(11,12,20,0.98))] p-6 shadow-[0_26px_90px_rgba(0,0,0,0.42)]">
+          <div className="rounded-[30px] border border-red-400/20 bg-[linear-gradient(180deg,rgba(17,19,29,0.96),rgba(11,12,20,0.98))] p-6">
             <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-red-200">
               <Sparkles className="h-3.5 w-3.5" />
               Priority Action
@@ -281,15 +267,13 @@ export default async function AdminPage() {
 
             <p className="mt-3 text-sm leading-7 text-slate-300">
               {pendingReviews > 0
-                ? `You have ${pendingReviews} scholarship application${
-                    pendingReviews === 1 ? "" : "s"
-                  } waiting for review.`
-                : "No scholarship applications are currently waiting for action."}
+                ? `You have ${pendingReviews} pending scholarship application(s).`
+                : "No scholarship applications currently need review."}
             </p>
 
             <Link
               href="/admin/scholarship"
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/[0.12]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white"
             >
               Open scholarship control
               <ArrowRight className="h-4 w-4" />
@@ -299,6 +283,8 @@ export default async function AdminPage() {
           <AdminCommandNotes />
         </div>
       </section>
+
+      <AdminAnnouncementComposer />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
