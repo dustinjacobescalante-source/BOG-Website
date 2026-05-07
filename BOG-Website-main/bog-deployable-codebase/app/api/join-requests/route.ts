@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 export async function POST(req: Request) {
   try {
@@ -16,6 +18,7 @@ export async function POST(req: Request) {
     }
 
     // Send email notification
+    if (resend) {
     await resend.emails.send({
       from: 'BOG <onboarding@resend.dev>',
       to: 'BOGDustinE@gmail.com', // <-- your email
@@ -29,7 +32,7 @@ export async function POST(req: Request) {
         <p><strong>Wants to Visit:</strong> ${payload.interested_in_visiting ? 'Yes' : 'No'}</p>
       `,
     });
-
+}
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(
