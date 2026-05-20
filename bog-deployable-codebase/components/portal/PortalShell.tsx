@@ -214,45 +214,69 @@ export default function PortalShell({
   useEffect(() => {
     let active = true;
 
-    async function loadUnreadCount() {
+    async function setupNotificationRealtime() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
         if (active) setUnreadCount(0);
-        return;
+        return null;
       }
 
-      const { count, error } = await supabase
-        .from("member_notifications")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("is_read", false);
+      async function loadUnreadCount() {
+        const { count, error } = await supabase
+          .from("member_notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("is_read", false);
 
-      if (!error && active) {
-        setUnreadCount(count ?? 0);
+        if (!error && active) {
+          setUnreadCount(count ?? 0);
+        }
       }
+
+      await loadUnreadCount();
+
+      const channel = supabase
+        .channel(`member-notification-count-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "member_notifications",
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            loadUnreadCount();
+
+            if (pathname === "/portal/notifications") {
+              router.refresh();
+            }
+          }
+        )
+        .subscribe();
+
+      return channel;
     }
 
-    loadUnreadCount();
+    let channel:
+      | ReturnType<ReturnType<typeof supabase.channel>["subscribe"]>
+      | null = null;
 
-    const channel = supabase
-      .channel("member-notification-count")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "member_notifications" },
-        () => {
-          loadUnreadCount();
-        }
-      )
-      .subscribe();
+    setupNotificationRealtime().then((createdChannel) => {
+      channel = createdChannel;
+    });
 
     return () => {
       active = false;
-      supabase.removeChannel(channel);
+
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, [supabase, pathname]);
+  }, [supabase, pathname, router]);
 
   async function handleSignOut() {
     try {
