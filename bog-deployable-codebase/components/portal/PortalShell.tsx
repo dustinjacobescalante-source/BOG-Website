@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard,
   CheckSquare,
@@ -197,7 +197,7 @@ export default function PortalShell({
 }: PortalShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -224,11 +224,13 @@ export default function PortalShell({
         return null;
       }
 
+      const userId = user.id;
+
       async function loadUnreadCount() {
         const { count, error } = await supabase
           .from("member_notifications")
           .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .eq("is_read", false);
 
         if (!error && active) {
@@ -239,14 +241,14 @@ export default function PortalShell({
       await loadUnreadCount();
 
       const channel = supabase
-        .channel(`member-notification-count-${user.id}`)
+        .channel(`member-notification-count-${userId}`)
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
             table: "member_notifications",
-            filter: `user_id=eq.${user.id}`,
+            filter: `user_id=eq.${userId}`,
           },
           () => {
             loadUnreadCount();
@@ -261,9 +263,7 @@ export default function PortalShell({
       return channel;
     }
 
-    let channel:
-      | ReturnType<ReturnType<typeof supabase.channel>["subscribe"]>
-      | null = null;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
     setupNotificationRealtime().then((createdChannel) => {
       channel = createdChannel;
@@ -337,10 +337,10 @@ export default function PortalShell({
       />
 
       <aside
-  className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm overflow-y-auto overscroll-contain p-4 pb-24 transition-transform duration-300 xl:hidden ${
-    mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-  }`}
->
+        className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm overflow-y-auto overscroll-contain p-4 pb-24 transition-transform duration-300 xl:hidden ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
             Member Navigation
