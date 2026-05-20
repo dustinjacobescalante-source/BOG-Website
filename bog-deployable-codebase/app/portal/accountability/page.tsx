@@ -36,14 +36,13 @@ function intValue(formData: FormData, key: string) {
 function intValueFromAll(formData: FormData, key: string) {
   const values = formData
     .getAll(key)
-    .map((value) => String(value ?? '').trim());
+    .map((value) => Number(String(value ?? '').trim()))
+    .filter((value) => Number.isFinite(value) && value >= 0)
+    .map((value) => Math.round(value));
 
-  const filledValue = values.find((value) => value.length > 0);
-  const parsed = Number(filledValue ?? 0);
+  const nonZeroValue = values.find((value) => value > 0);
 
-  if (!Number.isFinite(parsed) || parsed < 0) return 0;
-
-  return Math.round(parsed);
+  return nonZeroValue ?? 0;
 }
 
 type GoalPrefix =
