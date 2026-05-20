@@ -16,10 +16,33 @@ function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim();
 }
 
+function textValueFromAll(formData: FormData, key: string) {
+  const values = formData
+    .getAll(key)
+    .map((value) => String(value ?? '').trim());
+
+  const filledValue = values.find((value) => value.length > 0);
+
+  return filledValue ?? '';
+}
+
 function intValue(formData: FormData, key: string) {
   const raw = String(formData.get(key) ?? '').trim();
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  return Math.round(parsed);
+}
+
+function intValueFromAll(formData: FormData, key: string) {
+  const values = formData
+    .getAll(key)
+    .map((value) => String(value ?? '').trim());
+
+  const filledValue = values.find((value) => value.length > 0);
+  const parsed = Number(filledValue ?? 0);
+
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+
   return Math.round(parsed);
 }
 
@@ -1073,8 +1096,8 @@ async function saveAccountability(formData: FormData) {
   const habitRows = [];
 
   for (let rowIndex = 0; rowIndex < HABIT_ROW_COUNT; rowIndex++) {
-    const action = textValue(formData, `habit_${rowIndex}_action`);
-    const goal_days = intValue(formData, `habit_${rowIndex}_goal_days`);
+  const action = textValueFromAll(formData, `habit_${rowIndex}_action`);
+  const goal_days = intValueFromAll(formData, `habit_${rowIndex}_goal_days`);
     const checked_days = Array.from(
       { length: daysInTracker },
       (_, dayIndex) => dayIndex + 1
