@@ -214,6 +214,28 @@ export default function PortalShell({
   useEffect(() => {
     let active = true;
 
+    async function touchLastSeen() {
+      const { error } = await supabase.rpc("touch_my_last_seen");
+
+      if (error) {
+        console.error("Failed to update last_seen_at:", error);
+      }
+
+      if (active && pathname === "/portal/directory") {
+        router.refresh();
+      }
+    }
+
+    touchLastSeen();
+
+    return () => {
+      active = false;
+    };
+  }, [supabase, pathname, router]);
+
+  useEffect(() => {
+    let active = true;
+
     async function setupNotificationRealtime() {
       const {
         data: { user },
