@@ -18,26 +18,35 @@ export const metadata: Metadata = {
     title: "BOG",
     statusBarStyle: "black-translucent",
     startupImage: [
-      "/images/bog-app-opener.png",
       {
-        url: "/images/bog-app-opener.png",
+        url: "/images/bog-splash-1290x2796.png",
         media:
           "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
-        url: "/images/bog-app-opener.png",
+        url: "/images/bog-splash-1290x2796.png",
         media:
           "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
-        url: "/images/bog-app-opener.png",
+        url: "/images/bog-splash-1290x2796.png",
         media:
           "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
       },
       {
-        url: "/images/bog-app-opener.png",
+        url: "/images/bog-splash-1290x2796.png",
         media:
           "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/images/bog-splash-1290x2796.png",
+        media:
+          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      {
+        url: "/images/bog-splash-1290x2796.png",
+        media:
+          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)",
       },
     ],
   },
