@@ -105,20 +105,6 @@ function getReliableVideoEmbedUrl(
         return `https://player.vimeo.com/video/${videoId}`;
       }
     }
-
-    if (hostname === "player.vimeo.com" && url.pathname.startsWith("/video/")) {
-      return linkUrl;
-    }
-
-    if (
-      hostname === "facebook.com" ||
-      hostname === "m.facebook.com" ||
-      hostname === "fb.watch"
-    ) {
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
-        linkUrl
-      )}&show_text=false&width=560`;
-    }
   } catch {
     return "";
   }
