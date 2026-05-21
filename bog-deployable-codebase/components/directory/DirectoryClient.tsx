@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   BadgeCheck,
   ChevronRight,
+  Clock3,
 } from 'lucide-react';
 import { Card } from '@/components/cards';
 
@@ -16,6 +17,7 @@ type Member = {
   email: string | null;
   rank: string | null;
   role: string | null;
+  last_seen_at: string | null;
 };
 
 export default function DirectoryClient({ members }: { members: Member[] }) {
@@ -55,13 +57,83 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
   }
 
   function getRankLabel(rank?: string | null) {
-  const cleanRank = rank || 'lone_wolf';
+    const cleanRank = rank || 'lone_wolf';
 
-  return cleanRank
-    .replace(/_/g, ' ')
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    return cleanRank
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  function formatLastActive(lastSeenAt?: string | null) {
+    if (!lastSeenAt) {
+      return 'No activity recorded yet';
+    }
+
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+
+    if (Number.isNaN(lastSeen.getTime())) {
+      return 'No activity recorded yet';
+    }
+
+    const diffMs = now.getTime() - lastSeen.getTime();
+    const diffMinutes = Math.floor(diffMs / 1000 / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMinutes < 1) return 'Active just now';
+    if (diffMinutes < 60) return `Active ${diffMinutes} min ago`;
+    if (diffHours < 24) return `Active ${diffHours} hr ago`;
+    if (diffDays === 1) return 'Active yesterday';
+    if (diffDays < 7) return `Active ${diffDays} days ago`;
+
+    return `Last active ${lastSeen.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })}`;
+  }
+
+  function getActivityStyle(lastSeenAt?: string | null) {
+    if (!lastSeenAt) {
+      return {
+        dot: 'bg-zinc-500 shadow-none',
+        badge: 'border-white/10 bg-black/25 text-zinc-400',
+      };
+    }
+
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+
+    if (Number.isNaN(lastSeen.getTime())) {
+      return {
+        dot: 'bg-zinc-500 shadow-none',
+        badge: 'border-white/10 bg-black/25 text-zinc-400',
+      };
+    }
+
+    const diffHours = (now.getTime() - lastSeen.getTime()) / 1000 / 60 / 60;
+
+    if (diffHours <= 1) {
+      return {
+        dot: 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.55)]',
+        badge: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+      };
+    }
+
+    if (diffHours <= 24) {
+      return {
+        dot: 'bg-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.45)]',
+        badge: 'border-sky-500/30 bg-sky-500/10 text-sky-300',
+      };
+    }
+
+    return {
+      dot: 'bg-zinc-500 shadow-none',
+      badge: 'border-white/10 bg-black/25 text-zinc-400',
+    };
   }
 
   return (
@@ -200,6 +272,8 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((member) => {
           const initials = getInitials(member.full_name);
+          const activityStyle = getActivityStyle(member.last_seen_at);
+          const lastActiveLabel = formatLastActive(member.last_seen_at);
 
           return (
             <div
@@ -207,7 +281,10 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
               className="group relative rounded-[30px] border border-white/10 bg-white/[0.03] p-5 transition duration-300 hover:-translate-y-1 hover:border-red-500/30 hover:bg-white/[0.045] hover:shadow-[0_20px_50px_rgba(0,0,0,0.28)]"
             >
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-              <div className="absolute right-5 top-5 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.55)]" />
+              <div
+                className={`absolute right-5 top-5 h-2.5 w-2.5 rounded-full ${activityStyle.dot}`}
+                title={lastActiveLabel}
+              />
 
               <div className="relative">
                 <div className="flex items-start gap-4">
@@ -245,6 +322,13 @@ export default function DirectoryClient({ members }: { members: Member[] }) {
                   >
                     <ShieldCheck className="h-3.5 w-3.5" />
                     {member.role || 'member'}
+                  </span>
+
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${activityStyle.badge}`}
+                  >
+                    <Clock3 className="h-3.5 w-3.5" />
+                    {lastActiveLabel}
                   </span>
                 </div>
 
