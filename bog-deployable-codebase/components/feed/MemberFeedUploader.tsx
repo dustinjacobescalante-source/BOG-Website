@@ -103,16 +103,6 @@ function getReliableVideoEmbedUrl(url: string) {
       return parsed.toString();
     }
 
-    if (
-      host === "facebook.com" ||
-      host === "m.facebook.com" ||
-      host === "fb.watch"
-    ) {
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
-        parsed.toString()
-      )}&show_text=false&width=560`;
-    }
-
     return null;
   } catch {
     return null;
@@ -478,8 +468,8 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
             </div>
 
             <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-400">
-              YouTube and Vimeo links should embed. Facebook videos will embed
-              when Facebook allows the video to be shared publicly.
+              YouTube and Vimeo links will embed when possible. Facebook links
+              will show as a clean card that opens directly on Facebook.
             </div>
           </>
         )}
