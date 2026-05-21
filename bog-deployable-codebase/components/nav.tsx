@@ -92,10 +92,15 @@ export function Nav() {
             : "bg-black/0"
         }`}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between sm:h-20">
+        <div
+          className="mx-auto max-w-7xl px-4 pb-3 sm:px-6 lg:px-8"
+          style={{
+            paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+          }}
+        >
+          <div className="flex h-14 items-center justify-between sm:h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md sm:h-11 sm:w-11 sm:rounded-2xl">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-md sm:h-11 sm:w-11 sm:rounded-2xl">
                 <span className="text-[11px] font-black tracking-[0.22em] text-white sm:text-sm sm:tracking-[0.24em]">
                   BOG
                 </span>
@@ -166,9 +171,12 @@ export function Nav() {
       />
 
       <aside
-        className={`fixed right-0 top-0 z-50 h-full w-[85%] max-w-sm border-l border-white/10 bg-black/95 p-6 transition-transform duration-300 md:hidden ${
+        className={`fixed right-0 top-0 z-50 h-full w-[85%] max-w-sm border-l border-white/10 bg-black/95 px-6 pb-6 transition-transform duration-300 md:hidden ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top) + 1.25rem)",
+        }}
       >
         <div className="flex items-center justify-between">
           <div className="text-lg font-bold text-white">Menu</div>
