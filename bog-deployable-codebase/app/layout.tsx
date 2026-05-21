@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import NavVisibility from "@/components/layout/NavVisibility";
 import FooterVisibility from "@/components/layout/FooterVisibility";
+import AppLaunchScreen from "@/components/layout/AppLaunchScreen";
 
 export const metadata: Metadata = {
   title: "BOG Buffalo Dogs",
@@ -29,7 +30,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: "cover",
   themeColor: "#0b0f16",
 };
@@ -42,6 +42,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black">
       <body className="min-h-screen bg-black text-white antialiased">
+        <AppLaunchScreen />
+
         <div
           className="fixed inset-0 -z-30 opacity-20"
           style={{
