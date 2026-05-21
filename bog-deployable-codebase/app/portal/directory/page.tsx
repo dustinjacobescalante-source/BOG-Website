@@ -9,6 +9,7 @@ type Member = {
   rank: string | null;
   role: string | null;
   is_active: boolean | null;
+  last_seen_at: string | null;
 };
 
 export default async function DirectoryPage() {
@@ -16,7 +17,7 @@ export default async function DirectoryPage() {
 
   const { data: members } = await supabase
     .from('profiles')
-    .select('id, full_name, email, rank, role, is_active')
+    .select('id, full_name, email, rank, role, is_active, last_seen_at')
     .eq('is_active', true)
     .order('full_name', { ascending: true });
 
