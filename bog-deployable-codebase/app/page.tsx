@@ -84,7 +84,12 @@ export default function HomePage() {
           <div className="pointer-events-none absolute inset-0 opacity-[0.02] mix-blend-soft-light grain-layer lg:opacity-[0.045]" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24 lg:pt-36">
+        <div
+          className="relative mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24 lg:pt-36"
+          style={{
+            paddingTop: "calc(env(safe-area-inset-top) + 8.75rem)",
+          }}
+        >
           <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
             <div
               className={`transform-gpu transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
@@ -105,7 +110,9 @@ export default function HomePage() {
                   visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
                 }`}
               >
-                <span className="block leading-[0.98] sm:leading-[1.05]">Built for Men</span>
+                <span className="block leading-[0.98] sm:leading-[1.05]">
+                  Built for Men
+                </span>
                 <span className="block pb-2 leading-[0.98] bg-gradient-to-r from-white via-white/85 to-white/60 bg-clip-text text-transparent sm:pb-3 sm:leading-[1.05]">
                   Who Refuse Average.
                 </span>
