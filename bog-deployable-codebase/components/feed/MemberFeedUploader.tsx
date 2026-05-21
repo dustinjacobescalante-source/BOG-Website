@@ -52,19 +52,65 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   });
 }
 
-function getYouTubeEmbedUrl(url: string) {
+function getReliableVideoEmbedUrl(url: string) {
   try {
     const parsed = new URL(url);
-    const host = parsed.hostname.replace("www.", "");
-
-    if (host === "youtube.com" || host === "m.youtube.com") {
-      const videoId = parsed.searchParams.get("v");
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    }
+    const host = parsed.hostname.replace(/^www\./, "");
 
     if (host === "youtu.be") {
-      const videoId = parsed.pathname.replace("/", "");
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      const videoId = parsed.pathname.split("/").filter(Boolean)[0];
+
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+
+    if (
+      host === "youtube.com" ||
+      host === "m.youtube.com" ||
+      host === "music.youtube.com"
+    ) {
+      if (parsed.pathname === "/watch") {
+        const videoId = parsed.searchParams.get("v");
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (parsed.pathname.startsWith("/shorts/")) {
+        const videoId = parsed.pathname.split("/").filter(Boolean)[1];
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (parsed.pathname.startsWith("/embed/")) {
+        return parsed.toString();
+      }
+    }
+
+    if (host === "vimeo.com") {
+      const videoId = parsed.pathname.split("/").filter(Boolean)[0];
+
+      if (videoId) {
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+
+    if (host === "player.vimeo.com" && parsed.pathname.startsWith("/video/")) {
+      return parsed.toString();
+    }
+
+    if (
+      host === "facebook.com" ||
+      host === "m.facebook.com" ||
+      host === "fb.watch"
+    ) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
+        parsed.toString()
+      )}&show_text=false&width=560`;
     }
 
     return null;
@@ -78,6 +124,10 @@ function getLinkProvider(url: string) {
 
   if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
     return "youtube";
+  }
+
+  if (lower.includes("vimeo.com")) {
+    return "vimeo";
   }
 
   if (lower.includes("facebook.com") || lower.includes("fb.watch")) {
@@ -166,7 +216,7 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
     const cleanUrl = linkUrl.trim();
 
     if (!cleanUrl) {
-      throw new Error("Please paste a YouTube, Facebook, or video link.");
+      throw new Error("Please paste a YouTube, Facebook, Vimeo, or video link.");
     }
 
     let parsedUrl: URL;
@@ -178,7 +228,7 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
     }
 
     const provider = getLinkProvider(parsedUrl.toString());
-    const embedUrl = getYouTubeEmbedUrl(parsedUrl.toString());
+    const embedUrl = getReliableVideoEmbedUrl(parsedUrl.toString());
 
     setStatusMessage("Saving shared video link...");
 
@@ -412,7 +462,7 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
         ) : (
           <>
             <label className="mb-2 mt-5 block text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-              YouTube or Facebook Video Link
+              YouTube, Vimeo, or Facebook Video Link
             </label>
 
             <div className="relative">
@@ -428,8 +478,8 @@ export default function MemberFeedUploader({ userId }: { userId: string }) {
             </div>
 
             <div className="mt-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-xs leading-5 text-zinc-400">
-              YouTube links will embed when possible. Facebook links may open as
-              a clickable card depending on Facebook privacy settings.
+              YouTube and Vimeo links should embed. Facebook videos will embed
+              when Facebook allows the video to be shared publicly.
             </div>
           </>
         )}
