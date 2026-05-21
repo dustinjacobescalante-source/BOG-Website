@@ -315,7 +315,12 @@ export default function PortalShell({
   return (
     <>
       <div className="sticky top-0 z-40 border-b border-white/10 bg-[linear-gradient(180deg,rgba(11,15,23,0.96),rgba(7,10,16,0.98))] backdrop-blur-xl xl:hidden">
-        <div className="mx-auto w-full max-w-[1760px] px-4 py-3 sm:px-6">
+        <div
+          className="mx-auto w-full max-w-[1760px] px-4 pb-3 sm:px-6"
+          style={{
+            paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+          }}
+        >
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
@@ -362,6 +367,9 @@ export default function PortalShell({
         className={`fixed left-0 top-0 z-50 h-full w-[88%] max-w-sm overflow-y-auto overscroll-contain p-4 pb-24 transition-transform duration-300 xl:hidden ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+        }}
       >
         <div className="mb-3 flex items-center justify-between">
           <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
