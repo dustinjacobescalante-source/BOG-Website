@@ -3,13 +3,19 @@ import "./globals.css";
 import NavVisibility from "@/components/layout/NavVisibility";
 import FooterVisibility from "@/components/layout/FooterVisibility";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "BOG Buffalo Dogs",
   description: "BOG Buffalo Dogs | Brotherhood of Growth",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png?v=2",
-    apple: "/favicon.png?v=2",
+    icon: "/icon.png?v=3",
+    shortcut: "/icon.png?v=3",
+    apple: "/apple-icon.png?v=3",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "BOG",
+    statusBarStyle: "black-translucent",
   },
 };
 
