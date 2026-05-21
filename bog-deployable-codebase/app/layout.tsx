@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import NavVisibility from "@/components/layout/NavVisibility";
 import FooterVisibility from "@/components/layout/FooterVisibility";
@@ -17,6 +17,21 @@ export const metadata: Metadata = {
     title: "BOG",
     statusBarStyle: "black-translucent",
   },
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+    url: false,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0b0f16",
 };
 
 export default function RootLayout({
