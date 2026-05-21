@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Youtube,
   Link as LinkIcon,
+  Facebook,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -57,12 +58,21 @@ function getReliableVideoEmbedUrl(
   linkUrl?: string | null,
   savedEmbedUrl?: string | null
 ) {
-  if (savedEmbedUrl) return savedEmbedUrl;
   if (!linkUrl) return "";
 
   try {
     const url = new URL(linkUrl);
     const hostname = url.hostname.replace(/^www\./, "");
+
+    if (
+      hostname === "facebook.com" ||
+      hostname === "m.facebook.com" ||
+      hostname === "fb.watch"
+    ) {
+      return "";
+    }
+
+    if (savedEmbedUrl) return savedEmbedUrl;
 
     if (hostname === "youtu.be") {
       const videoId = url.pathname.split("/").filter(Boolean)[0];
@@ -105,11 +115,50 @@ function getReliableVideoEmbedUrl(
         return `https://player.vimeo.com/video/${videoId}`;
       }
     }
+
+    if (hostname === "player.vimeo.com" && url.pathname.startsWith("/video/")) {
+      return linkUrl;
+    }
   } catch {
     return "";
   }
 
   return "";
+}
+
+function getLinkDisplay(post: FeedPost) {
+  const provider = String(post.link_provider ?? "").toLowerCase();
+  const url = String(post.link_url ?? "").toLowerCase();
+
+  if (provider === "youtube" || url.includes("youtube.com") || url.includes("youtu.be")) {
+    return {
+      title: "YouTube Video",
+      button: "Open on YouTube",
+      icon: "youtube",
+    };
+  }
+
+  if (provider === "facebook" || url.includes("facebook.com") || url.includes("fb.watch")) {
+    return {
+      title: "Facebook Video",
+      button: "Open on Facebook",
+      icon: "facebook",
+    };
+  }
+
+  if (provider === "vimeo" || url.includes("vimeo.com")) {
+    return {
+      title: "Vimeo Video",
+      button: "Open on Vimeo",
+      icon: "video",
+    };
+  }
+
+  return {
+    title: "Shared Video Link",
+    button: "Open Link",
+    icon: "link",
+  };
 }
 
 async function deleteFeedPost(postId: string, mediaPath: string | null) {
@@ -288,8 +337,8 @@ export default async function MemberFeedPage() {
                 Video Links
               </div>
               <p className="mt-1 text-xs leading-5 text-zinc-500">
-                YouTube embeds and Facebook/video links that support the
-                standard.
+                YouTube and Vimeo can embed. Facebook links open directly
+                because Facebook often blocks embedded playback.
               </p>
             </div>
           </div>
@@ -320,6 +369,7 @@ export default async function MemberFeedPage() {
                 post.link_url,
                 post.link_embed_url
               );
+              const linkDisplay = getLinkDisplay(post);
 
               return (
                 <article
@@ -383,11 +433,13 @@ export default async function MemberFeedPage() {
                           rel="noopener noreferrer"
                           className="block p-5"
                         >
-                          <div className="rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.14),transparent_34%),linear-gradient(180deg,rgba(12,15,24,0.98),rgba(4,5,9,0.98))] p-5 transition hover:border-red-500/30">
+                          <div className="rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.18),transparent_36%),linear-gradient(180deg,rgba(12,15,24,0.98),rgba(4,5,9,0.98))] p-5 transition hover:border-red-500/30">
                             <div className="flex items-start gap-3">
                               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-red-300">
-                                {post.link_provider === "youtube" ? (
+                                {linkDisplay.icon === "youtube" ? (
                                   <Youtube className="h-5 w-5" />
+                                ) : linkDisplay.icon === "facebook" ? (
+                                  <Facebook className="h-5 w-5" />
                                 ) : (
                                   <LinkIcon className="h-5 w-5" />
                                 )}
@@ -395,13 +447,13 @@ export default async function MemberFeedPage() {
 
                               <div className="min-w-0">
                                 <div className="text-sm font-bold text-white">
-                                  Shared Video Link
+                                  {linkDisplay.title}
                                 </div>
                                 <div className="mt-1 break-all text-xs leading-5 text-zinc-500">
                                   {post.link_url}
                                 </div>
                                 <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300">
-                                  Open Link
+                                  {linkDisplay.button}
                                   <ExternalLink className="h-3.5 w-3.5" />
                                 </div>
                               </div>
