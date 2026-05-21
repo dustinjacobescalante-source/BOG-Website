@@ -53,6 +53,65 @@ function getInitials(name?: string | null) {
   );
 }
 
+function getReliableVideoEmbedUrl(
+  linkUrl?: string | null,
+  savedEmbedUrl?: string | null
+) {
+  if (savedEmbedUrl) return savedEmbedUrl;
+  if (!linkUrl) return "";
+
+  try {
+    const url = new URL(linkUrl);
+    const hostname = url.hostname.replace(/^www\./, "");
+
+    if (hostname === "youtu.be") {
+      const videoId = url.pathname.split("/").filter(Boolean)[0];
+
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+
+    if (
+      hostname === "youtube.com" ||
+      hostname === "m.youtube.com" ||
+      hostname === "music.youtube.com"
+    ) {
+      if (url.pathname === "/watch") {
+        const videoId = url.searchParams.get("v");
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (url.pathname.startsWith("/shorts/")) {
+        const videoId = url.pathname.split("/").filter(Boolean)[1];
+
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+
+      if (url.pathname.startsWith("/embed/")) {
+        return linkUrl;
+      }
+    }
+
+    if (hostname === "vimeo.com") {
+      const videoId = url.pathname.split("/").filter(Boolean)[0];
+
+      if (videoId) {
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
+}
+
 async function deleteFeedPost(postId: string, mediaPath: string | null) {
   "use server";
 
@@ -257,6 +316,10 @@ export default async function MemberFeedPage() {
               const authorRole = post.profile?.role || "member";
               const canDelete = isAdmin || post.user_id === user.id;
               const isLinkPost = Boolean(post.link_url);
+              const reliableEmbedUrl = getReliableVideoEmbedUrl(
+                post.link_url,
+                post.link_embed_url
+              );
 
               return (
                 <article
@@ -303,10 +366,10 @@ export default async function MemberFeedPage() {
 
                   <div className="bg-black">
                     {isLinkPost ? (
-                      post.link_embed_url ? (
+                      reliableEmbedUrl ? (
                         <div className="aspect-video w-full bg-black">
                           <iframe
-                            src={post.link_embed_url}
+                            src={reliableEmbedUrl}
                             title={post.caption || "Shared video"}
                             className="h-full w-full"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
