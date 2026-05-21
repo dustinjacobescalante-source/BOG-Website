@@ -51,7 +51,12 @@ export default function AdminShell({
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="border-b border-white/10 bg-black/85 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div
+          className="mx-auto flex max-w-7xl items-center justify-between px-4 pb-3 sm:px-6"
+          style={{
+            paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+          }}
+        >
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] backdrop-blur-md">
               <span className="text-sm font-black tracking-[0.24em] text-white">
@@ -80,7 +85,7 @@ export default function AdminShell({
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8 lg:py-10">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8 lg:py-10">
         <aside className="hidden lg:block">
           <div className="sticky top-24 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -144,7 +149,12 @@ export default function AdminShell({
         }`}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-white/8 px-6 py-5">
+          <div
+            className="flex items-center justify-between border-b border-white/8 px-6 pb-5"
+            style={{
+              paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+            }}
+          >
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
                 <span className="text-sm font-black tracking-[0.24em] text-white">
