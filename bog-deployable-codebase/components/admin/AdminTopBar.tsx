@@ -14,19 +14,21 @@ export default function AdminTopBar({
   const displayRole = role?.trim() || "Administrator";
 
   return (
-    <header className="sticky top-0 z-30 px-6 pt-6">
-      <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,18,28,0.9),rgba(9,11,18,0.97))] shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_24px_90px_rgba(0,0,0,0.48)] backdrop-blur-xl">
-        
+    <header
+      className="sticky top-0 z-30 px-4 pb-3 sm:px-6"
+      style={{
+        paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+      }}
+    >
+      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,18,28,0.94),rgba(9,11,18,0.98))] shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_24px_90px_rgba(0,0,0,0.48)] backdrop-blur-xl sm:rounded-[32px]">
         {/* BACKGROUND LAYERS */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_left_top,rgba(96,165,250,0.12),transparent_26%),radial-gradient(circle_at_right_top,rgba(239,68,68,0.08),transparent_20%)]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-        <div className="relative flex flex-col gap-5 px-6 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          
+        <div className="relative flex flex-col gap-5 px-5 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           {/* LEFT SIDE */}
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-300">
                 <Shield className="h-3.5 w-3.5" />
                 Brotherhood Operations
@@ -54,7 +56,6 @@ export default function AdminTopBar({
 
           {/* RIGHT SIDE */}
           <div className="flex items-center gap-3 lg:justify-end">
-            
             <form action="/auth/sign-out" method="POST">
               <button
                 type="submit"
@@ -64,7 +65,6 @@ export default function AdminTopBar({
                 Logout
               </button>
             </form>
-
           </div>
         </div>
       </div>
