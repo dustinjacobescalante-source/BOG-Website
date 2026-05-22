@@ -95,7 +95,12 @@ export default function AdminLayout({
 
       <div className="relative flex min-h-screen">
         {/* MOBILE TOP BAR */}
-        <div className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[rgba(9,11,17,0.84)] px-4 py-3 backdrop-blur-xl xl:hidden">
+        <div
+          className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-white/10 bg-[rgba(9,11,17,0.88)] px-4 pb-3 backdrop-blur-xl xl:hidden"
+          style={{
+            paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)",
+          }}
+        >
           <button
             onClick={() => setOpen(true)}
             className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-white/15 hover:bg-white/[0.08]"
@@ -104,11 +109,11 @@ export default function AdminLayout({
             <Menu className="h-5 w-5" />
           </button>
 
-          <div className="text-center">
+          <div className="min-w-0 px-3 text-center">
             <div className="text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-400">
               BOG Admin
             </div>
-            <div className="mt-1 text-sm font-semibold text-white">
+            <div className="mt-1 truncate text-sm font-semibold text-white">
               Brotherhood Operations
             </div>
           </div>
@@ -126,7 +131,12 @@ export default function AdminLayout({
               onClick={() => setOpen(false)}
             />
 
-            <aside className="absolute left-0 top-0 flex h-full w-[88vw] max-w-[360px] flex-col border-r border-white/10 bg-[rgba(7,9,15,0.98)] p-4 shadow-[0_40px_120px_rgba(0,0,0,0.65)]">
+            <aside
+              className="absolute left-0 top-0 flex h-full w-[88vw] max-w-[360px] flex-col border-r border-white/10 bg-[rgba(7,9,15,0.98)] p-4 shadow-[0_40px_120px_rgba(0,0,0,0.65)]"
+              style={{
+                paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
+              }}
+            >
               <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,18,28,0.98),rgba(8,10,16,0.99))]">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.12),transparent_30%),radial-gradient(circle_at_bottom,rgba(239,68,68,0.08),transparent_26%)]" />
 
@@ -336,10 +346,10 @@ export default function AdminLayout({
                             active
                               ? "border-white/15 bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                               : "border-white/8 bg-white/[0.03] text-slate-300 group-hover:border-white/12 group-hover:bg-white/[0.06] group-hover:text-white"
-                            }`}
-                          >
-                            <item.icon className="h-4 w-4" />
-                          </span>
+                          }`}
+                        >
+                          <item.icon className="h-4 w-4" />
+                        </span>
 
                         <span className="flex-1">{item.name}</span>
 
@@ -385,14 +395,19 @@ export default function AdminLayout({
 
         {/* MAIN AREA */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="h-16 shrink-0 xl:hidden" />
+          <div
+            className="shrink-0 xl:hidden"
+            style={{
+              height: "calc(env(safe-area-inset-top) + 5.25rem)",
+            }}
+          />
 
           <div className="hidden xl:block">
             <AdminTopBar
-  title="Admin Dashboard"
-  subtitle="Manage members, reviews, content, and platform activity."
-  role={displayRole}
-/>
+              title="Admin Dashboard"
+              subtitle="Manage members, reviews, content, and platform activity."
+              role={displayRole}
+            />
           </div>
 
           <main className="min-w-0 flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pb-10 sm:pt-5 lg:px-8 xl:px-0 xl:pr-6 xl:pt-6">
