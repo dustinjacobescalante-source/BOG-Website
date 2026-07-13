@@ -23,6 +23,7 @@ import { createClient } from "@/lib/supabase/server";
 import AdminHero from "@/components/admin/AdminHero";
 import AdminSection from "@/components/admin/AdminSection";
 import AdminStatCard from "@/components/admin/AdminStatCard";
+import PushNotificationButton from "@/components/push/PushNotificationButton";
 
 function formatDate(date?: string | null) {
   if (!date) return "Not available";
@@ -596,6 +597,25 @@ export default async function PortalPage() {
         actions={heroActions}
       />
 
+         <section className="rounded-[28px] border border-white/10 bg-black/25 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            App Notifications
+          </div>
+          <h2 className="mt-2 text-xl font-black tracking-tight text-white">
+            Enable push notifications
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+            Allow BOG to send important alerts for meetings, documents,
+            discussions, and brotherhood updates directly to this device.
+          </p>
+        </div>
+
+        <PushNotificationButton />
+      </div>
+    </section>
+      
       <section className="relative w-full overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,14,24,0.96),rgba(6,8,14,1))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] sm:p-6 lg:p-7">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_24%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.16),transparent_22%)]" />
