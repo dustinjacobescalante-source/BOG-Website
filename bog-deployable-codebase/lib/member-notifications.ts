@@ -1,5 +1,9 @@
+import "server-only";
+
 import { Resend } from "resend";
-import { createClient } from "@supabase/supabase-js";
+import webpush from "web-push";
+
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type NotificationType =
   | "feed_posts"
@@ -16,6 +20,20 @@ type NotifyMembersInput = {
   buttonLabel?: string;
   buttonUrl?: string;
   excludeUserId?: string;
+};
+
+type MemberRow = {
+  id: string;
+  email: string | null;
+  is_active: boolean;
+};
+
+type PushSubscriptionRow = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
 };
 
 function escapeHtml(value: string) {
@@ -55,7 +73,7 @@ function buildEmailHtml({
 
                   <div style="padding:34px 30px 28px;">
                     <div style="display:inline-block;border:1px solid rgba(248,113,113,0.35);background:rgba(127,29,29,0.24);border-radius:999px;padding:8px 12px;color:#fecaca;font-size:10px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;">
-                      Brotherhood of Growth
+                      BOG
                     </div>
 
                     <h1 style="margin:22px 0 12px;color:#ffffff;font-size:32px;line-height:1.08;font-weight:900;letter-spacing:-0.03em;">
@@ -80,8 +98,9 @@ function buildEmailHtml({
                   <p style="margin:0 0 8px;color:#a1a1aa;font-size:12px;line-height:1.6;">
                     You are receiving this because you are an active BOG member and this alert is enabled in your notification settings.
                   </p>
+
                   <p style="margin:0;color:#52525b;font-size:11px;line-height:1.6;">
-                    Brotherhood of Growth • Discipline • Brotherhood • Leadership
+                    BOG • Discipline • Growth • Accountability • Leadership
                   </p>
                 </td>
               </tr>
@@ -106,60 +125,238 @@ export async function notifyActiveMembers({
   buttonUrl = "/portal/feed",
   excludeUserId,
 }: NotifyMembersInput) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = createAdminClient();
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.thebuffalodogs.com";
 
-  const { data: members } = await supabase
+  const { data: members, error: memberError } = await supabase
     .from("profiles")
-    .select("id,email,is_active")
+    .select("id, email, is_active")
     .eq("is_active", true);
 
-  if (!members) return;
-
-  const recipients = members.filter((member) => member.id !== excludeUserId);
-
-  for (const member of recipients) {
-    await supabase.rpc("create_member_notification", {
-      target_user_id: member.id,
-      notification_type: type,
-      notification_title: heading,
-      notification_message: message,
-      notification_link_url: buttonUrl,
-    });
+  if (memberError) {
+    console.error("Unable to load active BOG members:", memberError);
+    throw new Error("Unable to load notification recipients.");
   }
 
-  console.log("Portal notifications created:", recipients.length);
+  if (!members?.length) {
+    return {
+      recipientCount: 0,
+      portalNotificationCount: 0,
+      pushSentCount: 0,
+      pushFailedCount: 0,
+      emailSentCount: 0,
+    };
+  }
 
-  if (!process.env.RESEND_API_KEY) return;
+  const recipients = (members as MemberRow[]).filter(
+    (member) => member.id !== excludeUserId
+  );
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  if (!recipients.length) {
+    return {
+      recipientCount: 0,
+      portalNotificationCount: 0,
+      pushSentCount: 0,
+      pushFailedCount: 0,
+      emailSentCount: 0,
+    };
+  }
 
-  const finalButtonUrl = buttonUrl.startsWith("http")
-    ? buttonUrl
-    : `${siteUrl}${buttonUrl}`;
+  /*
+   * Create the in-app bell notification using the existing
+   * Supabase function already used by the BOG portal.
+   */
+  const portalResults = await Promise.allSettled(
+    recipients.map(async (member) => {
+      const { error } = await supabase.rpc("create_member_notification", {
+        target_user_id: member.id,
+        notification_type: type,
+        notification_title: heading,
+        notification_message: message,
+        notification_link_url: buttonUrl,
+      });
 
-  const html = buildEmailHtml({
-    heading,
-    message,
-    buttonLabel,
-    finalButtonUrl,
+      if (error) {
+        throw error;
+      }
+
+      return member.id;
+    })
+  );
+
+  const portalNotificationCount = portalResults.filter(
+    (result) => result.status === "fulfilled"
+  ).length;
+
+  const failedPortalCount =
+    portalResults.length - portalNotificationCount;
+
+  if (failedPortalCount > 0) {
+    console.error(
+      `${failedPortalCount} portal notification(s) failed to create.`
+    );
+  }
+
+  /*
+   * Send push notifications to every subscribed device belonging
+   * to the selected active members.
+   */
+  let pushSentCount = 0;
+  let pushFailedCount = 0;
+
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const vapidSubject = process.env.VAPID_SUBJECT;
+
+  if (publicKey && privateKey && vapidSubject) {
+    webpush.setVapidDetails(vapidSubject, publicKey, privateKey);
+
+    const recipientIds = recipients.map((member) => member.id);
+
+    const { data: subscriptions, error: subscriptionError } = await supabase
+      .from("member_push_subscriptions")
+      .select("id, user_id, endpoint, p256dh, auth")
+      .in("user_id", recipientIds);
+
+    if (subscriptionError) {
+      console.error(
+        "Unable to load BOG push subscriptions:",
+        subscriptionError
+      );
+    } else if (subscriptions?.length) {
+      const payload = JSON.stringify({
+        title: `BOG — ${heading}`,
+        body: message,
+        url: buttonUrl || "/portal/notifications",
+      });
+
+      const pushResults = await Promise.allSettled(
+        (subscriptions as PushSubscriptionRow[]).map(
+          async (subscription) => {
+            try {
+              await webpush.sendNotification(
+                {
+                  endpoint: subscription.endpoint,
+                  keys: {
+                    p256dh: subscription.p256dh,
+                    auth: subscription.auth,
+                  },
+                },
+                payload
+              );
+
+              return subscription.id;
+            } catch (error: unknown) {
+              const pushError = error as {
+                statusCode?: number;
+                message?: string;
+              };
+
+              /*
+               * Remove expired subscriptions so future sends
+               * do not repeatedly fail.
+               */
+              if (
+                pushError.statusCode === 404 ||
+                pushError.statusCode === 410
+              ) {
+                const { error: deleteError } = await supabase
+                  .from("member_push_subscriptions")
+                  .delete()
+                  .eq("id", subscription.id);
+
+                if (deleteError) {
+                  console.error(
+                    "Unable to remove expired push subscription:",
+                    deleteError
+                  );
+                }
+              }
+
+              throw new Error(
+                pushError.message ||
+                  "BOG push notification delivery failed."
+              );
+            }
+          }
+        )
+      );
+
+      pushSentCount = pushResults.filter(
+        (result) => result.status === "fulfilled"
+      ).length;
+
+      pushFailedCount = pushResults.length - pushSentCount;
+    }
+  } else {
+    console.warn(
+      "BOG push delivery skipped because VAPID variables are missing."
+    );
+  }
+
+  /*
+   * Send email notifications when Resend is configured.
+   */
+  let emailSentCount = 0;
+
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const finalButtonUrl = buttonUrl.startsWith("http")
+      ? buttonUrl
+      : `${siteUrl}${buttonUrl}`;
+
+    const html = buildEmailHtml({
+      heading,
+      message,
+      buttonLabel,
+      finalButtonUrl,
+    });
+
+    const emailResults = await Promise.allSettled(
+      recipients
+        .filter((member) => Boolean(member.email))
+        .map(async (member) => {
+          await resend.emails.send({
+            from: "BOG <onboarding@resend.dev>",
+            to: member.email!,
+            subject,
+            html,
+          });
+
+          return member.id;
+        })
+    );
+
+    emailSentCount = emailResults.filter(
+      (result) => result.status === "fulfilled"
+    ).length;
+
+    const failedEmailCount =
+      emailResults.length - emailSentCount;
+
+    if (failedEmailCount > 0) {
+      console.error(
+        `${failedEmailCount} BOG email notification(s) failed.`
+      );
+    }
+  }
+
+  console.log("BOG notification delivery completed:", {
+    recipientCount: recipients.length,
+    portalNotificationCount,
+    pushSentCount,
+    pushFailedCount,
+    emailSentCount,
   });
 
-  for (const member of recipients) {
-    if (!member.email) continue;
-
-    await resend.emails.send({
-      from: "BOG <onboarding@resend.dev>",
-      to: member.email,
-      subject,
-      html,
-    });
-  }
-
-  console.log("Emails sent");
+  return {
+    recipientCount: recipients.length,
+    portalNotificationCount,
+    pushSentCount,
+    pushFailedCount,
+    emailSentCount,
+  };
 }
